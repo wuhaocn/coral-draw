@@ -3,23 +3,22 @@ package com.mxgraph.io.gliffy.model;
 import com.mxgraph.model.mxCell;
 
 public class GliffyLayer {
-	public String guid;
+    public String guid;
 
-	public int order;
+    public int order;
 
-	public String name;
+    public String name;
 
-	public boolean active;
-	
-	public boolean locked;
-	
-	public boolean visible;
+    public boolean active;
 
-	public int nodeIndex;
+    public boolean locked;
 
-	public mxCell mxObject;// the mxCell this gliffy layer got converted into
-	
-	public GliffyLayer() 
-	{
-	}
+    public boolean visible;
+
+    public int nodeIndex;
+
+    public mxCell mxObject;// the mxCell this gliffy layer got converted into
+
+    public GliffyLayer() {
+    }
 }

@@ -2,104 +2,88 @@ package com.mxgraph.io.gliffy.model;
 
 import java.util.List;
 
-public class Stage
-{
+public class Stage {
 
-	private String background;
+    private String background;
 
-	private float width;
+    private float width;
 
-	private float height;
+    private float height;
 
-	private boolean autofit;
+    private boolean autofit;
 
-	private boolean gridOn;
+    private boolean gridOn;
 
-	private boolean drawingGuidesOn;
+    private boolean drawingGuidesOn;
 
-	private List<GliffyObject> objects;
-	
-	private List<GliffyLayer> layers;
+    private List<GliffyObject> objects;
 
-	public Stage()
-	{
-	}
+    private List<GliffyLayer> layers;
 
-	public String getBackgroundColor()
-	{
-		return background;
-	}
+    public Stage() {
+    }
 
-	public void setBackground(String background)
-	{
-		this.background = background;
-	}
+    public String getBackgroundColor() {
+        return background;
+    }
 
-	public float getWidth()
-	{
-		return width;
-	}
+    public void setBackground(String background) {
+        this.background = background;
+    }
 
-	public void setWidth(float width)
-	{
-		this.width = width;
-	}
+    public float getWidth() {
+        return width;
+    }
 
-	public float getHeight()
-	{
-		return height;
-	}
+    public void setWidth(float width) {
+        this.width = width;
+    }
 
-	public void setHeight(float height)
-	{
-		this.height = height;
-	}
+    public float getHeight() {
+        return height;
+    }
 
-	public boolean isAutofit()
-	{
-		return autofit;
-	}
+    public void setHeight(float height) {
+        this.height = height;
+    }
 
-	public void setAutofit(boolean autofit)
-	{
-		this.autofit = autofit;
-	}
+    public boolean isAutofit() {
+        return autofit;
+    }
 
-	public boolean isGridOn()
-	{
-		return gridOn;
-	}
+    public void setAutofit(boolean autofit) {
+        this.autofit = autofit;
+    }
 
-	public void setGridOn(boolean gridOn)
-	{
-		this.gridOn = gridOn;
-	}
+    public boolean isGridOn() {
+        return gridOn;
+    }
 
-	public boolean isDrawingGuidesOn()
-	{
-		return drawingGuidesOn;
-	}
+    public void setGridOn(boolean gridOn) {
+        this.gridOn = gridOn;
+    }
 
-	public void setDrawingGuidesOn(boolean drawingGuidesOn)
-	{
-		this.drawingGuidesOn = drawingGuidesOn;
-	}
+    public boolean isDrawingGuidesOn() {
+        return drawingGuidesOn;
+    }
 
-	public List<GliffyObject> getObjects()
-	{
-		return objects;
-	}
+    public void setDrawingGuidesOn(boolean drawingGuidesOn) {
+        this.drawingGuidesOn = drawingGuidesOn;
+    }
 
-	public void setObjects(List<GliffyObject> objects)
-	{
-		this.objects = objects;
-	}
+    public List<GliffyObject> getObjects() {
+        return objects;
+    }
 
-	public List<GliffyLayer> getLayers() {
-		return layers;
-	}
+    public void setObjects(List<GliffyObject> objects) {
+        this.objects = objects;
+    }
 
-	public void setLayers(List<GliffyLayer> layers) {
-		this.layers = layers;
-	}
+    public List<GliffyLayer> getLayers() {
+        return layers;
+    }
+
+    public void setLayers(List<GliffyLayer> layers) {
+        this.layers = layers;
+    }
 }

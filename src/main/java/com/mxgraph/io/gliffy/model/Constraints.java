@@ -2,46 +2,38 @@ package com.mxgraph.io.gliffy.model;
 
 import java.util.List;
 
-public class Constraints
-{
-	private List<Constraint> constraints;
+public class Constraints {
+    private List<Constraint> constraints;
 
-	private Constraint startConstraint;
+    private Constraint startConstraint;
 
-	private Constraint endConstraint;
+    private Constraint endConstraint;
 
-	public Constraints()
-	{
-	}
+    public Constraints() {
+    }
 
-	public List<Constraint> getConstraints()
-	{
-		return constraints;
-	}
+    public List<Constraint> getConstraints() {
+        return constraints;
+    }
 
-	public void setConstraints(List<Constraint> constraints)
-	{
-		this.constraints = constraints;
-	}
+    public void setConstraints(List<Constraint> constraints) {
+        this.constraints = constraints;
+    }
 
-	public Constraint getStartConstraint()
-	{
-		return startConstraint;
-	}
+    public Constraint getStartConstraint() {
+        return startConstraint;
+    }
 
-	public void setStartConstraint(Constraint startConstraint)
-	{
-		this.startConstraint = startConstraint;
-	}
+    public void setStartConstraint(Constraint startConstraint) {
+        this.startConstraint = startConstraint;
+    }
 
-	public Constraint getEndConstraint()
-	{
-		return endConstraint;
-	}
+    public Constraint getEndConstraint() {
+        return endConstraint;
+    }
 
-	public void setEndConstraint(Constraint endConstraint)
-	{
-		this.endConstraint = endConstraint;
-	}
+    public void setEndConstraint(Constraint endConstraint) {
+        this.endConstraint = endConstraint;
+    }
 
 }

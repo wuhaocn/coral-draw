@@ -1,13 +1,13 @@
 package com.mxgraph.io.gliffy.importer;
 
-import java.io.IOException;
-
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+
+import java.io.IOException;
 
 /**
  * Enables post deserialization for classes that implement {@link PostDeserializer.PostDeserializable}
@@ -28,7 +28,7 @@ public class PostDeserializer implements TypeAdapterFactory {
             public T read(JsonReader in) throws IOException {
                 T obj = delegate.read(in);
                 if (obj instanceof PostDeserializable) {
-                    ((PostDeserializable)obj).postDeserialize();
+                    ((PostDeserializable) obj).postDeserialize();
                 }
                 return obj;
             }

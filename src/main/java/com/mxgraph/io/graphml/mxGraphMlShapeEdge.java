@@ -9,127 +9,113 @@ import org.w3c.dom.Element;
 /**
  * This class represents the properties of a JGraph edge.
  */
-public class mxGraphMlShapeEdge
-{
-	private String text = "";
+public class mxGraphMlShapeEdge {
+    private String text = "";
 
-	private String style = "";
+    private String style = "";
 
-	private String edgeSource;
+    private String edgeSource;
 
-	private String edgeTarget;
+    private String edgeTarget;
 
-	/**
-	 * Construct a Shape Edge with text and style.
-	 * @param text
-	 * @param style
-	 */
-	public mxGraphMlShapeEdge(String text, String style)
-	{
-		this.text = text;
-		this.style = style;
-	}
+    /**
+     * Construct a Shape Edge with text and style.
+     *
+     * @param text
+     * @param style
+     */
+    public mxGraphMlShapeEdge(String text, String style) {
+        this.text = text;
+        this.style = style;
+    }
 
-	/**
-	 * Constructs a ShapeEdge from a xml shapeEdgeElement.
-	 * @param shapeEdgeElement
-	 */
-	public mxGraphMlShapeEdge(Element shapeEdgeElement)
-	{
-		Element labelElement = mxGraphMlUtils.childsTag(shapeEdgeElement,
-				mxGraphMlConstants.JGRAPH + mxGraphMlConstants.LABEL);
-		
-		if (labelElement != null)
-		{
-			this.text = labelElement.getAttribute(mxGraphMlConstants.TEXT);
-		}
+    /**
+     * Constructs a ShapeEdge from a xml shapeEdgeElement.
+     *
+     * @param shapeEdgeElement
+     */
+    public mxGraphMlShapeEdge(Element shapeEdgeElement) {
+        Element labelElement = mxGraphMlUtils.childsTag(shapeEdgeElement,
+                mxGraphMlConstants.JGRAPH + mxGraphMlConstants.LABEL);
 
-		Element styleElement = mxGraphMlUtils.childsTag(shapeEdgeElement,
-				mxGraphMlConstants.JGRAPH + mxGraphMlConstants.STYLE);
-		
-		if (styleElement != null)
-		{
-			this.style = styleElement.getAttribute(mxGraphMlConstants.PROPERTIES);
+        if (labelElement != null) {
+            this.text = labelElement.getAttribute(mxGraphMlConstants.TEXT);
+        }
 
-		}
-	}
+        Element styleElement = mxGraphMlUtils.childsTag(shapeEdgeElement,
+                mxGraphMlConstants.JGRAPH + mxGraphMlConstants.STYLE);
 
-	/**
-	 * Construct an empty Shape Edge Element.
-	 */
-	public mxGraphMlShapeEdge()
-	{
-	}
+        if (styleElement != null) {
+            this.style = styleElement.getAttribute(mxGraphMlConstants.PROPERTIES);
 
-	/**
-	 * Generates a ShapeEdge Element from this class.
-	 * @param document Document where the key Element will be inserted.
-	 * @return Returns the generated Elements.
-	 */
-	public Element generateElement(Document document)
-	{
-		Element dataEdge = document.createElementNS(mxGraphMlConstants.JGRAPH_URL,
-				mxGraphMlConstants.JGRAPH + mxGraphMlConstants.SHAPEEDGE);
+        }
+    }
 
-		if (!this.text.equals(""))
-		{
-			Element dataEdgeLabel = document.createElementNS(
-					mxGraphMlConstants.JGRAPH_URL, mxGraphMlConstants.JGRAPH
-							+ mxGraphMlConstants.LABEL);
-			dataEdgeLabel.setAttribute(mxGraphMlConstants.TEXT, this.text);
-			dataEdge.appendChild(dataEdgeLabel);
-		}
-		
-		if (!this.style.equals(""))
-		{
-			Element dataEdgeStyle = document.createElementNS(
-					mxGraphMlConstants.JGRAPH_URL, mxGraphMlConstants.JGRAPH
-							+ mxGraphMlConstants.STYLE);
+    /**
+     * Construct an empty Shape Edge Element.
+     */
+    public mxGraphMlShapeEdge() {
+    }
 
-			dataEdgeStyle.setAttribute(mxGraphMlConstants.PROPERTIES, this.style);
-			dataEdge.appendChild(dataEdgeStyle);
-		}
+    /**
+     * Generates a ShapeEdge Element from this class.
+     *
+     * @param document Document where the key Element will be inserted.
+     * @return Returns the generated Elements.
+     */
+    public Element generateElement(Document document) {
+        Element dataEdge = document.createElementNS(mxGraphMlConstants.JGRAPH_URL,
+                mxGraphMlConstants.JGRAPH + mxGraphMlConstants.SHAPEEDGE);
 
-		return dataEdge;
-	}
+        if (!this.text.equals("")) {
+            Element dataEdgeLabel = document.createElementNS(
+                    mxGraphMlConstants.JGRAPH_URL, mxGraphMlConstants.JGRAPH
+                            + mxGraphMlConstants.LABEL);
+            dataEdgeLabel.setAttribute(mxGraphMlConstants.TEXT, this.text);
+            dataEdge.appendChild(dataEdgeLabel);
+        }
 
-	public String getText()
-	{
-		return text;
-	}
+        if (!this.style.equals("")) {
+            Element dataEdgeStyle = document.createElementNS(
+                    mxGraphMlConstants.JGRAPH_URL, mxGraphMlConstants.JGRAPH
+                            + mxGraphMlConstants.STYLE);
 
-	public void setText(String text)
-	{
-		this.text = text;
-	}
+            dataEdgeStyle.setAttribute(mxGraphMlConstants.PROPERTIES, this.style);
+            dataEdge.appendChild(dataEdgeStyle);
+        }
 
-	public String getStyle()
-	{
-		return style;
-	}
+        return dataEdge;
+    }
 
-	public void setStyle(String style)
-	{
-		this.style = style;
-	}
+    public String getText() {
+        return text;
+    }
 
-	public String getEdgeSource()
-	{
-		return edgeSource;
-	}
+    public void setText(String text) {
+        this.text = text;
+    }
 
-	public void setEdgeSource(String edgeSource)
-	{
-		this.edgeSource = edgeSource;
-	}
+    public String getStyle() {
+        return style;
+    }
 
-	public String getEdgeTarget()
-	{
-		return edgeTarget;
-	}
+    public void setStyle(String style) {
+        this.style = style;
+    }
 
-	public void setEdgeTarget(String edgeTarget)
-	{
-		this.edgeTarget = edgeTarget;
-	}
+    public String getEdgeSource() {
+        return edgeSource;
+    }
+
+    public void setEdgeSource(String edgeSource) {
+        this.edgeSource = edgeSource;
+    }
+
+    public String getEdgeTarget() {
+        return edgeTarget;
+    }
+
+    public void setEdgeTarget(String edgeTarget) {
+        this.edgeTarget = edgeTarget;
+    }
 }

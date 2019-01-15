@@ -1,173 +1,151 @@
 package com.mxgraph.io.gliffy.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.annotations.SerializedName;
+public class Graphic {
 
-public class Graphic
-{
+    public static enum Type {
+        @SerializedName("Svg")SVG,
+        @SerializedName("Line")LINE,
+        @SerializedName("Shape")SHAPE,
+        @SerializedName("Text")TEXT,
+        @SerializedName("Image")IMAGE,
+        @SerializedName("Link")LINK,
+        @SerializedName("Mindmap")MINDMAP,
+        @SerializedName("PopupNote")POPUPNOTE,
+        @SerializedName("Unwknown")UNKNOWN;
 
-	public static enum Type
-	{
-		@SerializedName("Svg") SVG,
-		@SerializedName("Line") LINE,
-		@SerializedName("Shape") SHAPE,
-		@SerializedName("Text") TEXT,
-		@SerializedName("Image") IMAGE,
-		@SerializedName("Link") LINK,
-		@SerializedName("Mindmap") MINDMAP,
-		@SerializedName("PopupNote") POPUPNOTE,
-		@SerializedName("Unwknown") UNKNOWN;
-		
 
-		public String toString()
-		{
-			return this.name();
-		}
-	}
+        public String toString() {
+            return this.name();
+        }
+    }
 
-	public static abstract class GliffyAbstractShape
-	{
-		public int strokeWidth;
+    public static abstract class GliffyAbstractShape {
+        public int strokeWidth;
 
-		public String strokeColor;
+        public String strokeColor;
 
-		public String fillColor;
+        public String fillColor;
 
-		public String dashStyle;
-	}
+        public String dashStyle;
+    }
 
-	public static class GliffyLine extends GliffyAbstractShape
-	{
-		public Integer startArrow;
+    public static class GliffyLine extends GliffyAbstractShape {
+        public Integer startArrow;
 
-		public Integer endArrow;
+        public Integer endArrow;
 
-		public String interpolationType;
-		
-		public Integer cornerRadius;
+        public String interpolationType;
 
-		public List<float[]> controlPath = new ArrayList<float[]>();
-	}
+        public Integer cornerRadius;
 
-	public static class GliffyShape extends GliffyAbstractShape
-	{
-		public String tid;
+        public List<float[]> controlPath = new ArrayList<float[]>();
+    }
 
-		public boolean gradient;
+    public static class GliffyShape extends GliffyAbstractShape {
+        public String tid;
 
-		public boolean dropShadow;
+        public boolean gradient;
 
-		public int state;
+        public boolean dropShadow;
 
-		public int shadowX;
+        public int state;
 
-		public int shadowY;
+        public int shadowX;
 
-		public float opacity;
+        public int shadowY;
 
-		/**
-		 * @return true if there is no_fill string found in this element
-		 */
-		public boolean isNoFill()
-		{
-			if (tid != null)
-			{
-				return tid.contains("no_fill");
-			}
-			return false;
-		}
+        public float opacity;
 
-	}
+        /**
+         * @return true if there is no_fill string found in this element
+         */
+        public boolean isNoFill() {
+            if (tid != null) {
+                return tid.contains("no_fill");
+            }
+            return false;
+        }
 
-	public static class GliffyImage extends GliffyShape
-	{
-		private String url;
+    }
 
-		public String getUrl()
-		{
-			return url.replace(";base64", "");
-		}
-	}
+    public static class GliffyImage extends GliffyShape {
+        private String url;
 
-	public static class GliffySvg extends GliffyShape
-	{
-		public Integer embeddedResourceId;
-	}
-	
-	public static class GliffyMindmap extends GliffyShape
-	{
-	}
-	
-	public static class GliffyPopupNote extends GliffyShape 
-	{
-		public String text;
-	}
-	
-	public static class GliffyLink
-	{
-		String href;
-		boolean renderIcon;
-	}
+        public String getUrl() {
+            return url.replace(";base64", "");
+        }
+    }
 
-	public Type type;
+    public static class GliffySvg extends GliffyShape {
+        public Integer embeddedResourceId;
+    }
 
-	public GliffyText Text;
+    public static class GliffyMindmap extends GliffyShape {
+    }
 
-	public GliffyLine Line;
-	
-	public GliffyLink Link;
+    public static class GliffyPopupNote extends GliffyShape {
+        public String text;
+    }
 
-	public GliffyShape Shape;
+    public static class GliffyLink {
+        String href;
+        boolean renderIcon;
+    }
 
-	public GliffyImage Image;
+    public Type type;
 
-	public GliffySvg Svg;
-	
-	public GliffyMindmap Mindmap;
-	
-	public GliffyPopupNote gliffyPopupNote;
-	
-	public Graphic()
-	{
-		super();
-	}
+    public GliffyText Text;
 
-	public Type getType()
-	{
-		return type != null ? type : Type.UNKNOWN;
-	}
+    public GliffyLine Line;
 
-	public GliffyText getText()
-	{
-		return Text;
-	}
+    public GliffyLink Link;
 
-	public GliffyLine getLine()
-	{
-		return Line;
-	}
-	
-	public GliffyLink getLink()
-	{
-		return Link;
-	}
+    public GliffyShape Shape;
 
-	public GliffyShape getShape()
-	{
-		return Shape;
-	}
+    public GliffyImage Image;
 
-	public GliffyImage getImage()
-	{
-		return Image;
-	}
-	
-	public GliffyMindmap getMindmap() 
-	{
-		return Mindmap;
-	}
+    public GliffySvg Svg;
+
+    public GliffyMindmap Mindmap;
+
+    public GliffyPopupNote gliffyPopupNote;
+
+    public Graphic() {
+        super();
+    }
+
+    public Type getType() {
+        return type != null ? type : Type.UNKNOWN;
+    }
+
+    public GliffyText getText() {
+        return Text;
+    }
+
+    public GliffyLine getLine() {
+        return Line;
+    }
+
+    public GliffyLink getLink() {
+        return Link;
+    }
+
+    public GliffyShape getShape() {
+        return Shape;
+    }
+
+    public GliffyImage getImage() {
+        return Image;
+    }
+
+    public GliffyMindmap getMindmap() {
+        return Mindmap;
+    }
 
 
 }

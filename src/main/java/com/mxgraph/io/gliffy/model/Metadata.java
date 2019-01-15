@@ -1,23 +1,19 @@
 package com.mxgraph.io.gliffy.model;
 
-public class Metadata
-{
+public class Metadata {
 
-	private String title;
+    private String title;
 
-	public Metadata()
-	{
-		super();
-	}
+    public Metadata() {
+        super();
+    }
 
-	public String getTitle()
-	{
-		return title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public void setTitle(String title)
-	{
-		this.title = title;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
 }
