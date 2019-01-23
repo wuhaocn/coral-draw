@@ -91,6 +91,7 @@ LocalFile.prototype.saveAs = function(title, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+var bsaveData;
 function saveToServer(psdata){
     //创建异步对象
     var xhr = new XMLHttpRequest();
@@ -99,46 +100,13 @@ function saveToServer(psdata){
     //post请求一定要添加请求头才行不然会报错
     xhr.setRequestHeader("Content-type","application/json");
     //发送请求
-    xhr.send(psdata);
+    xhr.send(bsaveData);
     xhr.onreadystatechange = function () {
         // 这步为判断服务器是否正确响应
       if (xhr.readyState == 4 && xhr.status == 200) {
         console.log(xhr.responseText);
       }
     };
-//    $.ajax({
-//        type:"get",
-//        url:"/file/save", //往后台传参(小数据)，也可以在后面加上?age=14
-//        async:true, //是否进行异步请求，不写默认是异步
-//        data:{ //往后台传参，以对象形式。发送到服务器的数据，将自动转换为请求字符串格式。
-//            "type": psdata.type,
-//            "title": psdata.title,
-//            "data": psdata.data
-//        },
-//        dataType:"text",
-//        timeout:1,//设置请求超时时间。默认就行，不用写
-//        success:function(data,textStatus,jqXHR){ //请求成功返回的回调函数
-//            console.log(data); //返回一个对象
-//            console.log(textStatus);//请求成功返回success
-//
-//        },
-//        error:function(XMLHttpRequest,textStatus,errorThrown){// 请求失败返回的回调函数
-//            console.log(textStatus); //错误信息：error、timeout
-//            console.log(errorThrown);  //捕获的异常对象：Not Found
-//        },
-//        complete:function(XHR,TS){ //返回success或者error ，不管请求成不成功都会执行
-//            console.log(XHR);
-//            console.log(TS);
-//        },
-//        statusCode:{ //请求成功或失败的状态码
-//            200:function(){
-//                console.log("请求成功！")
-//            },
-//            404:function(){
-//                console.log("页面没有找到")
-//            }
-//        }
-//    });
 
 }
 
@@ -150,6 +118,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error)
 	// Updates data after changing file name
 	this.updateFileData();
 	var data = this.getData();
+	bsaveData = data;
 	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
 
 	var psdata;
