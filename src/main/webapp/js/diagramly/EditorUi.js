@@ -2189,7 +2189,7 @@
 				this.editor.undoManager.clear();
 				this.descriptorChanged();
 				this.updateUi();
-				
+
 				// Realtime files have a valid status message
 				if (!file.isEditable())
 				{

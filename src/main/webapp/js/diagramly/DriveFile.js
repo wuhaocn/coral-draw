@@ -159,7 +159,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 		{
 			var savedData = this.data;
 			var lastDesc = this.desc;
-			
+
 			// Makes sure no changes get lost while the file is saved
 			var modified = this.isModified();
 			this.setModified(false);

@@ -3068,10 +3068,11 @@ EditorUi.prototype.createUi = function()
 	if (this.menubar != null)
 	{
 		this.statusContainer = this.createStatusContainer();
-	
+
 		// Connects the status bar to the editor status
 		this.editor.addListener('statusChanged', mxUtils.bind(this, function()
 		{
+	        console.log("title statusChanged:"); //返回一个对象
 			this.setStatusText(this.editor.getStatus());
 		}));
 	
