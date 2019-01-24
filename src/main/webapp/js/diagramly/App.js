@@ -2445,29 +2445,49 @@ App.prototype.start = function()
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+
+function loadServerData(){
+	//创建异步对象
+	var xhr = new XMLHttpRequest();
+	//设置请求的类型及url
+	xhr.open('get', '/file/get');
+	//post请求一定要添加请求头才行不然会报错
+	xhr.setRequestHeader("Content-type","application/json");
+	//发送请求
+	xhr.send(bsaveData);
+	xhr.onreadystatechange = function () {
+		// 这步为判断服务器是否正确响应
+		console.log(xhr.responseText);
+		this.createFile('aaa.xml', xhr.responseText, null, null, null, null, null, urlParams['local'] != '1');
+
+	};
+}
 App.prototype.showSplash = function(force)
 {
 	var serviceCount = this.getServiceCount(true, true);
-	
-	var showSecondDialog = mxUtils.bind(this, function()
-	{
-		var dlg = new SplashDialog(this);
-		
-		this.showDialog(dlg.container, 340, (serviceCount < 2 ||
-			mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
-			mxUtils.bind(this, function(cancel)
-			{
-				// Creates a blank diagram if the dialog is closed
-				if (cancel && !mxClient.IS_CHROMEAPP)
-				{
-					var prev = Editor.useLocalStorage;
-					this.createFile(this.defaultFilename, null, null, null, null, null, null,
-						urlParams['local'] != '1');
-					Editor.useLocalStorage = prev;
-				}
-			}), true);
-	});
-	
+
+
+	// var showSecondDialog = mxUtils.bind(this, function()
+	// {
+	// 	var dlg = new SplashDialog(this);
+	//
+	// 	this.showDialog(dlg.container, 340, (serviceCount < 2 ||
+	// 		mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
+	// 		mxUtils.bind(this, function(cancel)
+	// 		{
+	// 			// Creates a blank diagram if the dialog is closed
+	// 			if (cancel && !mxClient.IS_CHROMEAPP)
+	// 			{
+	// 				var prev = Editor.useLocalStorage;
+	// 				this.createFile(this.defaultFilename, null, null, null, null, null, null,
+	// 					urlParams['local'] != '1');
+	// 				Editor.useLocalStorage = prev;
+	// 			}
+	// 		}), true);
+	// });
+
+	loadServerData();
+
 	if (this.editor.isChromelessView())
 	{
 		this.handleError({message: mxResources.get('noFileSelected')},
