@@ -11,13 +11,22 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Created by Administrator on 2019/1/16.
+ *
+ *
  */
 @RestController
 @RequestMapping("/file")
 public class FileControl {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
+    /**
+     * http://127.0.0.1:8081/index.html?offline=1&local=1&flid=1&spin=1
+     *
+     * @param flid
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @GetMapping("/get/{flid}")
     @ResponseBody
     public void get(@PathVariable String flid, HttpServletRequest request, HttpServletResponse response) throws IOException {

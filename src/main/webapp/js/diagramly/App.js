@@ -458,7 +458,6 @@ App.main = function(callback, createUi)
 		// Loads Pusher API
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto')
 		{
-			// TODO: Check if async loading is fast enough
 			mxscript(App.PUSHER_URL);
 		}
 		
@@ -1162,32 +1161,6 @@ App.prototype.checkLicense = function()
 				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
-// NOTE: RESPONSE IS IGNORED SINCE FOOTER IS HIDDEN
-//				var registered = false;
-//				var exp = null;
-//				
-//				try
-//				{
-//					if (req.getStatus() >= 200 && req.getStatus() <= 299)
-//					{
-//						var value = req.getText();
-//						registered = true;
-//						
-//						if (value.length > 0)
-//						{
-//							var lic = JSON.parse(value);
-//							
-//							if (lic != null)
-//							{
-//								exp = this.handleLicense(lic, domain);
-//							}
-//						}
-//					}
-//				}
-//				catch (e)
-//				{
-//					// ignore
-//				}
 			}));
 	}
 };
@@ -1298,22 +1271,6 @@ App.prototype.updateDraft = function()
 App.prototype.getDraft = function()
 {
 	// FIXME: Handle multiple tabs
-//	if (isLocalStorage && localStorage != null)
-//	{
-//		try
-//		{
-//			var draft = localStorage.getItem('.draft');
-//			
-//			if (draft != null)
-//			{
-//				return JSON.parse(draft);
-//			}
-//		}
-//		catch (e)
-//		{
-//			// ignore quota etc
-//		}
-//	}
 
 	return null;
 };
@@ -2439,7 +2396,7 @@ App.prototype.start = function()
 	}
 };
 
-function loadServerData(flid){
+function loadServerData(flid, realodUI){
 
     var xmlTitle = flid + '.xml';
     //创建异步对象
@@ -2455,7 +2412,9 @@ function loadServerData(flid){
         // 这步为判断服务器是否正确响应
         var dataResp =  xhr.responseText;
         console.log(dataResp);
-        this.createFile(xmlTitle, dataResp, null, null, null, null, null, urlParams['local'] != '1');
+		var prev = Editor.useLocalStorage;
+		realodUI.createFile(xmlTitle, dataResp, null, null, null, null, null, false);
+		Editor.useLocalStorage = prev;
 
     };
 }
@@ -2471,7 +2430,7 @@ App.prototype.showSplash = function(force)
 {
 
     if(urlParams['flid'] != null || urlParams['flid']  != undefined){
-        loadServerData();
+        loadServerData(urlParams['flid'], this);
         return;
     }
 
