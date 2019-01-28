@@ -19,6 +19,6 @@ public class IndexControl {
     @ResponseBody
     public void index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(301);
-        response.setHeader("Location", "/index.html?offline=1");
+        response.setHeader("Location", "/index.html?offline=1&spin=1&flid=none");
     }
 }
