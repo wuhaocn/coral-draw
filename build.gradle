@@ -1,12 +1,59 @@
 group 'drawio'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
-
 repositories {
     mavenCentral()
+    mavenLocal()
+}
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+    dependencies {
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+    }
+}
+
+
+apply plugin: 'docker'
+
+jar {
+    manifest {
+        attributes 'Manifest-Version': 1.0
+        attributes 'Main-Class': 'com.mxgraph.DrawIoApplication'
+    }
+    enabled = true
+
+}
+//打包可运行jar包
+task buildRunJar(type:Copy, dependsOn: build) {
+    from configurations.runtime
+    from 'src/main/resources'
+    into 'build/libs' // 目标位置
+    doFirst {
+        copy {
+            from 'src/main/webapp'
+            into 'build/libs/static' // 目标位置
+        }
+    }
+}
+
+//打包docker
+task buildDocker(type: Docker, dependsOn: buildRunJar) {
+    push = true
+    applicationName = jar.baseName
+    tag = "10.10.208.193:5000/" + "drawio"
+    dockerfile = file('src/main/docker/Dockerfile')
+    doFirst {
+        copy {
+            from 'build/libs'
+            into stageDir
+        }
+    }
 }
 
 
@@ -26,19 +73,20 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.2.3'
 
     compile group: 'com.google.appengine', name: 'appengine-api-1.0-sdk', version: '1.9.63'
-//    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
     compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
-//    compile group: 'commons-io', name: 'commons-io', version: '2.4'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
-//    compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
+
     compile files('lib/gae-stub-1.0.1.jar')
     compile files('lib/gson-2.7.jar')
-//    compile files('lib/httpclient-4.5.5.jar')
-//    compile files('lib/httpcore-4.4.9.jar')
-//    compile files('lib/jstl-1.2.jar')
     compile files('lib/mxgraph-core.jar')
     compile files('lib/pusher-http-java-1.0.0.jar')
-//    compile files('lib/servlet-api.jar')
+    //    compile group: 'commons-io', name: 'commons-io', version: '2.4'
+    //    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    //    compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
+    //    compile files('lib/httpclient-4.5.5.jar')
+    //    compile files('lib/httpcore-4.4.9.jar')
+    //    compile files('lib/jstl-1.2.jar')
+    //    compile files('lib/servlet-api.jar')
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:'2.0.3.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.12'
