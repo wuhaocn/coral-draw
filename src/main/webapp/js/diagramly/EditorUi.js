@@ -4179,6 +4179,24 @@
 		editoUiAddChromelessToolbarItems.apply(this, arguments);
 	};
 
+	var bsaveData;
+	function saveToServer(psdata){
+		//创建异步对象
+		var xhr = new XMLHttpRequest();
+		//设置请求的类型及url
+		xhr.open('post', '/file/save');
+		//post请求一定要添加请求头才行不然会报错
+		xhr.setRequestHeader("Content-type","application/json");
+		//发送请求
+		xhr.send(bsaveData);
+		xhr.onreadystatechange = function () {
+			// 这步为判断服务器是否正确响应
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				console.log(xhr.responseText);
+			}
+		};
+
+	}
 
 	/**
 	 * Translates this point by the given vector.
@@ -4188,6 +4206,10 @@
 	 */
 	EditorUi.prototype.saveData = function(filename, format, data, mime, base64Encoded)
 	{
+
+		console.log("title saveData:" + filename); //返回一个对象
+		console.log("data saveData:" + data); //返回一个对象
+
 		if (this.isLocalFileSave())
 		{
 			this.saveLocalFile(data, filename, mime, base64Encoded, format);

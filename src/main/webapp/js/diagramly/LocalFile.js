@@ -118,17 +118,9 @@ LocalFile.prototype.saveFile = function(title, revision, success, error)
 	// Updates data after changing file name
 	this.updateFileData();
 	var data = this.getData();
-	bsaveData = data;
+
 	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
 
-	var psdata;
-	psdata.title = title;
-    psdata.data = data;
-    psdata.type = "xml";
-    psdata.binary = binary;
-	console.log("title:" +title); //返回一个对象
-    console.log("data:" +data); //返回一个对象
-    saveToServer(psdata);
 	var doSave = mxUtils.bind(this, function(data)
 	{
 		if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
@@ -204,7 +196,7 @@ LocalFile.prototype.rename = function(title, success, error)
  */
 LocalFile.prototype.open = function()
 {
-    console.log("data:" +this.getData()); //
+    console.log("open data:" +this.getData()); //
 	this.ui.setFileData(this.getData());
 	this.installListeners();
 };

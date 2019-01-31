@@ -2,7 +2,7 @@
 FROM 10.10.208.193:5000/urcs/java:8
 
 VOLUME ["/tmp"]
-ADD ./* /home/drawio/
+ADD ./ /home/drawio/
 
 #指定时区
 RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone

@@ -3063,7 +3063,7 @@ EditorUi.prototype.createUi = function()
 	{
 		this.menubarContainer.appendChild(this.menubar.container);
 	}
-	
+
 	// Adds status bar in menubar
 	if (this.menubar != null)
 	{

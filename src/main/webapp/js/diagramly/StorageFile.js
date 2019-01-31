@@ -105,6 +105,26 @@ StorageFile.prototype.saveAs = function(title, success, error)
 	this.saveFile(title, false, success, error);
 };
 
+
+var synData;
+function saveToServer(){
+	//创建异步对象
+	var xhr = new XMLHttpRequest();
+	//设置请求的类型及url
+	xhr.open('post', '/file/save');
+	//post请求一定要添加请求头才行不然会报错
+	xhr.setRequestHeader("Content-type","application/json");
+	//发送请求
+	xhr.send(synData);
+	xhr.onreadystatechange = function () {
+		// 这步为判断服务器是否正确响应
+		if (xhr.readyState == 4 && xhr.status == 200) {
+			console.log(xhr.responseText);
+		}
+	};
+
+}
+
 /**
  * Translates this point by the given vector.
  * 
@@ -113,6 +133,10 @@ StorageFile.prototype.saveAs = function(title, success, error)
  */
 StorageFile.prototype.saveFile = function(title, revision, success, error)
 {
+	synData = this.getData();
+	console.log("saveFile:" +title); //返回一个对象
+	console.log("saveFile:" +this.getData()); //返回一个对象
+	saveToServer();
 	if (!this.isEditable())
 	{
 		if (success != null)
