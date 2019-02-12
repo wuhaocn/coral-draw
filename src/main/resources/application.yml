@@ -5,5 +5,8 @@ server:
 #        min-spare-threads: 30
   port: 8081
 #    uri-encoding: utf-8
-
+helium:
+  config:
+    bootxml: ${HELIUM_XML:helium-dev.xml}
+    bootpath: src/main/resources/helium;helium;
 

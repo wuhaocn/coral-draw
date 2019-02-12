@@ -4,21 +4,39 @@ version '1.0'
 apply plugin: 'java'
 
 sourceCompatibility = 1.8
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
 buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal()
+    project.ext {
+        if (!project.hasProperty("nexusUser")) {
+            nexusUser = 'deployment'
+        }
+        if (!project.hasProperty("nexusPass")) {
+            nexusPass = 'deployment123'
+        }
+        nexusRoot = 'http://repo.feinno.com/nexus/content'
+        privateRepo = { return { url "${nexusRoot}/groups/public/" } }
+        uploadRepo = { project ->
+            return {
+                url "$nexusRoot/repositories/${project.version.endsWith('-SNAPSHOT') ? 'snapshots' : 'releases'}"
+                credentials { username nexusUser; password nexusPass }
+            }
+        }
+
+        repoClosure = {
+            maven privateRepo()
+            mavenCentral()
+            mavenLocal()
+        }
     }
+    repositories repoClosure
+    
     dependencies {
         classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
 }
 
-
+allprojects { project ->
+    project.repositories rootProject.repoClosure
+}
 apply plugin: 'docker'
 
 jar {
@@ -59,18 +77,14 @@ task buildDocker(type: Docker, dependsOn: buildRunJar) {
 
 dependencies {
 
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version:'2.0.3.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version:'2.0.3.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:'2.0.3.RELEASE'
-    compile group: 'com.alibaba', name: 'fastjson', version:'1.2.31'
-    compile group: 'net.sourceforge.nekohtml', name: 'nekohtml', version:'1.9.22'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version:'2.0.3.RELEASE'
-    compile group: 'org.springframework', name: 'spring-context-support', version:'5.0.7.RELEASE'
-    compile group: 'org.jsoup', name: 'jsoup', version:'1.9.2'
+
+    compile group: 'org.helium', name: 'helium-boot', version: helium_version
+    compile group: 'org.helium', name: 'helium-logging', version: helium_version
+    compile group: 'com.feinno', name: 'data-actualize-api', version: data_version
+    
     compile 'org.apache.httpcomponents:httpasyncclient:4.1'
     compile 'org.apache.httpcomponents:httpclient:4.5'
     compile 'org.apache.httpcomponents:httpmime:4.5'
-    compile 'ch.qos.logback:logback-classic:1.2.3'
 
     compile group: 'com.google.appengine', name: 'appengine-api-1.0-sdk', version: '1.9.63'
     compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'

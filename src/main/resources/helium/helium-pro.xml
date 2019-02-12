@@ -1,0 +1,7 @@
+<bootstrap id="urcs-drawio">
+    <centralizedService class="org.helium.framework.route.zk.ZkCentralizedService">
+        <setters>
+            <setter field="zkHosts">${ZK_HOSTS}</setter>
+        </setters>
+    </centralizedService>
+</bootstrap>
