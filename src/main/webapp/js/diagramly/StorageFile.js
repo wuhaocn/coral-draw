@@ -106,7 +106,13 @@ StorageFile.prototype.saveAs = function(title, success, error)
 };
 
 
-var synData;
+/**
+ * 保存数据至服务器
+ *
+ */
+var synData = "";
+var synTitle = "";
+var synId = "";
 function saveToServer(){
 	//创建异步对象
 	var xhr = new XMLHttpRequest();
@@ -114,6 +120,8 @@ function saveToServer(){
 	xhr.open('post', '/file/save');
 	//post请求一定要添加请求头才行不然会报错
 	xhr.setRequestHeader("Content-type","application/json");
+	xhr.setRequestHeader("flid", synId);
+	xhr.setRequestHeader("title", synTitle);
 	//发送请求
 	xhr.send(synData);
 	xhr.onreadystatechange = function () {
@@ -125,6 +133,15 @@ function saveToServer(){
 
 }
 
+function getUrlParam(paramName) {
+	paramValue = "", isFound = !1;
+	if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+		arrSource = unescape(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+		while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++
+	}
+	return paramValue == "" && (paramValue = null), paramValue
+}
+
 /**
  * Translates this point by the given vector.
  * 
@@ -134,8 +151,10 @@ function saveToServer(){
 StorageFile.prototype.saveFile = function(title, revision, success, error)
 {
 	synData = this.getData();
-	console.log("saveFile:" +title); //返回一个对象
-	console.log("saveFile:" +this.getData()); //返回一个对象
+	synTitle = title;
+	synId = getUrlParam("flid");
+	console.log("storageFile synTitle:" + synTitle); //返回一个对象
+	console.log("storageFile synData:" + synData); //返回一个对象
 	saveToServer();
 	if (!this.isEditable())
 	{

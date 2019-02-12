@@ -85,31 +85,6 @@ LocalFile.prototype.saveAs = function(title, success, error)
 	this.saveFile(title, false, success, error);
 };
 
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-var bsaveData;
-function saveToServer(psdata){
-    //创建异步对象
-    var xhr = new XMLHttpRequest();
-    //设置请求的类型及url
-    xhr.open('post', '/file/save');
-    //post请求一定要添加请求头才行不然会报错
-    xhr.setRequestHeader("Content-type","application/json");
-    //发送请求
-    xhr.send(bsaveData);
-    xhr.onreadystatechange = function () {
-        // 这步为判断服务器是否正确响应
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        console.log(xhr.responseText);
-      }
-    };
-
-}
-
 
 LocalFile.prototype.saveFile = function(title, revision, success, error)
 {

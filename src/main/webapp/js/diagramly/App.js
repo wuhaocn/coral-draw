@@ -2398,7 +2398,6 @@ App.prototype.start = function()
 
 function loadServerData(flid, realodUI){
 
-    var xmlTitle = flid + '.xml';
     //创建异步对象
     var xhr = new XMLHttpRequest();
     //设置请求的类型及url
@@ -2410,12 +2409,12 @@ function loadServerData(flid, realodUI){
     console.log(flid);
     xhr.onreadystatechange = function () {
         // 这步为判断服务器是否正确响应
+		var xmlTitle =  xhr.getResponseHeader("title");
         var dataResp =  xhr.responseText;
         console.log(dataResp);
 		var prev = Editor.useLocalStorage;
 		realodUI.createFile(xmlTitle, dataResp, null, null, null, null, null, false);
 		Editor.useLocalStorage = prev;
-
     };
 }
 
