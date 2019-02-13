@@ -1,8 +1,29 @@
 <bootstrap id="urcs-drawio">
-    <centralizedService class="org.helium.framework.route.zk.ZkCentralizedService">
-        <setters>
-            <setter field="zkHosts">10.10.208.194:7998</setter>
-        </setters>
-    </centralizedService>
+    <environments imports="env.xml">
+        <variable key="PRIVATE_IP" value="0.0.0.0"/>
+        <variable key="HTTP_DASH_PORT" value="8181"/>
+        <variable key="RPC_PORT" value="7081"/>
+        <variable key="RPC_STACK" value="rpc-stack"/>
+        <variable key="HTTP_STACK" value="http-stack"/>
+        <variable key="HTTP_DASH_STACK" value="http-dash-stack"/>
+    </environments>
 
+    <stacks>
+        <stack id="${HTTP_DASH_STACK}" class="org.helium.http.servlet.HttpServletStack">
+            <setters>
+                <setter field="host">${PRIVATE_IP}</setter>
+                <setter field="port">${HTTP_DASH_PORT}</setter>
+            </setters>
+        </stack>
+
+        <stack id="${RPC_STACK}" class="org.helium.framework.rpc.RpcServerStack">
+            <setters>
+                <setter field="host">${PRIVATE_IP}</setter>
+                <setter field="port">${RPC_PORT}</setter>
+            </setters>
+        </stack>
+    </stacks>
+    <bundles>
+        <bundle path="bundle.xml"/>
+    </bundles>
 </bootstrap>

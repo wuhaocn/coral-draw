@@ -80,7 +80,7 @@ dependencies {
 
     compile group: 'org.helium', name: 'helium-boot', version: helium_version
     compile group: 'org.helium', name: 'helium-logging', version: helium_version
-    compile group: 'com.feinno', name: 'data-actualize-api', version: data_version
+    compile group: 'com.feinno', name: 'data-actualize-service', version: data_version
     
     compile 'org.apache.httpcomponents:httpasyncclient:4.1'
     compile 'org.apache.httpcomponents:httpclient:4.5'

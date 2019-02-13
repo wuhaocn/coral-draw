@@ -8,5 +8,5 @@ server:
 helium:
   config:
     bootxml: ${HELIUM_XML:helium-dev.xml}
-    bootpath: src/main/resources/helium;helium;
+    bootpath: src/main/resources/helium;helium;src/main/resources/META-INF;META-INF
 
