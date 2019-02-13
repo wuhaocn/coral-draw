@@ -3620,7 +3620,7 @@ EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting)
 		img.onerror = function()
 		{
 			fn(null);
-			mxUtils.alert(mxResources.get('fileNotFound'));
+			//mxUtils.alert(mxResources.get('fileNotFound'));
 		};
 		
 		img.src = newValue;
@@ -3680,7 +3680,7 @@ EditorUi.prototype.showBackgroundImageDialog = function(apply)
 		img.onerror = function()
 		{
 			apply(null);
-			mxUtils.alert(mxResources.get('fileNotFound'));
+			//mxUtils.alert(mxResources.get('fileNotFound'));
 		};
 		
 		img.src = newValue;

@@ -4019,7 +4019,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		    		{
 		    			editorUi.spinner.stop();
 		    			fn(null);
-					editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
+						editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
 		    		});
 			}
 			else

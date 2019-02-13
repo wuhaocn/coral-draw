@@ -3454,11 +3454,15 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 					}
 					catch (e)
 					{
-						this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
-						{
-							var tempFile = this.getCurrentFile();
-							window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
-						}));
+						console.log("3461errorLoadingFile" + "file Not found")
+						var tempFile = this.getCurrentFile();
+						window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
+
+						// this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+						// {
+						// 	var tempFile = this.getCurrentFile();
+						// 	window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
+						// }));
 					}
 				}
 			}
@@ -3606,6 +3610,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 					if (!doFallback())
 					{
 						this.spinner.stop();
+						console.log("3641errorLoadingFile" + "file Not found")
 						this.handleError({message: mxResources.get('fileNotFound')},
 							mxResources.get('errorLoadingFile'));
 					}
