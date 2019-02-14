@@ -3,14 +3,8 @@
     </configImports>
     <beans>
 
-        <bean class="com.urcs.data.service.common.inc.IncDaoImpl"/>
-        <bean class="com.urcs.data.service.common.inc.IncServiceImpl"/>
-
         <bean class="com.urcs.data.service.common.content.ContentDaoImpl"/>
         <bean class="com.urcs.data.service.common.content.ContentServiceImpl"/>
-
-        <bean class="com.urcs.data.service.common.config.ConfigDaoImpl"/>
-        <bean class="com.urcs.data.service.common.config.ConfigServiceImpl"/>
 
     </beans>
 </bundle>

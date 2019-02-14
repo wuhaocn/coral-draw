@@ -719,6 +719,7 @@ App.main = function(callback, createUi)
 	{
 		doMain();
 	}
+	this.setMode(this.MODE_BROWSER, true);
 };
 
 //Extends EditorUi

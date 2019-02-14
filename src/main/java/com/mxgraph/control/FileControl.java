@@ -9,6 +9,7 @@ import com.urcs.data.service.common.content.ContentService;
 import org.helium.framework.annotations.ServiceSetter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServlet;
@@ -61,15 +62,22 @@ public class FileControl {
         String xmlBody = "";
         String xmlTitle = "";
         if (contentBean == null){
-            xmlBody = DXML;
+            xmlBody = Base64Utils.encodeToString(DXML.getBytes());
             xmlTitle = title;
+            contentBean = new ContentBean();
+            contentBean.setType(type);
+            contentBean.setCns(type);
+            contentBean.setName(title);
+            contentBean.setBody(xmlBody);
+            contentBean.setId(flid);
             contentService.save(contentBean);
         } else {
             xmlBody = contentBean.getBody();
             xmlTitle = contentBean.getName();
         }
-        LOGGER.info("get File:{}-{}", xmlTitle, xmlBody);
-        response.getOutputStream().write(xmlBody.getBytes());
+        byte[] xmlBodyBytes = Base64Utils.decodeFromString(xmlBody);
+        LOGGER.info("get File:{}-{}", xmlTitle, new String(xmlBodyBytes));
+        response.getOutputStream().write(xmlBodyBytes);
         response.setHeader("title", title);
         response.setStatus(200);
     }
@@ -79,20 +87,20 @@ public class FileControl {
     @ResponseBody
     public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String body = HttpUtil.getBodyString(request);
+        String xmlBody = HttpUtil.getBodyString(request);
         String xmlTitle = request.getHeader("title");
         String xmlId = request.getHeader("flid");
 
         ContentBean contentBean = new ContentBean();
         contentBean.setType(type);
         contentBean.setCns(type);
-        contentBean.setBody(body);
+        contentBean.setBody(Base64Utils.encodeToString(xmlBody.getBytes()));
         contentBean.setName(xmlTitle);
         contentBean.setId(xmlId);
         contentBean.setModifyTime(DateUtil.getDefaultYearMonthDayTime());
 
         contentService.save(contentBean);
-        LOGGER.info("save File:{}-{}-{}", xmlTitle, body);
+        LOGGER.info("save File:{}-{}-{}", xmlTitle, xmlBody);
         response.setStatus(200);
     }
 
