@@ -78,9 +78,15 @@ task buildDocker(type: Docker, dependsOn: buildRunJar) {
 dependencies {
 
 
-    compile group: 'org.helium', name: 'helium-boot', version: helium_version
-    compile group: 'org.helium', name: 'helium-logging', version: helium_version
-    compile group: 'com.feinno', name: 'data-actualize-service', version: data_version
+    compile (group: 'org.helium', name: 'helium-boot', version: helium_version) {
+        exclude group: 'javax.servlet', module: 'servlet-api'
+    }
+    compile (group: 'org.helium', name: 'helium-logging', version: helium_version){
+        exclude group: 'javax.servlet', module: 'servlet-api'
+    }
+    compile (group: 'com.feinno', name: 'data-actualize-service', version: data_version){
+        exclude group: 'javax.servlet', module: 'servlet-api'
+    }
     
     compile 'org.apache.httpcomponents:httpasyncclient:4.1'
     compile 'org.apache.httpcomponents:httpclient:4.5'
