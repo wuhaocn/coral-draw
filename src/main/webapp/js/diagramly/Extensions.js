@@ -145,6 +145,7 @@ LucidImporter = {};
 			'DefaultNoteBlockV2': 'shape=note;size=15',
 			'HotspotBlock': 'strokeColor=none;opacity=50',
 			'ImageSearchBlock2': 'shape=image',
+			'UserImage2Block': 'shape=image',
 //Flowchart
 			'ProcessBlock': '',
 			'DecisionBlock': 'rhombus',
@@ -2842,6 +2843,11 @@ LucidImporter = {};
 		{
 			return 'image=' + properties.URL + ';';
 		}
+		else if (action.Class == 'UserImage2Block' && properties.ImageFillProps != null &&
+				properties.ImageFillProps.url != null)
+		{
+			return 'image=' + properties.ImageFillProps.url  + ';';
+		}
 		
 		return '';
 	}
@@ -3330,7 +3336,7 @@ LucidImporter = {};
             var node = codec.encode(graph.getModel());
             graph.getModel().clear();
 
-            xml.push('>' + Graph.prototype.compress(mxUtils.getXml(node)) + '</diagram>');
+            xml.push('>' + Graph.compress(mxUtils.getXml(node)) + '</diagram>');
 		}
 		
 		xml.push('</mxfile>');

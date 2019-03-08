@@ -63,7 +63,7 @@ EditorUi = function(editor, container, lightbox)
 			evt = window.event;
 		}
 		
-		return (this.isSelectionAllowed(evt) || graph.isEditing());
+		return graph.isEditing() || (evt != null && this.isSelectionAllowed(evt));
 	});
 
 	// Disables text selection while not editing and no dialog visible
@@ -95,18 +95,21 @@ EditorUi = function(editor, container, lightbox)
 		// Allows context menu for links in hints
 		var linkHandler = function(evt)
 		{
-			var source = mxEvent.getSource(evt);
-			
-			if (source.nodeName == 'A')
+			if (evt != null)
 			{
-				while (source != null)
+				var source = mxEvent.getSource(evt);
+				
+				if (source.nodeName == 'A')
 				{
-					if (source.className == 'geHint')
+					while (source != null)
 					{
-						return true;
+						if (source.className == 'geHint')
+						{
+							return true;
+						}
+						
+						source = source.parentNode;
 					}
-					
-					source = source.parentNode;
 				}
 			}
 			
@@ -486,12 +489,11 @@ EditorUi = function(editor, container, lightbox)
 	
 	// Keys that always update the current edge style regardless of selection
 	var alwaysEdgeStyles = ['edgeStyle', 'startArrow', 'startFill', 'startSize', 'endArrow',
-		'endFill', 'endSize', 'jettySize', 'orthogonalLoop'];
+		'endFill', 'endSize'];
 	
 	// Keys that are ignored together (if one appears all are ignored)
 	var keyGroups = [['startArrow', 'startFill', 'startSize', 'sourcePerimeterSpacing',
-					'endArrow', 'endFill', 'endSize', 'targetPerimeterSpacing',
-					'jettySize', 'orthogonalLoop'],
+					'endArrow', 'endFill', 'endSize', 'targetPerimeterSpacing'],
 	                 ['strokeColor', 'strokeWidth'],
 	                 ['fillColor', 'gradientColor'],
 	                 valueStyles,
@@ -604,6 +606,7 @@ EditorUi = function(editor, container, lightbox)
 							if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
 							{
 								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
+								console.log('here', key, styleValue);
 							}
 						}
 					}
@@ -969,9 +972,9 @@ EditorUi.prototype.formatEnabled = true;
 EditorUi.prototype.formatWidth = 240;
 
 /**
- * Specifies the height of the toolbar. Default is 36.
+ * Specifies the height of the toolbar. Default is 40.
  */
-EditorUi.prototype.toolbarHeight = 34;
+EditorUi.prototype.toolbarHeight = 40;
 
 /**
  * Specifies the height of the footer. Default is 28.
@@ -984,10 +987,10 @@ EditorUi.prototype.footerHeight = 28;
 EditorUi.prototype.sidebarFooterHeight = 34;
 
 /**
- * Specifies the position of the horizontal split bar. Default is 208 or 118 for
+ * Specifies the position of the horizontal split bar. Default is 240 or 118 for
  * screen widths <= 640px.
  */
-EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : 208;
+EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : 240;
 
 /**
  * Specifies if animations are allowed in <executeLayout>. Default is true.
@@ -1474,6 +1477,8 @@ EditorUi.prototype.initCanvas = function()
 		// as this may be used in a viewer that has no CSS
 		if (urlParams['toolbar'] != '0')
 		{
+			var toolbarConfig = JSON.parse(decodeURIComponent(urlParams['toolbar-config'] || '{}'));
+			
 			this.chromelessToolbar = document.createElement('div');
 			this.chromelessToolbar.style.position = 'fixed';
 			this.chromelessToolbar.style.overflow = 'hidden';
@@ -1525,6 +1530,15 @@ EditorUi.prototype.initCanvas = function()
 				
 				return a;
 			});
+			
+			if (toolbarConfig.backBtn != null)
+			{
+				addButton(mxUtils.bind(this, function(evt)
+				{
+					window.location.href = toolbarConfig.backBtn.url;
+					mxEvent.consume(evt);
+				}), Editor.backLargeImage, mxResources.get('back', null, 'Back'));
+			}
 			
 			var prevButton = addButton(mxUtils.bind(this, function(evt)
 			{
@@ -1751,12 +1765,48 @@ EditorUi.prototype.initCanvas = function()
 					addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
 				}
 			}
-			
-			if (graph.lightbox && (urlParams['close'] == '1' || this.container != document.body))
+
+			if (toolbarConfig.refreshBtn != null)
 			{
 				addButton(mxUtils.bind(this, function(evt)
 				{
-					if (urlParams['close'] == '1')
+					if (toolbarConfig.refreshBtn.url)
+					{
+						window.location.href = toolbarConfig.refreshBtn.url;
+					}
+					else
+					{
+						window.location.reload();
+					}
+					
+					mxEvent.consume(evt);
+				}), Editor.refreshLargeImage, mxResources.get('refresh', null, 'Refresh'));
+			}
+
+			if (toolbarConfig.fullscreenBtn != null && window.self !== window.top)
+			{
+				addButton(mxUtils.bind(this, function(evt)
+				{
+					if (toolbarConfig.fullscreenBtn.url)
+					{
+						graph.openLink(toolbarConfig.fullscreenBtn.url);
+					}
+					else
+					{
+						graph.openLink(window.location.href);
+					}
+					
+					mxEvent.consume(evt);
+				}), Editor.fullscreenLargeImage, mxResources.get('openInNewWindow', null, 'Open in New Window'));
+			}
+			
+			if ((toolbarConfig.closeBtn && window.self === window.top) ||
+				(graph.lightbox && (urlParams['close'] == '1' || this.container != document.body)))
+			
+			{
+				addButton(mxUtils.bind(this, function(evt)
+				{
+					if (urlParams['close'] == '1' || toolbarConfig.closeBtn)
 					{
 						window.close();
 					}
@@ -2114,11 +2164,14 @@ EditorUi.prototype.addChromelessClickHandler = function()
  */
 EditorUi.prototype.toggleFormatPanel = function(forceHide)
 {
-	this.formatWidth = (forceHide || this.formatWidth > 0) ? 0 : 240;
-	this.formatContainer.style.display = (forceHide || this.formatWidth > 0) ? '' : 'none';
-	this.refresh();
-	this.format.refresh();
-	this.fireEvent(new mxEventObject('formatWidthChanged'));
+	if (this.format != null)
+	{
+		this.formatWidth = (forceHide || this.formatWidth > 0) ? 0 : 240;
+		this.formatContainer.style.display = (forceHide || this.formatWidth > 0) ? '' : 'none';
+		this.refresh();
+		this.format.refresh();
+		this.fireEvent(new mxEventObject('formatWidthChanged'));
+	}
 };
 
 /**
@@ -3434,7 +3487,7 @@ EditorUi.prototype.extractGraphModelFromEvent = function(evt)
 
 			if (data != null)
 			{
-				data = this.editor.graph.zapGremlins(mxUtils.trim(data));
+				data = Graph.zapGremlins(mxUtils.trim(data));
 				
 				// Tries parsing as HTML document with embedded XML
 				var xml =  this.extractGraphModelFromHtml(data);
@@ -3649,7 +3702,7 @@ EditorUi.prototype.showDataDialog = function(cell)
 	if (cell != null)
 	{
 		var dlg = new EditDataDialog(this, cell);
-		this.showDialog(dlg.container, 340, 340, true, false, null, false);
+		this.showDialog(dlg.container, 480, 420, true, false, null, false);
 		dlg.init();
 	}
 };

@@ -25,7 +25,7 @@ Format.prototype.showCloseButton = true;
 /**
  * Background color for inactive tabs.
  */
-Format.prototype.inactiveTabBackgroundColor = '#d7d7d7';
+Format.prototype.inactiveTabBackgroundColor = '#f1f3f4';
 
 /**
  * Background color for inactive tabs.
@@ -354,14 +354,16 @@ Format.prototype.refresh = function()
 	div.style.cursor = 'default';
 	
 	var label = document.createElement('div');
-	label.style.border = '1px solid #c0c0c0';
-	label.style.borderWidth = '0px 0px 1px 0px';
+	label.className = 'geFormatSection';
 	label.style.textAlign = 'center';
 	label.style.fontWeight = 'bold';
-	label.style.overflow = 'hidden';
-	label.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 	label.style.paddingTop = '8px';
+	label.style.fontSize = '13px';
+	label.style.borderWidth = '0px 0px 1px 1px';
+	label.style.borderStyle = 'solid';
+	label.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
 	label.style.height = (mxClient.IS_QUIRKS) ? '34px' : '25px';
+	label.style.overflow = 'hidden';
 	label.style.width = '100%';
 	this.container.appendChild(div);
 	
@@ -375,6 +377,7 @@ Format.prototype.refresh = function()
 	if (graph.isSelectionEmpty())
 	{
 		mxUtils.write(label, mxResources.get('diagram'));
+		label.style.borderLeftWidth = '0px';
 		
 		// Adds button to hide the format panel since
 		// people don't seem to find the toolbar button
@@ -697,8 +700,8 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 BaseFormatPanel.prototype.createPanel = function()
 {
 	var div = document.createElement('div');
+	div.className = 'geFormatSection';
 	div.style.padding = '12px 0px 12px 18px';
-	div.style.borderBottom = '1px solid #c0c0c0';
 	
 	return div;
 };
@@ -2563,7 +2566,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	// TODO: Add translations and toggle state
 	if (graph.cellEditor.isContentEditing())
 	{
-		var strike = this.editorUi.toolbar.addButton('geSprite-removeformat', null,
+		var strike = this.editorUi.toolbar.addButton('geSprite-removeformat', mxResources.get('strikethrough'),
 			function()
 			{
 				document.execCommand('strikeThrough', false, null);
@@ -2604,7 +2607,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		bottom.style.display = 'none';
 		verticalItem.style.display = 'none';
 		
-		full = this.editorUi.toolbar.addButton('geSprite-justifyfull', null,
+		full = this.editorUi.toolbar.addButton('geSprite-justifyfull', mxResources.get('block'),
 			function()
 			{
 				document.execCommand('justifyfull', false, null);
@@ -2854,7 +2857,7 @@ TextFormatPanel.prototype.addFont = function(container)
 				container = container.parentNode;
 			}
 			
-			if (container.nodeType == mxConstants.NODETYPE_ELEMENT)
+			if (container != null && container.nodeType == mxConstants.NODETYPE_ELEMENT)
 			{
 				var elts = container.getElementsByTagName('*');
 				updateSize(container);

@@ -1,3 +1,160 @@
+07-MAR-2019: 10.3.6
+
+- Improves error handling for Google Drive
+- Adds realtime file conversion tool
+
+05-MAR-2019: 10.3.5
+
+- Reduces possible number 403 errors in Drive
+
+05-MAR-2019: 10.3.4
+
+- Fixes possible NPE in plugin error handler
+
+05-MAR-2019: 10.3.3
+
+- Changes default extension to .drawio
+- Updated UI styles
+
+04-MAR-2019: 10.3.2
+
+- Fixes Confluence Cloud Direct Edit Saving
+
+02-MAR-2019: 10.3.1
+
+- Fixes loading spinner for Trello
+- Uses magic numbers for templates
+
+01-MAR-2019: 10.3.0
+
+- Adds validation step for Google file saving
+- Adds last saved delay to status bar
+- Adds page-id URL parameter
+
+28-FEB-2019: 10.2.9
+
+- Moves Confluence Cloud viewer settings to format panel
+- Allows all content from docs.google.com via proxy
+- Adds menu for moving selection to other layers
+- Adds simple viewer option for Confluence Cloud
+- Fixes bad CRC in PNG exports
+
+25-FEB-2019: 10.2.8
+
+- Fixes import of multiple pages into empty file
+- Fixes macro shortcut handling in Confluence cloud
+
+25-FEB-2019: 10.2.7
+
+- Adds orthogonal loop, no jump property for edges
+- Fixes default stylesheet for export in dark mode
+- Fixes events for transparent swimlane titles
+- Uses mxGraph 3.9.13 beta 16
+
+22-FEB-2019: 10.2.6
+
+- Adds page ID export for Confluence Cloud
+- Fixes colored AWS19 icons library ID
+
+20-FEB-2019: 10.2.5
+
+- Adds fallback for unavailable sharing in Google Drive
+- Fixes possible timing issues with open URL parameter
+- Fixes link handling in legacy embedded diagrams
+
+18-FEB-2019: 10.2.4
+
+- Adds Microsoft Office add-ins
+- Adds open URL parameter
+
+15-FEB-2019: 10.2.3
+
+- Adds interactive help for file name input fields
+- Fixes handling of revisions for PNG files in Drive
+- Adds shift click for Drive file details on app icon
+- Adds Embed, Live image for public PNG files on Drive and GitHub
+- Uses mxGraph 3.9.13 beta 15
+
+11-FEB-2019: 10.2.2
+
+- Adds refresh, new window in Confluence Cloud connector toolbars
+- App icon links to file preview for Google Drive
+
+09-FEB-2019: 10.2.1
+
+- Fixes loading of configuration for confluence cloud
+- Adds template-filename URL parameter for binary templates
+- Fixes browser refresh for converted lightbox files
+
+08-FEB-2019: 10.2.0
+
+- Adds vsd(x) and gliffy support in GDrive Connector
+
+07-FEB-2019: 10.1.9
+
+- Renames load event for configuration to configure
+
+05-FEB-2019: 10.1.8
+
+- Fixes property focus after save
+- Updated AWS 2019 icon colors
+
+04-FEB-2019: 10.1.7
+
+- Adds auto-resolution for Google add-ons
+- Fixes minimum height for empty viewer
+- Fixes shadow in SVG export/embed
+- Fixes possible 404 in GitHub
+
+29-JAN-2019: 10.1.6
+
+- Removes alert for link errors
+- Removes sync button
+
+28-JAN-2019: 10.1.5
+
+- Uses mxGraph 3.9.13 beta 14
+
+25-JAN-2019: 10.1.4
+
+- Adds download button in save dialog
+- Adds shift to ignore current style
+- Uses mxGraph 3.9.13 beta 13
+
+21-JAN-2019: 10.1.3
+
+- Fixes possible NPEs
+- Uses mxGraph 3.9.13 beta 12
+
+18-JAN-2019: 10.1.2
+
+- Adds debug output
+
+18-JAN-2019: 10.1.1
+
+- Fixes possible NPEs
+
+17-JAN-2019: 10.1.0
+
+- Adds auth token refresh for OneDrive
+
+16-JAN-2019: 10.0.43
+
+- Fixes possible NPE in hashValue
+
+16-JAN-2019: 10.0.42
+
+- Fixes handling of invalid files
+- Uses mxGraph 3.9.13 beta 11
+
+15-JAN-2019: 10.0.41
+
+- Adds ignored page size in checksum
+
+15-JAN-2019: 10.0.40
+
+- Fixes possible use of undefined variable
+
 15-JAN-2019: 10.0.39
 
 - Fixes shadow change check

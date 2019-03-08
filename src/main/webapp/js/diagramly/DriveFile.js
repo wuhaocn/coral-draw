@@ -146,117 +146,177 @@ DriveFile.prototype.save = function(revision, success, error, unloading, overwri
  */
 DriveFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 {
-	if (!this.isEditable())
+	try
 	{
-		if (success != null)
+		if (!this.isEditable())
 		{
-			success();
+			if (success != null)
+			{
+				success();
+			}
 		}
-	}
-	else if (!this.savingFile)
-	{
-		var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
+		else if (!this.savingFile)
 		{
-			var savedData = this.data;
-			var lastDesc = this.desc;
-
-			// Makes sure no changes get lost while the file is saved
-			var modified = this.isModified();
-			this.setModified(false);
-			this.savingFile = true;
-
-			// Waits for success for modified state to be visible
-			var prevModified = this.isModified;
-			
-			this.isModified = function()
+			var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 			{
-				return true;
-			};
+                var savedData = this.data;
+				try
+				{
+					var lastDesc = this.desc;
 
-			this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp)
-			{
-				this.isModified = prevModified;
-				this.savingFile = false;
-				
-				// Handles special case where resp is false eg
-				// if the old file was converted to realtime
-				if (resp != false)
-				{
-					if (revision)
-					{
-						this.lastAutosaveRevision = new Date().getTime();
-					}
+					// Makes sure no changes get lost while the file is saved
+					var modified = this.isModified();
+					this.setModified(false);
+					this.savingFile = true;
 
-					// Adaptive autosave delay
-					this.autosaveDelay = Math.min(6000,
-						Math.max(this.saveDelay + 500,
-						DrawioFile.prototype.autosaveDelay));
-					this.desc = resp;
-					
-					this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+					// Waits for success for modified state to be visible
+					var prevModified = this.isModified;
+
+					this.isModified = function()
 					{
-						this.contentChanged();
-						
-						if (success != null)
-						{
-							success(resp);
-						}
-					}), error);
-				}
-				else
-				{
-					this.setModified(modified || this.isModified());
-					
-					if (error != null)
+						return true;
+					};
+
+					this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
 					{
-						error(resp);
-					}
-				}
-			}), mxUtils.bind(this, function(err, desc)
-			{
-				this.savingFile = false;
-				this.isModified = prevModified;
-				this.setModified(modified || this.isModified());
-			
-				if (this.isConflict(err))
-				{
-					this.inConflictState = true;
-					
-					if (this.sync != null)
-					{
-						this.savingFile = true;
-						
-						this.sync.fileConflict(desc, mxUtils.bind(this, function()
+						try
 						{
-							// Adds random cool-off
-							window.setTimeout(mxUtils.bind(this, function()
-							{
-								this.updateFileData();
-								doSave(realOverwrite, true);
-							}), 100 + Math.random() * 500);
-						}), mxUtils.bind(this, function()
-						{
+							this.isModified = prevModified;
 							this.savingFile = false;
-							
+
+							// Handles special case where resp is false eg
+							// if the old file was converted to realtime
+							if (resp != false)
+							{
+								if (revision)
+								{
+									this.lastAutosaveRevision = new Date().getTime();
+								}
+
+								// Adaptive autosave delay
+								this.autosaveDelay = Math.min(8000,
+									Math.max(this.saveDelay + 500,
+									DriveFile.prototype.autosaveDelay));
+								this.desc = resp;
+
+								this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+								{
+									this.contentChanged();
+
+									if (success != null)
+									{
+										success(resp);
+									}
+								}), error);
+							}
+							else
+							{
+								this.setModified(modified || this.isModified());
+
+								if (error != null)
+								{
+									error(resp);
+								}
+							}
+						}
+						catch (e)
+						{
+							this.setModified(modified || this.isModified());
+
 							if (error != null)
 							{
-								error();
+								error(e);
 							}
-						}));
-					}
-					else if (error != null)
+							else
+							{
+								throw e;
+							}
+						}
+					}), mxUtils.bind(this, function(err, desc)
 					{
-						error();
+						try
+						{
+							this.savingFile = false;
+							this.isModified = prevModified;
+							this.setModified(modified || this.isModified());
+
+							if (this.isConflict(err))
+							{
+								this.inConflictState = true;
+
+								if (this.sync != null)
+								{
+									this.savingFile = true;
+
+									this.sync.fileConflict(desc, mxUtils.bind(this, function()
+									{
+										// Adds random cool-off
+										window.setTimeout(mxUtils.bind(this, function()
+										{
+											this.updateFileData();
+											doSave(realOverwrite, true);
+										}), 100 + Math.random() * 500);
+									}), mxUtils.bind(this, function()
+									{
+										this.savingFile = false;
+
+										if (error != null)
+										{
+											error();
+										}
+									}));
+								}
+								else if (error != null)
+								{
+									error();
+								}
+							}
+							else if (error != null)
+							{
+								error(err);
+							}
+						}
+						catch (e)
+						{
+							this.setModified(modified || this.isModified());
+
+							if (error != null)
+							{
+								error(e);
+							}
+							else
+							{
+								throw e;
+							}
+						}
+					}), unloading, unloading, realOverwrite);
+				}
+				catch (e)
+				{
+					if (error != null)
+					{
+						error(e);
+					}
+					else
+					{
+						throw e;
 					}
 				}
-				else if (error != null)
-				{
-					error(err);
-				}
-			}), unloading, unloading, realOverwrite);
-		});
-		
-		doSave(overwrite, revision);
+			});
+
+			doSave(overwrite, revision);
+		}
+	}
+	catch (e)
+	{
+		if (error != null)
+		{
+			error(e);
+		}
+		else
+		{
+			throw e;
+		}
 	}
 };
 
@@ -467,19 +527,16 @@ DriveFile.prototype.getRevisions = function(success, error)
 		{
 			(mxUtils.bind(this, function(item)
 			{
+				// Redirects title to originalFilename to
+				// match expected descriptor interface
+				item.title = item.originalFilename;
+
 				item.getXml = mxUtils.bind(this, function(itemSuccess, itemError)
 				{
-					this.ui.drive.executeRequest(gapi.client.drive.revisions.get(
-					{
-						'fileId': this.getId(),
-						'revisionId': item.id
-					}), mxUtils.bind(this, function(resp)
-					{
-						this.ui.drive.getXmlFile(resp, mxUtils.bind(this, function(file)
-			   			{
-							itemSuccess(file.getData());
-			   			}), itemError);
-					}), itemError);
+					this.ui.drive.getXmlFile(item, mxUtils.bind(this, function(file)
+		   			{
+						itemSuccess(file.getData());
+		   			}), itemError);
 				});
 				
 				item.getUrl = mxUtils.bind(this, function(page)
