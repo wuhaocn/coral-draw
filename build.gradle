@@ -13,13 +13,13 @@ buildscript {
         mavenCentral()
         mavenLocal()
     }
-    dependencies {
-        classpath 'se.transmode.gradle:gradle-docker:1.2'
-    }
+//    dependencies {
+//        classpath 'se.transmode.gradle:gradle-docker:1.2'
+//    }
 }
 
 
-apply plugin: 'docker'
+//apply plugin: 'docker'
 
 jar {
     manifest {
@@ -42,19 +42,19 @@ task buildRunJar(type:Copy, dependsOn: build) {
     }
 }
 
-//打包docker
-task buildDocker(type: Docker, dependsOn: buildRunJar) {
-    push = true
-    applicationName = jar.baseName
-    tag = "10.10.208.193:5000/" + "drawio"
-    dockerfile = file('src/main/docker/Dockerfile')
-    doFirst {
-        copy {
-            from 'build/libs'
-            into stageDir
-        }
-    }
-}
+////打包docker
+//task buildDocker(type: Docker, dependsOn: buildRunJar) {
+//    push = true
+//    applicationName = jar.baseName
+//    tag = "10.10.208.193:5000/" + "drawio"
+//    dockerfile = file('src/main/docker/Dockerfile')
+//    doFirst {
+//        copy {
+//            from 'build/libs'
+//            into stageDir
+//        }
+//    }
+//}
 
 
 dependencies {

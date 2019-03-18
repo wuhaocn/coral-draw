@@ -6,21 +6,69 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 <script type="text/javascript">
+	// Reads files locally
+	function handleFiles(files)
+	{
+		for (var i = 0; i < files.length; i++)
+		{
+			(function(file)
+			{
+				// Small hack to support import
+				if (window.parent.openNew)
+				{
+					window.parent.open(window.parent.location.href);
+				}
+				
+				var reader = new FileReader();
+				reader.onload = function(e)
+				{
+					window.parent.openFile.setData(e.target.result, file.name);
+				};
+				reader.onerror = function(e)
+				{
+					console.log(e);
+				};
+				reader.readAsText(file);
+			})(files[i]);
+		}
+	};
+
 	// Handles form-submit by preparing to process response
 	function handleSubmit()
 	{
 		var form = window.openForm || document.getElementById('openForm');
 		
-		if (window.parent.openNew && window.parent.baseUrl != null)
+		// Checks for support of the File API for local file access
+		// except for files where the parse is on the server
+		if (window.parent.Graph.fileSupport && form.upfile.files.length > 0)
 		{
-			window.parent.openFile.setConsumer(null);
-			window.parent.open(window.parent.baseUrl);
+			handleFiles(form.upfile.files);
+			
+			return false;
 		}
-		
-		// NOTE: File is loaded via JS injection into the iframe, which in turn sets the
-		// file contents in the parent window. The new window asks its opener if any file
-		// contents are available or waits for the contents to become available.
-		return true;
+		else
+		{
+			if (/(\.xml)$/i.test(form.upfile.value) || /(\.txt)$/i.test(form.upfile.value) ||
+				/(\.mxe)$/i.test(form.upfile.value))
+			{
+				// Small hack to support import
+				if (window.parent.openNew)
+				{
+					window.parent.open(window.parent.location.href);
+				}
+				
+				// NOTE: File is loaded via JS injection into the iframe, which in turn sets the
+				// file contents in the parent window. The new window asks its opener if any file
+				// contents are available or waits for the contents to become available.
+				return true;
+			}
+			else
+			{
+				window.parent.mxUtils.alert(window.parent.mxResources.get('invalidOrMissingFile'));
+				
+				return false;
+			}
+		}
 	};
 	
 	// Hides this dialog
@@ -31,7 +79,6 @@
 	
 	function fileChanged()
 	{
-		var supportedText = document.getElementById('openSupported');
 		var form = window.openForm || document.getElementById('openForm');
 		var openButton = document.getElementById('openButton');
 		
@@ -52,29 +99,20 @@
 			document.body.innerHTML = '';
 			var div = document.createElement('div');
 			div.style.fontFamily = 'Arial';
-
-			var keys = [];
 			
-			for (var i = 0; i < localStorage.length; i++)
-			{
-				var key = localStorage.key(i);
-				var value = localStorage.getItem(key);
-				
-				if (key.length > 0 && key.charAt(0) != '.' && value.length > 0 &&
-					(value.substring(0, 8) === '<mxfile ' || value.substring(0, 11) === '<mxlibrary>' ||
-					value.substring(0, 5) === '<?xml') || value.substring(0, 12) === '<!--[if IE]>')
-				{
-					keys.push(key);
-				}
-			}
-			
-			if (keys.length == 0)
+			if (localStorage.length == 0)
 			{
 				window.parent.mxUtils.write(div, window.parent.mxResources.get('noFiles'));
-				window.parent.mxUtils.br(div);
 			}
 			else
 			{
+				var keys = [];
+				
+				for (var i = 0; i < localStorage.length; i++)
+				{
+					keys.push(localStorage.key(i));
+				}
+				
 				// Sorts the array by filename (key)
 				keys.sort(function (a, b)
 				{
@@ -83,78 +121,62 @@
 				
 				for (var i = 0; i < keys.length; i++)
 				{
+					var link = document.createElement('a');
+					link.style.fontDecoration = 'none';
+					link.style.fontSize = '14pt';
 					var key = keys[i];
+					window.parent.mxUtils.write(link, key);
+					link.setAttribute('href', 'javascript:void(0);');
+					div.appendChild(link);
 					
-					// Ignores "dot" files and dropbox cookies
-					if (key.length > 0)
+					var img = document.createElement('span');
+					img.className = 'geSprite geSprite-delete';
+					img.style.position = 'relative';
+					img.style.cursor = 'pointer';
+					img.style.display = 'inline-block';
+					div.appendChild(img);
+					
+					window.parent.mxUtils.br(div);
+					
+					window.parent.mxEvent.addListener(img, 'click', (function(k)
 					{
-						var link = document.createElement('a');
-						link.style.fontDecoration = 'none';
-						link.style.fontSize = '14pt';
-	
-						window.parent.mxUtils.write(link, key);
-						link.setAttribute('href', 'javascript:void(0);');
-						div.appendChild(link);
-						
-						var img = document.createElement('span');
-						img.className = 'geSprite geSprite-delete';
-						img.style.position = 'relative';
-						img.style.cursor = 'pointer';
-						img.style.display = 'inline-block';
-						img.style.cssFloat = 'right';
-						img.style.styleFloat = 'right';
-						img.style.paddingRight = '20px';
-						div.appendChild(img);
-						
-						window.parent.mxUtils.br(div);
-						
-						window.parent.mxEvent.addListener(img, 'click', (function(k)
+						return function()
 						{
-							return function()
+							if (window.parent.mxUtils.confirm(window.parent.mxResources.get('delete') + ' "' + k + '"?'))
 							{
-								if (window.parent.mxUtils.confirm(window.parent.mxResources.get('delete') + ' "' + k + '"?'))
-								{
-									localStorage.removeItem(k);
-									window.location.reload();
-								}
-							};
-						})(key));
-	
-						window.parent.mxEvent.addListener(link, 'click', (function(k)
+								localStorage.removeItem(k);
+								window.location.reload();
+							}
+						};
+					})(key));
+
+					window.parent.mxEvent.addListener(link, 'click', (function(k)
+					{
+						return function()
 						{
-							return function()
+							try
 							{
-								if (window.parent.openNew && window.parent.baseUrl != null)
-								{
-									var of = window.parent.openFile;
-									var data = localStorage.getItem(k);
-									
-									window.parent.openWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
-									{
-										of.cancel(false);
-									}, function()
-									{
-										of.setData(data, k);
-									});
-								}
-								else
-								{
-									window.parent.openFile.setData(localStorage.getItem(k), k);
-								}
-							};
-						})(key));
-					}
+								window.parent.open(window.parent.location.href);
+								window.parent.openFile.setData(localStorage.getItem(k), k);
+							}
+							catch (e)
+							{
+								window.parent.mxUtils.alert(e.message);
+							}
+						};
+					})(key));
 				}
 			}
 
 			window.parent.mxUtils.br(div);
+			window.parent.mxUtils.br(div);
 			
-			var closeButton = window.parent.mxUtils.button(window.parent.mxResources.get('close'), function()
+			var cancelBtn = window.parent.mxUtils.button(window.parent.mxResources.get('cancel'), function()
 			{
 				hideWindow(true);
 			});
-			closeButton.className = 'geBtn';
-			div.appendChild(closeButton);
+			cancelBtn.className = 'geBtn';
+			div.appendChild(cancelBtn);
 			
 			document.body.appendChild(div);
 		}
@@ -163,8 +185,8 @@
 			var editLink = document.getElementById('editLink');
 			var openButton = document.getElementById('openButton');
 			openButton.value = window.parent.mxResources.get(window.parent.openKey || 'open');
-			var closeButton = document.getElementById('closeButton');
-			closeButton.value = window.parent.mxResources.get('close');
+			var cancelButton = document.getElementById('cancelButton');
+			cancelButton.value = window.parent.mxResources.get('cancel');
 			var supportedText = document.getElementById('openSupported');
 			supportedText.innerHTML = window.parent.mxResources.get('openSupported');
 			var form = window.openForm || document.getElementById('openForm');
@@ -190,7 +212,7 @@
 <td>
 </td>
 <td style="vertical-align:middle;text-align:right;white-space:nowrap;">
-<input type="button" id="closeButton" class="geBtn" value="Cancel" onclick="hideWindow(true);">
+<input type="button" id="cancelButton" class="geBtn" value="Cancel" onclick="hideWindow(true);">
 <input type="submit" id="openButton" class="geBtn gePrimaryBtn" value="Open" disabled="disabled">
 </td>
 </tr>
