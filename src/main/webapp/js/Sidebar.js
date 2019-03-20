@@ -101,7 +101,7 @@ Sidebar.prototype.initExt = function()
 	this.addStencilPalette('Android', 'Android', dir + '/android/android.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
 
-	this.addStencilPalette('NetWork', 'NetWork', dir + 'aws/networking.xml',
+	this.addStencilPalette('NetWork', 'NetWork', dir + '/aws/networking.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
 
     this.addImagePalette('clipart', mxResources.get('clipart'), dir + '/clipart/', '_128x128.png',
@@ -112,7 +112,14 @@ Sidebar.prototype.initExt = function()
          'Worker1', 'Soldier1', 'Doctor1', 'Tech1', 'Security1', 'Telesales1'], null,
          {'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
           'Router_Icon': 'router switch'});
+
+    this.addStencilPalette('servers', 'servers', dir + '/office/servers.xml',
+        ';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
+
+    this.addStencilPalette('users', 'users', dir + '/office/users.xml',
+        ';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
 };
+
 /**
  * Sets the default font size.
  */
