@@ -57,6 +57,7 @@ classic=Classic
 clearDefaultStyle=Clear Default Style
 clearWaypoints=Clear Waypoints
 clipart=Clipart
+android=android
 collapse=Collapse
 collapseExpand=Collapse/Expand
 collapsible=Collapsible
