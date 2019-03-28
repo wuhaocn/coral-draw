@@ -33,10 +33,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/save")
 public class SaveServlet {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = -5308353652899057537L;
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)

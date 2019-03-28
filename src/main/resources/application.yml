@@ -1,9 +1,23 @@
 server:
-  session-timeout: 1800
-#    tomcat:
-#        max-threads: 1000
-#        min-spare-threads: 30
   port: 8081
-#    uri-encoding: utf-8
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 1000
+    min-spare-threads: 30
 
-
+spring:
+  # 数据源
+  datasource:
+    url: jdbc:mysql://124.42.103.164:5260/CoralDrawDB?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: urcs@2018
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+  jpa:
+    show-sql: true
+    # 自动生成表结构
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
