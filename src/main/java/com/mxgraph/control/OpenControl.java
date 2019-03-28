@@ -3,7 +3,7 @@
  */
 package com.mxgraph.control;
 
-import com.mxgraph.online.Constants;
+import com.mxgraph.utils.Constants;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

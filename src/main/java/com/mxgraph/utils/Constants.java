@@ -1,4 +1,4 @@
-package com.mxgraph.online;
+package com.mxgraph.utils;
 
 import java.awt.image.BufferedImage;
 

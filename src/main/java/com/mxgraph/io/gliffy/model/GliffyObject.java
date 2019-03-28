@@ -3,7 +3,8 @@ package com.mxgraph.io.gliffy.model;
 import com.mxgraph.io.gliffy.importer.PostDeserializer.PostDeserializable;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
-import com.mxgraph.online.Utils;
+import com.mxgraph.utils.Utils;
+
 
 import java.util.*;
 
