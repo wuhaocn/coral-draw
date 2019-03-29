@@ -3,7 +3,10 @@
  */
 package com.mxgraph.control;
 
+import com.mxgraph.bean.DrawData;
+import com.mxgraph.service.DrawDataService;
 import com.mxgraph.utils.Constants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLDecoder;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -34,8 +38,11 @@ import javax.servlet.http.HttpServletResponse;
 public class SaveServlet {
 
 
+    @Autowired
+    private DrawDataService dataService;
+
     /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+     * @see SaveServlet#save(HttpServletRequest request, HttpServletResponse response)
      */
     @PostMapping()
     @ResponseBody
@@ -64,7 +71,7 @@ public class SaveServlet {
                 if (xml != null && xml.startsWith("%3C")) {
                     xml = URLDecoder.decode(xml, "UTF-8");
                 }
-
+                saveToStorage(filename, xml);
                 response.setContentType("text/plain");
                 response.setHeader("Content-Disposition",
                         "attachment; filename=\"" + filename
@@ -83,4 +90,13 @@ public class SaveServlet {
         }
     }
 
+
+    private void saveToStorage(String fileName, String xml){
+        DrawData drawData = new DrawData();
+        drawData.setBody(xml);
+        drawData.setName(fileName);
+        drawData.setOwnerId("kong");
+        drawData.setId(UUID.randomUUID().toString());
+        dataService.save(drawData);
+    }
 }

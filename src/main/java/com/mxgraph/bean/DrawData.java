@@ -1,14 +1,20 @@
 package com.mxgraph.bean;
 
+import com.baomidou.mybatisplus.annotations.TableName;
+import com.mxgraph.base.KbsBaseEntity;
+import io.swagger.annotations.ApiModel;
+import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+@Data
 @Entity
-@Table(name = "t_draw_data")
-public class DrawData {
-
+@Table(name = "t_data_draw")
+@TableName("t_data_draw")
+@ApiModel(value = "绘图")
+public class DrawData extends KbsBaseEntity {
 
     private String id;
 
@@ -27,11 +33,6 @@ public class DrawData {
     private String relateCode;
 
     private String attribute;
-
-
-    private String createTime;
-
-    private String modifyTime;
 
 
     public String getId() {
@@ -105,21 +106,4 @@ public class DrawData {
     public void setAttribute(String attribute) {
         this.attribute = attribute;
     }
-
-    public String getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getModifyTime() {
-        return modifyTime;
-    }
-
-    public void setModifyTime(String modifyTime) {
-        this.modifyTime = modifyTime;
-    }
-
 }
