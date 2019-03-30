@@ -85,7 +85,12 @@ LocalFile.prototype.saveAs = function(title, success, error)
 	this.saveFile(title, false, success, error);
 };
 
-
+/**
+ * Translates this point by the given vector.
+ *
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 LocalFile.prototype.saveFile = function(title, revision, success, error)
 {
 	this.title = title;
@@ -93,7 +98,6 @@ LocalFile.prototype.saveFile = function(title, revision, success, error)
 	// Updates data after changing file name
 	this.updateFileData();
 	var data = this.getData();
-
 	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
 
 	var doSave = mxUtils.bind(this, function(data)
@@ -171,7 +175,6 @@ LocalFile.prototype.rename = function(title, success, error)
  */
 LocalFile.prototype.open = function()
 {
-    console.log("open data:" +this.getData()); //
 	this.ui.setFileData(this.getData());
 	this.installListeners();
 };

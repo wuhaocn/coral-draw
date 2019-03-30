@@ -160,7 +160,6 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 		{
 			var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
 			{
-                var savedData = this.data;
 				try
 				{
 					var lastDesc = this.desc;

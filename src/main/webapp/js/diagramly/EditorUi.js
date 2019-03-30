@@ -4182,6 +4182,7 @@
 		editoUiAddChromelessToolbarItems.apply(this, arguments);
 	};
 
+
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -4191,8 +4192,7 @@
 	EditorUi.prototype.saveData = function(filename, format, data, mime, base64Encoded)
 	{
 
-		console.log("title saveData:" + filename); //返回一个对象
-		console.log("data saveData:" + data); //返回一个对象
+		console.log("EditorUi saveData:", filename, data); //返回一个对象
 
 		if (this.isLocalFileSave())
 		{
@@ -11479,7 +11479,7 @@
 		
 		if (this.isAppCache())
 		{
-			var appCache = window.applicationCache;
+			var appCache = applicationCache;
 			
 			// NOTE: HTML5 Cache is deprecated
 			if (appCache != null && this.offlineStatus == null)
