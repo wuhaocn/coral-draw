@@ -133,9 +133,10 @@ DriveFile.prototype.isMovable = function()
  */
 DriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
-	DrawioFile.prototype.save.apply(this, arguments);
-	
-	this.saveFile(null, revision, success, error, unloading, overwrite);
+	DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+	{
+		this.saveFile(null, revision, success, error, unloading, overwrite);
+	}), error, unloading, overwrite]);
 };
 
 /**
@@ -647,7 +648,105 @@ DriveFile.prototype.loadPatchDescriptor = function(success, error)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+DriveFile.prototype.patchDescriptor = function(desc, patch)
+{
+	DrawioFile.prototype.patchDescriptor.apply(this, arguments);
+	
+	desc.headRevisionId = patch.headRevisionId;
+	desc.modifiedDate = patch.modifiedDate;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 DriveFile.prototype.loadDescriptor = function(success, error)
 {
 	this.ui.drive.loadDescriptor(this.getId(), success, error);
+};
+
+/**
+ * Are comments supported
+ */
+DriveFile.prototype.commentsSupported = function()
+{
+	return true;
+};
+
+/**
+ * Get comments of the file
+ */
+DriveFile.prototype.getComments = function(success, error)
+{
+	var currentUser = this.ui.getCurrentUser();
+	
+	function driveCommentToDrawio(file, gComment, pCommentId)
+	{
+		if (gComment.deleted) return null; //skip deleted comments
+		
+		var comment = new DriveComment(file, gComment.commentId || gComment.replyId, gComment.content, 
+				gComment.modifiedDate, gComment.createdDate, gComment.status == 'resolved',
+				gComment.author.isAuthenticatedUser? currentUser :
+				new DrawioUser(gComment.author.permissionId, gComment.author.emailAddress,
+						gComment.author.displayName, gComment.author.picture.url), pCommentId);
+		
+		for (var i = 0; gComment.replies != null && i < gComment.replies.length; i++)
+		{
+			comment.addReplyDirect(driveCommentToDrawio(file, gComment.replies[i], gComment.commentId));
+		}
+		
+		return comment;
+	};
+	
+	this.ui.drive.executeRequest(gapi.client.drive.comments.list({'fileId': this.getId()}),
+		mxUtils.bind(this, function(resp)
+	{
+		var comments = [];
+		
+		for (var i = 0; i < resp.items.length; i++)
+		{
+			var comment = driveCommentToDrawio(this, resp.items[i]);
+			
+			if (comment != null) comments.push(comment);
+		}
+		
+		success(comments);
+	}), error);
+};
+
+/**
+ * Add a comment to the file
+ */
+DriveFile.prototype.addComment = function(comment, success, error)
+{
+	var body = {'content': comment.content};
+	
+	this.ui.drive.executeRequest(gapi.client.drive.comments.insert({'fileId': this.getId(), 'resource': body}),
+		mxUtils.bind(this, function(resp)
+	{
+		success(resp.commentId); //pass comment id
+	}), error);
+};
+
+/**
+ * Can add a reply to a reply
+ */
+DriveFile.prototype.canReplyToReplies = function()
+{
+	return false;
+};
+
+/**
+ * Can add comments (The permission to comment to this file)
+ */
+DriveFile.prototype.canComment = function()
+{
+	return this.desc.canComment;
+};
+
+/**
+ * Get a new comment object
+ */
+DriveFile.prototype.newComment = function(content, user)
+{
+	return new DriveComment(this, null, content, Date.now(), Date.now(), false, user);
 };

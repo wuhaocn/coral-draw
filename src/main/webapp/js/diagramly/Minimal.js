@@ -765,7 +765,14 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
 
-			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers', '-', 'find', 'tags'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers'], parent);
+			
+			if (ui.commentsSupported())
+			{
+				ui.menus.addMenuItems(menu, ['comments'], parent);
+			}
+			
+			ui.menus.addMenuItems(menu, ['-', 'find', 'tags'], parent);
 			
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (!mxClient.IS_IOS || !navigator.standalone)
@@ -1381,9 +1388,9 @@ EditorUi.initMinimalTheme = function()
 		        	elt.style.height = '24px';
 		        	elt.style.width = '24px';
 					elt.style.zIndex = '1';
-					elt.style.top = '11px';
 					elt.style.right = '8px';
 					elt.style.cursor = 'pointer';
+					elt.style.top = (urlParams['embed'] == '1') ? '13px' : '11px';
 					menubar.appendChild(elt);
 					langMenuElt = elt;
 				}

@@ -144,7 +144,7 @@
 	{
 		try
 		{
-			if (window.console != null && urlParams['test'] == '1')
+			if (window.console != null && urlParams['dev'] == '1')
 			{
 				var args = [new Date().toISOString()];
 				
@@ -203,6 +203,11 @@
 	 * Sets the delay for autosave in milliseconds. Default is 2000.
 	 */
 	EditorUi.prototype.mode = null;
+
+	/**
+	 * General timeout is 25 seconds.
+	 */
+	EditorUi.prototype.timeout = 25000;
 
 	/**
 	 * Allows for two buttons in the sidebar footer.
@@ -645,6 +650,28 @@
 		}
 		
 		return false;
+	};
+
+	/**
+	 * Returns true if the given binary data is a Visio file.
+	 */
+	EditorUi.prototype.isVisioData = function(data)
+	{
+		return data.length > 8 && (data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
+			data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
+			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x04) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x06);
+	};
+
+	/**
+	 * Returns true if the given binary data is a PNG file.
+	 */
+	EditorUi.prototype.isPngData = function(data)
+	{
+		return data.length > 8 && data.charCodeAt(0) == 137 && data.charCodeAt(1) == 80 &&
+			data.charCodeAt(2) == 78 && data.charCodeAt(3) == 71 && data.charCodeAt(4) == 13 &&
+			data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
 	};
 
 	/**
@@ -3343,10 +3370,6 @@
 	    	Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
 			Graph.prototype.defaultPageBorderColor = '#505759';
-		    Graph.prototype.svgShadowColor = '#e0e0e0';
-		    Graph.prototype.svgShadowOpacity = '0.6';
-		    Graph.prototype.svgShadowSize = '0.8';
-		    Graph.prototype.svgShadowBlur = '1.4';
 			Format.prototype.inactiveTabBackgroundColor = 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
 			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
@@ -3504,7 +3527,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -3543,23 +3566,45 @@
 					}
 					else
 					{
-						msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
+						msg = (notFoundMessage != null) ? notFoundMessage :
+							mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied') +
+							((this.drive != null && this.drive.user != null) ? ' (' + this.drive.user.displayName +
+							', ' + this.drive.user.email+ ')' : ''));
 					}
 					
 					var id = window.location.hash;
 					
-					if (id != null && id.substring(0, 2) == '#G' && resp != null && resp.error != null &&
-						resp.error.errors != null && resp.error.errors.length > 0 &&
-						resp.error.errors[0].reason == 'fileAccess')
+					// #U handles case where we tried to fallback to Google File and
+					// hash property still shows the public URL we tried to load
+					if (id != null && (id.substring(0, 2) == '#G' ||
+						id.substring(0, 45) == '#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D') &&
+						((resp != null && resp.error != null && ((resp.error.errors != null &&
+						resp.error.errors.length > 0 && resp.error.errors[0].reason == 'fileAccess') ||
+						(resp.error.data != null && resp.error.data.length > 0 &&
+						resp.error.data[0].reason == 'fileAccess'))) ||
+						e.code == 404 || e.status == 404))
 					{
-						id = id.substring(2);
+						id = (id.substring(0, 2) == '#U') ? id.substring(45, id.lastIndexOf('%26ex')) : id.substring(2);
 						
 						// Special case where the button must have a different label and function
-						this.showError(title, msg, mxResources.get('cancel'), null, retry,
-							mxResources.get('tryOpeningViaThisPage'), mxUtils.bind(this, function()
+						this.showError(title, msg, mxResources.get('openInNewWindow'), mxUtils.bind(this, function()
+						{
+							this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+							this.handleError(resp, title, fn, invokeFnOnClose, notFoundMessage)
+						}), retry, mxResources.get('changeUser'), mxUtils.bind(this, function()
+						{
+							if (this.spinner.spin(document.body, mxResources.get('loading')))
 							{
-								this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
-							}), null, null, 380);
+								this.drive.clearUserId();
+								gapi.auth.signOut();
+								
+								// Reload page to reset client auth
+								window.location.reload();
+							}
+						}), mxResources.get('cancel'), mxUtils.bind(this, function()
+						{
+							window.location.hash = '';
+						}), 480, 150);
 								
 						return;
 					}
@@ -7952,19 +7997,33 @@
 	 */
 	EditorUi.prototype.loadImage = function(uri, onload, onerror)
 	{
-		var img = new Image();
-		
-		img.onload = function()
+		try
 		{
-			onload(img);
+			var img = new Image();
+			
+			img.onload = function()
+			{
+				onload(img);
+			}
+			
+			if (onerror != null)
+			{
+				img.onerror = onerror;
+			}
+			
+			img.src = uri;
 		}
-		
-		if (onerror != null)
+		catch (e)
 		{
-			img.onerror = onerror;
+			if (onerror != null)
+			{
+				onerror(e);
+			}
+			else
+			{
+				throw e;
+			}
 		}
-		
-		img.src = uri;
 	};
 
 	// Initializes the user interface
@@ -8381,9 +8440,16 @@
 			{
 				if (graph.isEnabled())
 				{
-					mxClipboard.copy(graph);
-					this.copyCells(textInput);
-					clearInput();
+					try
+					{
+						mxClipboard.copy(graph);
+						this.copyCells(textInput);
+						clearInput();
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
 				}
 			}));
 			
@@ -8391,9 +8457,16 @@
 			{
 				if (graph.isEnabled())
 				{
-					mxClipboard.copy(graph);
-					this.copyCells(textInput, true);
-					clearInput();
+					try
+					{
+						mxClipboard.copy(graph);
+						this.copyCells(textInput, true);
+						clearInput();
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
 				}
 			}));
 			
@@ -9408,7 +9481,7 @@
 							{
 								if (!this.useCanvasForExport && /(\.png)$/i.test(name))
 								{
-									name = name.substring(0, name.length - 4) + '.xml';
+									name = name.substring(0, name.length - 4) + '.drawio';
 								}
 								
 								var handleResult = mxUtils.bind(this, function(xml)
@@ -9417,11 +9490,11 @@
 									
 									if (dot >= 0)
 									{
-										name = name.substring(0, name.lastIndexOf('.')) + '.xml';
+										name = name.substring(0, name.lastIndexOf('.')) + '.drawio';
 									}
 									else
 									{
-										name = name + '.xml';
+										name = name + '.drawio';
 									}
 									
 									if (xml.substring(0, 10) == '<mxlibrary')
@@ -9489,7 +9562,7 @@
 								{
 									if (/(\.json)$/i.test(name))
 									{
-										name = name.substring(0, name.length - 5) + '.xml';
+										name = name.substring(0, name.length - 5) + '.drawio';
 									}
 	
 									// LATER: Add import step that produces cells and use callback
@@ -10331,7 +10404,8 @@
 						if (uiTheme == 'atlas')
 						{
 							this.buttonContainer.style.paddingRight = '12px';
-							this.buttonContainer.style.paddingTop = '12px';
+							this.buttonContainer.style.paddingTop = '6px';
+							this.buttonContainer.style.right = '25px';
 						}
 						else if (uiTheme != 'min')
 						{
@@ -11533,7 +11607,7 @@
 		var graph = this.editor.graph;
 		var active = this.isDiagramActive();
 		var file = this.getCurrentFile();
-		var enabled = file != null || urlParams['embed'] == '1';
+		var enabled = file != null || urlParams['embed'] == '1';
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
@@ -11554,7 +11628,7 @@
 		this.actions.get('find').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('layers').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('outline').setEnabled(this.diagramContainer.style.visibility != 'hidden');
-		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
+		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		
@@ -11784,40 +11858,47 @@
 		}
 		catch(e){}
 
-		
 		this.remoteInvoke('getCustomLibraries', null, null, function(libsList)
 		{
 			libsSection.innerHTML = '';
 			
-			for (var i = 0; i < libsList.length; i++)
+			if (libsList.length == 0)
 			{
-				var lib = libsList[i];
-				
-				if (loadedLibs[lib.id])
+				libsSection.innerHTML = '<div style="text-align:center;padding-top:20px;color:gray;">' +
+					mxUtils.htmlEntities(mxResources.get('noLibraries')) + '</div>';
+			}
+			else
+			{
+				for (var i = 0; i < libsList.length; i++)
 				{
-					selectedLibs[lib.id] = lib;
-				}
-				
-				var libCheck = this.addCheckbox(libsSection, lib.title, loadedLibs[lib.id]); 
-
-				(function(lib2, check)
-				{
-					mxEvent.addListener(check, 'change', function()
+					var lib = libsList[i];
+					
+					if (loadedLibs[lib.id])
 					{
-						if (this.checked)
+						selectedLibs[lib.id] = lib;
+					}
+					
+					var libCheck = this.addCheckbox(libsSection, lib.title, loadedLibs[lib.id]); 
+	
+					(function(lib2, check)
+					{
+						mxEvent.addListener(check, 'change', function()
 						{
-							selectedLibs[lib2.id] = lib2;
-						}
-						else
-						{
-							delete selectedLibs[lib2.id];
-						}
-					});
-				})(lib, libCheck)
+							if (this.checked)
+							{
+								selectedLibs[lib2.id] = lib2;
+							}
+							else
+							{
+								delete selectedLibs[lib2.id];
+							}
+						});
+					})(lib, libCheck)
+				}
 			}
 		}, function()
 		{
-			this.handleError(null, mxResources.get('errorGettingConfLibs', null, 'An error occured while getting Confluence libraries list'));
+			this.handleError(null, mxResources.get('errorLoadingFile'));
 		});
 
 		div.appendChild(libsSection);
@@ -11869,7 +11950,7 @@
 			}
 			
 			if (pendingLibs == 0) this.spinner.stop();
-		}));
+		}), null, null, 'https://desk.draw.io/support/solutions/articles/16000092763');
 		this.showDialog(dlg.container, 340, 375, true, true);
 	};
 	
@@ -11996,4 +12077,999 @@
 			sendResponse(null, 'Invalid Call: An error occured, ' + e.message);
 		}
 	};
+	
+	/**
+	 *
+	 * Comments: We need these functions as wrapper of File functions in order to facilitate overriding them if comments are needed without having a file
+	 * 			 (e.g. Confluence Plugin)
+	 * 
+	 */
+	
+	/**
+	 * Are comments supported
+	 */
+	EditorUi.prototype.commentsSupported = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.commentsSupported() : false;
+	};
+
+	/**
+	 * Show refresh button?
+	 */
+	EditorUi.prototype.commentsRefreshNeeded = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.commentsRefreshNeeded() : true;
+	};
+	
+	/**
+	 * Show save button?
+	 */
+	EditorUi.prototype.commentsSaveNeeded = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.commentsSaveNeeded() : false;
+	};
+	
+	/**
+	 * Get comments
+	 */
+	EditorUi.prototype.getComments = function(success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			file.getComments(success, error);
+		}
+		else 
+		{
+			success([]); //placeholder
+		}
+	};
+
+	/**
+	 * Add a comment
+	 */
+	EditorUi.prototype.addComment = function(comment, success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			file.addComment(comment, success, error);
+		}
+		else 
+		{
+			success(Date.now()); //placeholder
+		}
+	};
+
+	/**
+	 * Can add a reply to a reply
+	 */
+	EditorUi.prototype.canReplyToReplies = function()
+	{
+		var file = this.getCurrentFile();
+			
+		return file != null? file.canReplyToReplies() : true;
+	};
+
+	/**
+	 * Can add comments (The permission to comment)
+	 */
+	EditorUi.prototype.canComment = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.canComment() : true;
+	};
+
+	/**
+	 * Get a new comment object
+	 */
+	EditorUi.prototype.newComment = function(content, user)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			return file.newComment(content, user)
+		}
+		else 
+		{
+			return new DrawioComment(this, null, content, Date.now(), Date.now(), false, user);
+		}
+	};
 })();
+
+/**
+ * Comments Window, It is used by both editor and viewer. So, it is here in a common place
+ */
+var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
+{
+	var readOnly = !editorUi.canComment();
+	var canReplyToReplies = editorUi.canReplyToReplies();
+	var curEdited = null;
+		
+	var div = document.createElement('div');
+	div.className = 'geCommentsWin';
+	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+
+	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
+	
+	var listDiv = document.createElement('div');
+	listDiv.className = 'geCommentsList';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
+	div.appendChild(listDiv);
+	
+	var noComments = document.createElement('span');
+	noComments.style.cssText = 'display:none;padding-top:10px;text-align:center;';
+	mxUtils.write(noComments, mxResources.get('noCommentsFound'));
+	
+	var selectionComment = null;
+	
+	var ldiv = document.createElement('div');
+	
+	ldiv.className = 'geToolbarContainer geCommentsToolbar';
+	ldiv.style.height = tbarHeight;
+	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
+	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		ldiv.style.filter = 'none';
+	}
+	
+	var link = document.createElement('a');
+	link.className = 'geButton';
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		link.style.filter = 'none';
+	}
+	
+	function updateNoComments()
+	{
+		var divs = listDiv.getElementsByTagName('div');
+		var visibleCount = 0;
+		
+		for (var i = 0; i < divs.length; i++)
+		{
+			if (divs[i].style.display != 'none' && divs[i].parentNode == listDiv)
+			{
+				visibleCount++;
+			}
+		}
+		
+		noComments.style.display = (visibleCount == 0) ? 'block' : 'none';
+	};
+	
+	function editComment(comment, cdiv, saveCallback, deleteOnCancel)
+	{
+		curEdited = {div: cdiv, comment: comment, saveCallback: saveCallback, deleteOnCancel: deleteOnCancel};
+		
+		var commentTxt = cdiv.querySelector('.geCommentTxt');
+		var actionsDiv = cdiv.querySelector('.geCommentActionsList');
+		
+		var textArea = document.createElement('textarea');
+		textArea.className = 'geCommentEditTxtArea';
+		textArea.style.minHeight = commentTxt.offsetHeight + 'px';
+		textArea.value = comment.content;
+		cdiv.insertBefore(textArea, commentTxt);
+		
+		var btnDiv = document.createElement('div');
+		btnDiv.className = 'geCommentEditBtns';
+		
+		function reset()
+		{
+			cdiv.removeChild(textArea);
+			cdiv.removeChild(btnDiv);
+			actionsDiv.style.display = 'block';
+			commentTxt.style.display = 'block';	
+		};
+		
+		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+		{
+			if (deleteOnCancel)
+			{
+				cdiv.parentNode.removeChild(cdiv);
+				updateNoComments();
+			}
+			else
+			{
+				reset();
+			}
+			
+			curEdited = null;
+		});
+		
+		cancelBtn.className = 'geCommentEditBtn';
+		btnDiv.appendChild(cancelBtn);
+		
+		var saveBtn = mxUtils.button(mxResources.get('save'), function()
+		{
+			commentTxt.innerHTML = '';
+			comment.content = textArea.value;
+			mxUtils.write(commentTxt, comment.content);
+			reset();
+			saveCallback(comment);
+			curEdited = null;
+		});
+		
+		// Updates modified state and handles placeholder text
+		mxEvent.addListener(textArea, 'keydown', mxUtils.bind(this, function(evt)
+		{
+			if (!mxEvent.isConsumed(evt))
+			{
+				if ((mxEvent.isControlDown(evt) || (mxClient.IS_MAC &&
+					mxEvent.isMetaDown(evt))) && evt.keyCode == 13 /* Ctrl+Enter */)
+				{
+					saveBtn.click();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 27 /* Escape */)
+				{
+					cancelBtn.click();
+					mxEvent.consume(evt);
+				}
+			}
+		}));
+		
+		// Focused to include in viewport before focusin textbox
+		saveBtn.focus();
+		saveBtn.className = 'geCommentEditBtn gePrimaryBtn';
+		btnDiv.appendChild(saveBtn);
+
+		cdiv.insertBefore(btnDiv, commentTxt);
+		actionsDiv.style.display = 'none';
+		commentTxt.style.display = 'none';
+		textArea.focus();
+	};
+	
+	function writeCommentDate(comment, dateDiv)
+	{
+		dateDiv.innerHTML = '';
+		var str = editorUi.timeSince(new Date(comment.modifiedDate));
+		
+		if (str == null)
+		{
+			str = mxResources.get('lessThanAMinute');
+		}
+		
+		mxUtils.write(dateDiv, mxResources.get('timeAgo', [str], '{1} ago'));	
+	};
+	
+	function showBusy(commentDiv)
+	{
+		var busyImg = document.createElement('img');
+		busyImg.className = 'geCommentBusyImg';
+		busyImg.src= '/images/spin.gif';
+		commentDiv.appendChild(busyImg);
+		commentDiv.busyImg = busyImg;
+	};
+	
+	function showError(commentDiv)
+	{
+		commentDiv.style.border = '1px solid red';
+		commentDiv.removeChild(commentDiv.busyImg);
+	};
+	
+	function showDone(commentDiv)
+	{
+		commentDiv.style.border = '';
+		commentDiv.removeChild(commentDiv.busyImg);
+	};
+
+	function addComment(comment, parentArr, parent, level, showResolved)
+	{
+		//Skip resolved comments if showResolved is not set
+		if (!showResolved && comment.isResolved)
+		{
+			return;
+		}
+
+		noComments.style.display = 'none';
+		
+		var cdiv = document.createElement('div');
+		cdiv.className = 'geCommentContainer';
+		cdiv.setAttribute('data-commentId', comment.id);
+		cdiv.style.marginLeft = (level * 20 + 5) + 'px';
+
+		if (comment.isResolved && uiTheme != 'dark')
+		{
+			cdiv.style.backgroundColor = 'ghostWhite';
+		}
+		
+		var headerDiv = document.createElement('div');
+		headerDiv.className = 'geCommentHeader';
+		
+		var userImg = document.createElement('img');
+		userImg.className = 'geCommentUserImg';
+		userImg.src = comment.user.pictureUrl || Editor.userImage;
+		headerDiv.appendChild(userImg);
+		
+		var headerTxt = document.createElement('div');
+		headerTxt.className = 'geCommentHeaderTxt';
+		headerDiv.appendChild(headerTxt);
+		
+		var usernameDiv = document.createElement('div');
+		usernameDiv.className = 'geCommentUsername';
+		mxUtils.write(usernameDiv, comment.user.displayName || '');
+		headerTxt.appendChild(usernameDiv);
+		
+		var dateDiv = document.createElement('div');
+		dateDiv.className = 'geCommentDate';
+		dateDiv.setAttribute('data-commentId', comment.id);
+		writeCommentDate(comment, dateDiv);
+		headerTxt.appendChild(dateDiv);
+		cdiv.appendChild(headerDiv);
+		
+		var commentTxtDiv = document.createElement('div');
+		commentTxtDiv.className = 'geCommentTxt';
+		mxUtils.write(commentTxtDiv, comment.content || '');
+		cdiv.appendChild(commentTxtDiv);
+		
+		var actionsDiv = document.createElement('div');
+		actionsDiv.className = 'geCommentActions';
+		var actionsList = document.createElement('ul');
+		actionsList.className = 'geCommentActionsList';
+		actionsDiv.appendChild(actionsList);
+		
+		function addAction(name, evtHandler, hide)
+		{
+			var action = document.createElement('li');
+			action.className = 'geCommentAction';
+			var actionLnk = document.createElement('a');
+			actionLnk.className = 'geCommentActionLnk';
+			mxUtils.write(actionLnk, name);
+			action.appendChild(actionLnk);
+			
+			mxEvent.addListener(actionLnk, 'click', function(evt)
+			{
+				evtHandler(evt, comment);
+				evt.preventDefault();
+				mxEvent.consume(evt);
+			});
+			
+			actionsList.appendChild(action);
+			
+			if (hide) action.style.display = 'none';
+		};
+		
+		function collectReplies()
+		{
+			var replies = [];
+			var pdiv = cdiv;
+			
+			function collectReplies(comment) 
+			{
+				replies.push(pdiv);
+				
+				if (comment.replies != null)
+				{
+					for (var i = 0; i < comment.replies.length; i++) 
+					{
+						pdiv = pdiv.nextSibling;
+						collectReplies(comment.replies[i]); 
+					}
+				}	
+			}
+			
+			collectReplies(comment);
+			
+			return {pdiv: pdiv, replies: replies};
+		};
+		
+		function addReply(initContent, editIt, saveCallback, doResolve, doReopen)
+		{
+			var pdiv = collectReplies().pdiv;
+			
+			var newReply = editorUi.newComment(initContent, editorUi.getCurrentUser());
+			newReply.pCommentId = comment.id;
+			
+			if (comment.replies == null) comment.replies = [];
+			
+			var replyComment = addComment(newReply, comment.replies, pdiv, level + 1);
+
+			function doAddReply()
+			{
+				showBusy(replyComment);
+				
+				comment.addReply(newReply, function(id)
+				{
+					newReply.id = id;
+					comment.replies.push(newReply);
+					showDone(replyComment);
+					
+					if (saveCallback) saveCallback();
+					
+				}, function(err)
+				{
+					doEdit();
+					showError(replyComment);
+					editorUi.handleError(err, null, null, null,
+						mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+				}, doResolve, doReopen);				
+			};
+			
+			function doEdit()
+			{
+				editComment(newReply, replyComment, function(newReply)
+				{
+					doAddReply();
+				}, true);
+			};
+
+			if (editIt)
+			{
+				doEdit();
+			}
+			else
+			{
+				doAddReply();
+			}
+		};
+		
+		if (!readOnly && (level == 0 || canReplyToReplies))
+		{
+			addAction(mxResources.get('reply'), function()
+			{
+				addReply('', true);
+			}, comment.isResolved);
+		}
+		
+		var user = editorUi.getCurrentUser();
+		
+		if (user != null && user.id == comment.user.id && !readOnly)
+		{
+			addAction(mxResources.get('edit'), function()
+			{
+				function doEditComment()
+				{
+					editComment(comment, cdiv, function()
+					{
+						showBusy(cdiv);
+						
+						comment.editComment(comment.content, function()
+						{
+							showDone(cdiv);
+						}, function(err)
+						{
+							showError(cdiv);
+							doEditComment();
+							editorUi.handleError(err, null, null, null,
+								mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+						});
+					});
+				};
+				
+				doEditComment();
+			}, comment.isResolved);
+			
+			addAction(mxResources.get('delete'), function()
+			{
+				editorUi.confirm(mxResources.get('areYouSure'), function()
+				{
+					showBusy(cdiv);
+					
+					comment.deleteComment(function()
+					{
+						var replies = collectReplies(comment).replies;
+						
+						for (var i = 0; i < replies.length; i++)
+						{
+							listDiv.removeChild(replies[i]);
+						}
+						
+						for (var i = 0; i < parentArr.length; i++)
+						{
+							if (parentArr[i] == comment) 
+							{
+								parentArr.splice(i, 1);
+								break;
+							}
+						}
+						
+						noComments.style.display = (listDiv.getElementsByTagName('div').length == 0) ? 'block' : 'none';
+					}, function(err)
+					{
+						showError(cdiv);
+						editorUi.handleError(err, null, null, null,
+							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+					});
+				});
+			}, comment.isResolved);
+		}
+		
+		if (!readOnly && level == 0) //Resolve is a top-level action only
+		{
+			function toggleResolve(evt)
+			{
+				function doToggle()
+				{
+					var resolveActionLnk = evt.target;
+					resolveActionLnk.innerHTML = '';
+
+					comment.isResolved = !comment.isResolved;
+					mxUtils.write(resolveActionLnk, comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'));
+					var actionsDisplay = comment.isResolved? 'none' : '';
+					var replies = collectReplies(comment).replies;
+
+					
+					var color = (uiTheme == 'dark') ? 'transparent' : (comment.isResolved? 'ghostWhite' : 'white');
+					
+					for (var i = 0; i < replies.length; i++)
+					{
+						replies[i].style.backgroundColor = color;
+						
+						var forOpenActions = replies[i].querySelectorAll('.geCommentAction');
+						
+						for (var j = 0; j < forOpenActions.length; j ++) 
+						{
+							if (forOpenActions[j] == resolveActionLnk.parentNode) continue;
+							
+							forOpenActions[j].style.display = actionsDisplay;
+						}
+
+						if (!resolvedChecked)
+						{
+							replies[i].style.display = 'none';
+						}
+					}
+					
+					updateNoComments();
+				};
+				
+				if (comment.isResolved)
+				{
+					addReply(mxResources.get('reOpened') + ': ', true, doToggle, false, true);
+				}
+				else
+				{
+					addReply(mxResources.get('markedAsResolved'), false, doToggle, true);
+				}
+			};
+			
+			addAction(comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'), toggleResolve);
+		}
+		
+		cdiv.appendChild(actionsDiv);
+		
+		if (parent != null) 
+		{
+			listDiv.insertBefore(cdiv, parent.nextSibling);
+		}
+		else
+		{
+			listDiv.appendChild(cdiv);
+		}
+		
+		for (var i = 0; comment.replies != null && i < comment.replies.length; i++)
+		{
+			var reply = comment.replies[i];
+			reply.isResolved = comment.isResolved; //copy isResolved to child comments (replies)
+			addComment(reply, comment.replies, null, level + 1, showResolved);
+		}
+		
+		if (curEdited != null)
+		{
+			if (curEdited.comment.id == comment.id)
+			{
+				var origContent = comment.content;
+				comment.content = curEdited.comment.content;
+				editComment(comment, cdiv, curEdited.saveCallback, curEdited.deleteOnCancel);
+				comment.content = origContent;
+			}
+			else if (curEdited.comment.id == null && curEdited.comment.pCommentId == comment.id)
+			{
+				listDiv.appendChild(curEdited.div);
+				editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+			}
+		}
+
+		return cdiv;
+	};
+
+	if (!readOnly)
+	{
+		var addLink = link.cloneNode();
+		addLink.innerHTML = '<div class="geSprite geSprite-plus" style="display:inline-block;"></div>';
+		addLink.setAttribute('title', mxResources.get('create') + '...');
+		
+		mxEvent.addListener(addLink, 'click', function(evt)
+		{
+			var newComment = editorUi.newComment('', editorUi.getCurrentUser());
+			var newCommentDiv = addComment(newComment, comments, null, 0);
+			
+			function doAddComment()
+			{
+				editComment(newComment, newCommentDiv, function(newComment)
+				{
+					showBusy(newCommentDiv);
+					
+					editorUi.addComment(newComment, function(id)
+					{
+						newComment.id = id;
+						comments.push(newComment);
+						showDone(newCommentDiv);
+					}, function(err)
+					{
+						showError(newCommentDiv);
+						doAddComment();
+						editorUi.handleError(err, null, null, null,
+							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+					});
+				}, true);
+			}
+			
+			doAddComment();
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(addLink);
+	}
+
+	var resolvedLink = link.cloneNode();
+	resolvedLink.innerHTML = '<img src="/images/check.png" style="width: 16px; padding: 2px;">';
+	resolvedLink.setAttribute('title', mxResources.get('showResolved'));
+	var resolvedChecked = false;
+	
+	if (uiTheme == 'dark')
+	{
+		resolvedLink.style.filter = 'invert(100%)';
+	}
+	
+	mxEvent.addListener(resolvedLink, 'click', function(evt)
+	{
+		resolvedChecked = !resolvedChecked;
+		
+		this.className = resolvedChecked? 'geButton geCheckedBtn' : 'geButton';
+		refresh();
+		
+		evt.preventDefault();
+		mxEvent.consume(evt);
+	});
+	
+	ldiv.appendChild(resolvedLink);
+	
+	if (editorUi.commentsRefreshNeeded())
+	{
+		var refreshLink = link.cloneNode();
+		refreshLink.innerHTML = '<img src="/images/update16.png" style="width: 16px; padding: 2px;">';
+		refreshLink.setAttribute('title', mxResources.get('refresh'));
+	
+		if (uiTheme == 'dark')
+		{
+			refreshLink.style.filter = 'invert(100%)';
+		}
+		
+		mxEvent.addListener(refreshLink, 'click', function(evt)
+		{
+			refresh();
+			
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(refreshLink);
+	}
+	
+	if (editorUi.commentsSaveNeeded())
+	{
+		var saveLink = link.cloneNode();
+		saveLink.innerHTML = '<img src="/images/save.png" style="width: 20px; padding: 2px;">';
+		saveLink.setAttribute('title', mxResources.get('save'));
+	
+		if (uiTheme == 'dark')
+		{
+			saveLink.style.filter = 'invert(100%)';
+		}
+		
+		mxEvent.addListener(saveLink, 'click', function(evt)
+		{
+			saveCallback();
+			
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(saveLink);
+	}
+
+	div.appendChild(ldiv);	
+
+	var comments = [];
+
+	var refresh = mxUtils.bind(this, function()
+	{
+		if (curEdited != null)
+		{
+			curEdited.div = curEdited.div.cloneNode(true);
+			var commentEditTxt = curEdited.div.querySelector('.geCommentEditTxtArea');
+			var commentEditBtns = curEdited.div.querySelector('.geCommentEditBtns');
+			
+			curEdited.comment.content = commentEditTxt.value;
+			commentEditTxt.parentNode.removeChild(commentEditTxt);
+			commentEditBtns.parentNode.removeChild(commentEditBtns);
+		}
+		
+		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="/images/spin.gif" valign="middle"> ' +
+			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
+		
+		canReplyToReplies = editorUi.canReplyToReplies();
+		
+		if (editorUi.commentsSupported())
+		{
+			editorUi.getComments(function(list)
+			{
+				function sortReplies(replies)
+				{
+					if (replies != null)
+					{
+						//Sort replies old to new
+						replies.sort(function(r1, r2)
+						{
+							return new Date(r1.modifiedDate) - new Date(r2.modifiedDate);
+						});
+						
+						for (var i = 0; i < replies.length; i++)
+						{
+							sortReplies(replies[i].replies);
+						}						
+					}
+				};
+				
+				//Sort comments old to new
+				list.sort(function(c1, c2)
+				{
+					return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
+				});
+
+				listDiv.innerHTML = '';
+				listDiv.appendChild(noComments);
+				noComments.style.display = 'block';
+				comments = list;
+				
+				for (var i = 0; i < comments.length; i++)
+				{
+					sortReplies(comments[i].replies);
+					addComment(comments[i], comments, null, 0, resolvedChecked);
+				}
+				
+				//New comment case
+				if (curEdited != null && curEdited.comment.id == null && curEdited.comment.pCommentId == null)
+				{
+					listDiv.appendChild(curEdited.div);
+					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+				}
+				
+			}, function()
+			{
+				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
+			});
+		}
+		else
+		{
+			//TODO if comments are not supported, close the dialog
+			listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
+		}
+	});
+
+	refresh();
+	
+	this.refreshComments = refresh;
+
+	//Refresh the modified date of each comment if the window is visible
+	var refreshCommentsTime = mxUtils.bind(this, function()
+	{
+		if (!this.window.isVisible()) return; //only update if it is visible
+		
+		var modDateDivs = listDiv.querySelectorAll('.geCommentDate');
+		var modDateDivsMap = {};
+		
+		for (var i = 0; i < modDateDivs.length; i++)
+		{
+			var div = modDateDivs[i];
+			modDateDivsMap[div.getAttribute('data-commentId')] = div;
+		}
+		
+		function processComment(comment) 
+		{
+			var div = modDateDivsMap[comment.id];
+			
+			if (div == null) return; //resolved comments
+			
+			writeCommentDate(comment, div);
+			
+			for (var i = 0; comment.replies != null && i < comment.replies.length; i++)
+			{
+				processComment(comment.replies[i]);
+			}
+		};
+		
+		for (var i = 0; i < comments.length; i++)
+		{
+			processComment(comments[i]);
+		}
+	});
+
+	//Periodically refresh time every one minute
+	setInterval(refreshCommentsTime, 60000);
+	this.refreshCommentsTime = refreshCommentsTime;
+	
+	this.window = new mxWindow(mxResources.get('comments'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 300, 200);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(true);
+	this.window.setClosable(true);
+	this.window.setVisible(true);
+	
+	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+	{
+		this.window.fit();
+	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
+};
+
+/**
+ * 
+ */
+var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel, okImg, cancelImg, showRememberOption, imgSrc)
+{
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+	
+	var p2 = document.createElement('div');
+	p2.style.padding = '6px';
+	p2.style.overflow = 'auto';
+	p2.style.maxHeight = '44px';
+	p2.style.lineHeight = '1.2em';
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		p2.style.height = '60px';
+	}
+	
+	mxUtils.write(p2, message);
+	div.appendChild(p2);
+	
+	if (imgSrc != null)
+	{
+		var p3 = document.createElement('div');
+		p3.style.padding = '6px 0 6px 0';
+		var img = document.createElement('img');
+		img.setAttribute('src', imgSrc);
+		p3.appendChild(img);
+		div.appendChild(p3);
+	}
+	
+	var btns = document.createElement('div');
+	btns.style.textAlign = 'center';
+	btns.style.whiteSpace = 'nowrap';
+
+	var cb = document.createElement('input');
+	cb.setAttribute('type', 'checkbox');
+
+	var cancelBtn = mxUtils.button(cancelLabel || mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+		
+		if (cancelFn != null)
+		{
+			cancelFn(cb.checked);
+		}
+	});
+	cancelBtn.className = 'geBtn';
+	
+	if (cancelImg != null)
+	{
+		cancelBtn.innerHTML = cancelImg + '<br>' + cancelBtn.innerHTML;
+		cancelBtn.style.paddingBottom = '8px';
+		cancelBtn.style.paddingTop = '8px';
+		cancelBtn.style.height = 'auto';
+		cancelBtn.style.width = '40%';
+	}
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+	
+	var okBtn = mxUtils.button(okLabel || mxResources.get('ok'), function()
+	{
+		editorUi.hideDialog();
+		
+		if (okFn != null)
+		{
+			okFn(cb.checked);
+		}
+	});
+	btns.appendChild(okBtn);
+	
+	if (okImg != null)
+	{
+		okBtn.innerHTML = okImg + '<br>' + okBtn.innerHTML + '<br>';
+		okBtn.style.paddingBottom = '8px';
+		okBtn.style.paddingTop = '8px';
+		okBtn.style.height = 'auto';
+		okBtn.className = 'geBtn';
+		okBtn.style.width = '40%';
+	}
+	else
+	{
+		okBtn.className = 'geBtn gePrimaryBtn';
+	}
+	
+	if (!editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	div.appendChild(btns);
+	
+	if (showRememberOption)
+	{
+		btns.style.marginTop = '10px';
+		var p2 = document.createElement('p');
+		p2.style.marginTop = '20px';
+		p2.appendChild(cb);
+		var span = document.createElement('span');
+		mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
+		p2.appendChild(span);
+		div.appendChild(p2);
+		
+		mxEvent.addListener(span, 'click', function(evt)
+		{
+			cb.checked = !cb.checked;
+			mxEvent.consume(evt);
+		});
+	}
+	else
+	{
+		btns.style.marginTop = '12px';
+	}
+
+	this.init = function()
+	{
+		okBtn.focus();
+	};
+	
+	this.container = div;
+};

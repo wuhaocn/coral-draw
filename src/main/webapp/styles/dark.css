@@ -108,7 +108,7 @@ html body .geMenubarContainer .geItem:hover, html body .geBaseButton:hover {
 html body .geToolbarContainer .geSeparator {
 	background-color:#505759;
 }
-html body .geHsplit, html body table.mxPopupMenu hr {
+html body .geHsplit, html body .geVsplit, html body table.mxPopupMenu hr {
 	border-color:#505759;
 	background-color:#2a2a2a;
 }
@@ -149,4 +149,10 @@ html body .geStatusAlert {
 html body .geStatusAlert:hover {
 	background-color:#a20025;
 	border-color:#bd002b;
+}
+html body .geCommentContainer {
+	background-color: transparent;
+	border-width: 1px;
+	box-shadow: none;
+	color: inherit;
 }

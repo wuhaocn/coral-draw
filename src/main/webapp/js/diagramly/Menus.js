@@ -743,63 +743,74 @@
 			})));
 
 			// Extends the menubar with the language menu
-			if (uiTheme != 'atlas')
+			var menusCreateMenuBar = Menus.prototype.createMenubar;
+			Menus.prototype.createMenubar = function(container)
 			{
-				var menusCreateMenuBar = Menus.prototype.createMenubar;
-				Menus.prototype.createMenubar = function(container)
+				var menubar = menusCreateMenuBar.apply(this, arguments);
+				
+				if (menubar != null)
 				{
-					var menubar = menusCreateMenuBar.apply(this, arguments);
+					var langMenu = this.get('language');
 					
-					if (menubar != null)
+					if (langMenu != null)
 					{
-						var langMenu = this.get('language');
+						var elt = menubar.addMenu('', langMenu.funct);
+						elt.setAttribute('title', mxResources.get('language'));
+						elt.style.width = '16px';
+						elt.style.paddingTop = '2px';
+						elt.style.paddingLeft = '4px';
+						elt.style.zIndex = '1';
+						elt.style.position = 'absolute';
+						elt.style.display = 'block';
+						elt.style.cursor = 'pointer';
+						elt.style.right = '17px';
 						
-						if (langMenu != null)
+						if (uiTheme == 'atlas')
 						{
-							var elt = menubar.addMenu('', langMenu.funct);
-							elt.setAttribute('title', mxResources.get('language'));
-							elt.style.width = '16px';
-							elt.style.paddingTop = '2px';
-							elt.style.paddingLeft = '4px';
-							elt.style.zIndex = '1';
-							elt.style.position = 'absolute';
-							elt.style.top = '2px';
-							elt.style.right = '17px';
-							elt.style.display = 'block';
-							elt.style.cursor = 'pointer';
-							
-							if (!mxClient.IS_VML)
-							{
-								var icon = document.createElement('div');
-								icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
-								icon.style.backgroundPosition = 'center center';
-								icon.style.backgroundRepeat = 'no-repeat';
-								icon.style.backgroundSize = '19px 19px';
-								icon.style.position = 'absolute';
-								icon.style.height = '19px';
-								icon.style.width = '19px';
-								icon.style.marginTop = '2px';
-								icon.style.zIndex = '1';
-								elt.appendChild(icon);
-								mxUtils.setOpacity(elt, 40);
-								
-								if (uiTheme == 'dark')
-								{
-									elt.style.filter = 'invert(100%)';
-								}
-							}
-							else
-							{
-								elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
-							}
-							
-							document.body.appendChild(elt);
+							elt.style.top = '6px';
+							elt.style.right = '15px';
 						}
+						else if (uiTheme == 'min')
+						{
+							elt.style.top = '2px';
+						}
+						else
+						{
+							elt.style.top = '0px';
+						}
+						
+						if (!mxClient.IS_VML)
+						{
+							var icon = document.createElement('div');
+							icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
+							icon.style.backgroundPosition = 'center center';
+							icon.style.backgroundRepeat = 'no-repeat';
+							icon.style.backgroundSize = '19px 19px';
+							icon.style.position = 'absolute';
+							icon.style.height = '19px';
+							icon.style.width = '19px';
+							icon.style.marginTop = '2px';
+							icon.style.zIndex = '1';
+							elt.appendChild(icon);
+							mxUtils.setOpacity(elt, 40);
+							
+							if (uiTheme == 'atlas' || uiTheme == 'dark')
+							{
+								elt.style.opacity = '0.85';
+								elt.style.filter = 'invert(100%)';
+							}
+						}
+						else
+						{
+							elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
+						}
+						
+						document.body.appendChild(elt);
 					}
-	
-					return menubar;
-				};
-			}
+				}
+
+				return menubar;
+			};
 		}
 		
 		this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -829,7 +840,7 @@
 						this.editorUi.openLink('https://desk.draw.io/support/search/solutions?term=' +
 							encodeURIComponent(term));
 						input.value = '';
-						EditorUi.logEvent({category: 'Help', action: 'search', label: term});
+						EditorUi.logEvent({category: 'SEARCH-HELP', action: 'search', label: term});
 						
 						if (this.editorUi.menubar != null)
 						{
@@ -877,8 +888,7 @@
 
 				this.addMenuItems(menu, ['support', '-'], parent);
 				
-				if (!editorUi.isOffline() && !EditorUi.isElectronApp &&
-					!navigator.standalone && urlParams['embed'] != '1')
+				if (!EditorUi.isElectronApp && !navigator.standalone && urlParams['embed'] != '1')
 				{
 					this.addMenuItems(menu, ['downloadDesktop'], parent);
 				}
@@ -1813,7 +1823,7 @@
 						// as slightly different semantic, but works the same way.
 						service.getFile(id, function(file)
 						{
-							var mime = getMimeType(file.getTitle());
+							var mime = (file.getData().substring(0, 11) == 'data:image/') ? getMimeType(file.getTitle()) : 'text/xml';
 							
 							// Imports SVG as images
 							if (/\.svg$/i.test(file.getTitle()) && !editorUi.editor.isDataSvg(file.getData()))
@@ -2760,9 +2770,9 @@
 				{
 					menu.addSeparator(parent);
 					
-					menu.addItem(mxResources.get('confCloud', null, 'Confluence Cloud') + '...', null, function()
+					menu.addItem(mxResources.get('confluenceCloud') + '...', null, function()
 					{
-						editorUi.showRemotelyStoredLibrary(mxResources.get('confCloudLibs', null, 'Confluence Cloud Libraries'));
+						editorUi.showRemotelyStoredLibrary(mxResources.get('libraries'));
 					}, parent);
 				}
 			}));
@@ -2772,24 +2782,76 @@
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
-									 'find', '-',
-			                         'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
+									 'find', '-', 'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
 			                         'edit', '-', 'editLink', 'openLink', '-',
 			                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
 		})));
+
+		var action = editorUi.actions.addAction('comments', mxUtils.bind(this, function()
+		{
+			if (this.commentsWindow == null)
+			{
+				// LATER: Check outline window for initial placement
+				this.commentsWindow = new CommentsWindow(editorUi, document.body.offsetWidth - 380, 120, 300, 350);
+				//TODO Are these events needed?
+				this.commentsWindow.window.addListener('show', function()
+				{
+					editorUi.fireEvent(new mxEventObject('comments'));
+				});
+				this.commentsWindow.window.addListener('hide', function()
+				{
+					editorUi.fireEvent(new mxEventObject('comments'));
+				});
+				this.commentsWindow.window.setVisible(true);
+				editorUi.fireEvent(new mxEventObject('comments'));
+			}
+			else
+			{
+				this.commentsWindow.window.setVisible(!this.commentsWindow.window.isVisible());
+				this.commentsWindow.refreshCommentsTime();
+			}
+		}));
+		action.setToggleAction(true);
+		action.setSelectedCallback(mxUtils.bind(this, function() { return this.commentsWindow != null && this.commentsWindow.window.isVisible(); }));
+
+		// Destroys comments window to force update or disable if not supported
+		editorUi.editor.addListener('fileLoaded', mxUtils.bind(this, function()
+		{
+			if (this.commentsWindow != null)
+			{
+				this.commentsWindow.destroy();
+				this.commentsWindow = null;
+			}
+		}));
 		
+		// Extends toolbar dropdown to add comments
+		var viewPanelsMenu = this.get('viewPanels');
+		var viewPanelsFunct = viewPanelsMenu.funct;
+		
+		viewPanelsMenu.funct = function(menu, parent)
+		{
+			viewPanelsFunct.apply(this, arguments);
+			
+			if (editorUi.commentsSupported())
+			{
+				editorUi.menus.addMenuItems(menu, ['comments'], parent);
+			}
+		};
+
 		// Overrides view menu to add search and scratchpad
 		this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ((this.editorUi.format != null) ? ['formatPanel'] : []).
-				concat(['outline', 'layers', '-']));
+				concat(['outline', 'layers']).concat((editorUi.commentsSupported()) ?
+				['comments', '-'] : ['-']));
+			
 			this.addMenuItems(menu, ['-', 'search'], parent);
 			
 			if (isLocalStorage || mxClient.IS_CHROMEAPP)
 			{
 				var item = this.addMenuItem(menu, 'scratchpad', parent);
 				
-				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 				{
 					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000042367');
 				}
@@ -2821,7 +2883,11 @@
 			if (typeof(MathJax) !== 'undefined')
 			{
 				var item = this.addMenuItem(menu, 'mathematicalTypesetting', parent);
-				this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+				
+				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+				{
+					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+				}
 			}
 			
 			if (urlParams['embed'] != '1')
@@ -2940,7 +3006,7 @@
 					
 					var item = this.addMenuItem(menu, 'synchronize', parent);
 					
-					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 					{
 						this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
 					}
@@ -2971,7 +3037,7 @@
 						menu.addSeparator(parent);
 						var item = this.addMenuItem(menu, 'synchronize', parent);
 						
-						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
+						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 						{
 							this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
 						}

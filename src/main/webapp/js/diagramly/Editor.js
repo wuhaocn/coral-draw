@@ -40,6 +40,16 @@
 	/**
 	 * 
 	 */
+	Editor.commentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMjEuOTkgNGMwLTEuMS0uODktMi0xLjk5LTJINGMtMS4xIDAtMiAuOS0yIDJ2MTJjMCAxLjEuOSAyIDIgMmgxNGw0IDQtLjAxLTE4ek0xOCAxNEg2di0yaDEydjJ6bTAtM0g2VjloMTJ2MnptMC0zSDZWNmgxMnYyeiIvPjxwYXRoIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiLz48L3N2Zz4=';
+
+	/**
+	 * 
+	 */
+	Editor.commentImageInverted = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABLElEQVRYR+2Wvy4FQRjFf4dINAq9XqtSaVRqXArPINEodUqlhxC5/pU6nYdQSHQeQTRHNtmVuXuXrIxv1k1sN5vMOb85c75kxMCfBvZnCsD2ErAGzAfAvUt6THUnAGwfAWfAQoB5I3kh6aBZfALYXgGeg80b31VJT9UiBRgB48CTp9Lbku7aAPvAZSGAHUm3swEgKWtUbbsj1f4JDA4AbGb24iErgUzzr7bvSrrpVcKgK5ghgKAO9E/gvwNBJRxJuu41BUEd+BFARA3+JsAWcB9x3A7NzgSqt+ALsFwAYhqgMrW9Ub8J14G5QJBugAhD2yfAaUt7T9LVxBhGmDeato/rZJtfZQHq600hygPUEIfAOTAMQALxWrQD7X7ZXpT0VqyE3xU868n9G5PzASPvpiHavBAUAAAAAElFTkSuQmCC';
+	
+	/**
+	 * 
+	 */
 	Editor.userImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgMTJjMi4yMSAwIDQtMS43OSA0LTRzLTEuNzktNC00LTQtNCAxLjc5LTQgNCAxLjc5IDQgNCA0em0wIDJjLTIuNjcgMC04IDEuMzQtOCA0djJoMTZ2LTJjMC0yLjY2LTUuMzMtNC04LTR6Ii8+PC9zdmc+';
 
 	/**
@@ -338,6 +348,7 @@
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
+			DrawioFile.prototype.autosaveDelay = config.autosaveDelay || DrawioFile.prototype.autosaveDelay;
 			
 			if (config.templateFile != null)
 			{
@@ -940,7 +951,6 @@
 	    return a;
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Returns true if the given URL is known to have CORS headers.
 	 */
@@ -955,6 +965,7 @@
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
+			/^https?:\/\/[^\/]*\.blob.core.windows.net\//.test(url) ||
 			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
@@ -2430,7 +2441,7 @@
 			// TODO: Update sstate in Format
 			var sstate = this.format.createSelectionState();
 
-			if (sstate.style.shape != 'image')
+			if (sstate.style.shape != 'image' && !sstate.containsLabel)
 			{
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
@@ -2453,8 +2464,10 @@
 					this.findCommonProperties(edges[i], properties, vertices.length == 0 && i == 0);
 				}
 
-				if (Object.getOwnPropertyNames(properties).length > 0)
+				if (Object.getOwnPropertyNames != null && Object.getOwnPropertyNames(properties).length > 0)
+				{
 					this.container.appendChild(this.addProperties(this.createPanel(), properties, sstate));
+				}
 			}
 		};
 
@@ -2592,6 +2605,11 @@
 							changedProps.push(prop.dependentProps[i]);
 							changedVals.push(vals);
 						}
+					}
+					
+					if (typeof(prop.onChange) == 'function')
+					{
+						prop.onChange(graph, newVal);
 					}
 					
 					that.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', changedProps,
@@ -3416,15 +3434,36 @@
 			mouseEvent = evt;
 			
 			// Workaround for member not found in IE8-
-			if (mxClient.IS_QUIRKS || document.documentMode == 7 || document.documentMode == 8)
+			try
 			{
-				mouseEvent = mxUtils.clone(evt);
+				if (mxClient.IS_QUIRKS || document.documentMode == 7 || document.documentMode == 8)
+				{
+					mouseEvent = document.createEventObject(evt);
+					mouseEvent.type = evt.type;
+					mouseEvent.canBubble = evt.canBubble;
+					mouseEvent.cancelable = evt.cancelable;
+					mouseEvent.view = evt.view;
+					mouseEvent.detail = evt.detail;
+					mouseEvent.screenX = evt.screenX;
+					mouseEvent.screenY = evt.screenY;
+					mouseEvent.clientX = evt.clientX;
+					mouseEvent.clientY = evt.clientY;
+					mouseEvent.ctrlKey = evt.ctrlKey;
+					mouseEvent.altKey = evt.altKey;
+					mouseEvent.shiftKey = evt.shiftKey;
+					mouseEvent.metaKey = evt.metaKey;
+					mouseEvent.button = evt.button;
+					mouseEvent.relatedTarget = evt.relatedTarget;
+				}
+			}
+			catch (e)
+			{
+				// ignores possible event cloning errors
 			}
 		};
 		
 		mxEvent.addListener(this.container, 'mouseenter', setMouseEvent);
 		mxEvent.addListener(this.container, 'mousemove', setMouseEvent);
-		
 		mxEvent.addListener(this.container, 'mouseleave', function(evt)
 		{
 			mouseEvent = null;
@@ -3452,41 +3491,28 @@
 		
 		this.layoutManager.getLayout = function(cell)
 		{
-			var state = this.graph.view.getState(cell);
-			var style = (state != null) ? state.style : this.graph.getCellStyle(cell);
+			// Workaround for possible invalid style after change and before view validation
+			var style = this.graph.getCellStyle(cell);
 			
 			// mxRackContainer may be undefined as it is dynamically loaded at render time
 			if (style != null)
 			{
-				if (typeof(mxRackContainer) != 'undefined' && style['childLayout'] == 'rack')
+				if (style['childLayout'] == 'rack')
 				{
 					var rackLayout = new mxStackLayout(this.graph, false);
 					
-					rackLayout.setChildGeometry = function(child, geo)
-					{
-						var unitSize = 20;
-						geo.height = Math.max(geo.height, unitSize);
-						
-						if (geo.height / unitSize > 1)
-						{
-							var mod = geo.height % unitSize;
-							geo.height += mod > unitSize / 2 ? (unitSize - mod) : -mod;
-						}
-				
-						this.graph.getModel().setGeometry(child, geo);
-					};
-				
 					rackLayout.fill = true;
-					rackLayout.unitSize = mxRackContainer.unitSize | 20;
+					rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : 20;
 					rackLayout.marginLeft = style['marginLeft'] || 0;
 					rackLayout.marginRight = style['marginRight'] || 0;
 					rackLayout.marginTop = style['marginTop'] || 0;
 					rackLayout.marginBottom = style['marginBottom'] || 0;
+					rackLayout.allowGaps = style['allowGaps'] || 0;
 					rackLayout.resizeParent = false;
 					
 					return rackLayout;
 				}
-				else if (typeof(mxTableLayout) != 'undefined' && style['childLayout'] == 'tableLayout')
+				else if (typeof mxTableLayout !== 'undefined' && style['childLayout'] == 'tableLayout')
 		        {
 		            var tableLayout = new mxTableLayout(this.graph);
 		            tableLayout.rows = style['tableRows'] || 2;
@@ -4119,6 +4145,7 @@
 	mxStencilRegistry.libraries['ios7icons'] = [STENCIL_PATH + '/ios7/icons.xml'];
 	mxStencilRegistry.libraries['ios7ui'] = [SHAPES_PATH + '/ios7/mxIOS7Ui.js', STENCIL_PATH + '/ios7/misc.xml'];
 	mxStencilRegistry.libraries['android'] = [SHAPES_PATH + '/mxAndroid.js', STENCIL_PATH + '/android/android.xml'];
+	mxStencilRegistry.libraries['electrical/miscellaneous'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/miscellaneous.xml'];
 	mxStencilRegistry.libraries['electrical/transmission'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/transmission.xml'];
 	mxStencilRegistry.libraries['electrical/logic_gates'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/logic_gates.xml'];
 	mxStencilRegistry.libraries['electrical/abstract'] = [SHAPES_PATH + '/mxElectrical.js', STENCIL_PATH + '/electrical/abstract.xml'];

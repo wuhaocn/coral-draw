@@ -763,132 +763,6 @@ var SplashDialog = function(editorUi)
 };
 
 /**
- * 
- */
-var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel, okImg, cancelImg, showRememberOption, imgSrc)
-{
-	var div = document.createElement('div');
-	div.style.textAlign = 'center';
-	
-	var p2 = document.createElement('div');
-	p2.style.padding = '6px';
-	p2.style.overflow = 'auto';
-	p2.style.maxHeight = '44px';
-	p2.style.lineHeight = '1.2em';
-	
-	if (mxClient.IS_QUIRKS)
-	{
-		p2.style.height = '60px';
-	}
-	
-	mxUtils.write(p2, message);
-	div.appendChild(p2);
-	
-	if (imgSrc != null)
-	{
-		var p3 = document.createElement('div');
-		p3.style.padding = '6px 0 6px 0';
-		var img = document.createElement('img');
-		img.setAttribute('src', imgSrc);
-		p3.appendChild(img);
-		div.appendChild(p3);
-	}
-	
-	var btns = document.createElement('div');
-	btns.style.textAlign = 'center';
-	btns.style.whiteSpace = 'nowrap';
-
-	var cb = document.createElement('input');
-	cb.setAttribute('type', 'checkbox');
-
-	var cancelBtn = mxUtils.button(cancelLabel || mxResources.get('cancel'), function()
-	{
-		editorUi.hideDialog();
-		
-		if (cancelFn != null)
-		{
-			cancelFn(cb.checked);
-		}
-	});
-	cancelBtn.className = 'geBtn';
-	
-	if (cancelImg != null)
-	{
-		cancelBtn.innerHTML = cancelImg + '<br>' + cancelBtn.innerHTML;
-		cancelBtn.style.paddingBottom = '8px';
-		cancelBtn.style.paddingTop = '8px';
-		cancelBtn.style.height = 'auto';
-		cancelBtn.style.width = '40%';
-	}
-	
-	if (editorUi.editor.cancelFirst)
-	{
-		btns.appendChild(cancelBtn);
-	}
-	
-	var okBtn = mxUtils.button(okLabel || mxResources.get('ok'), function()
-	{
-		editorUi.hideDialog();
-		
-		if (okFn != null)
-		{
-			okFn(cb.checked);
-		}
-	});
-	btns.appendChild(okBtn);
-	
-	if (okImg != null)
-	{
-		okBtn.innerHTML = okImg + '<br>' + okBtn.innerHTML + '<br>';
-		okBtn.style.paddingBottom = '8px';
-		okBtn.style.paddingTop = '8px';
-		okBtn.style.height = 'auto';
-		okBtn.className = 'geBtn';
-		okBtn.style.width = '40%';
-	}
-	else
-	{
-		okBtn.className = 'geBtn gePrimaryBtn';
-	}
-	
-	if (!editorUi.editor.cancelFirst)
-	{
-		btns.appendChild(cancelBtn);
-	}
-
-	div.appendChild(btns);
-	
-	if (showRememberOption)
-	{
-		btns.style.marginTop = '10px';
-		var p2 = document.createElement('p');
-		p2.style.marginTop = '20px';
-		p2.appendChild(cb);
-		var span = document.createElement('span');
-		mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
-		p2.appendChild(span);
-		div.appendChild(p2);
-		
-		mxEvent.addListener(span, 'click', function(evt)
-		{
-			cb.checked = !cb.checked;
-			mxEvent.consume(evt);
-		});
-	}
-	else
-	{
-		btns.style.marginTop = '12px';
-	}
-
-	this.init = function()
-	{
-		okBtn.focus();
-	};
-	
-	this.container = div;
-};
-
-/**
  * Constructs a new embed dialog
  */
 var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title)
@@ -2758,7 +2632,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename')) + ':');
 	}
 	
-	var ext = '.xml';
+	var ext = '.drawio';
 	
 	if (editorUi.mode == App.MODE_GOOGLE && editorUi.drive != null)
 	{
@@ -3790,7 +3664,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				}
 				else if (newMode == App.MODE_DEVICE)
 				{
-					ext = '.xml';
+					ext = '.drawio';
 				}
 				
 				if (idx >= 0)
@@ -5050,7 +4924,7 @@ var FeedbackDialog = function(editorUi)
 	textarea.style.height = '140px';
 	textarea.style.marginTop = '6px';
 	
-	textarea.setAttribute('placeholder', mxResources.get('commentsNotes'));
+	textarea.setAttribute('placeholder', mxResources.get('comments'));
 	
 	div.appendChild(textarea);
 
@@ -5271,7 +5145,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		if (currentDoc != null)
 		{
     		var data = mxUtils.getXml(currentDoc.documentElement);
-			var filename = editorUi.getBaseFilename() + '.xml';
+			var filename = editorUi.getBaseFilename() + '.drawio';
     		
 	    	if (editorUi.isLocalFileSave())
 	    	{
@@ -6271,6 +6145,8 @@ var FindWindow = function(ui, x, y, w, h)
 	
 	this.window.addListener('show', mxUtils.bind(this, function()
 	{
+		this.window.fit();
+		
 		if (this.window.isVisible())
 		{
 			searchInput.focus();
@@ -6289,6 +6165,36 @@ var FindWindow = function(ui, x, y, w, h)
 			graph.container.focus();
 		}
 	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
 };
 
 /**
@@ -6418,6 +6324,8 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	
 	this.window.addListener('show', mxUtils.bind(this, function()
 	{
+		this.window.fit();
+		
 		if (this.window.isVisible())
 		{
 			searchInput.focus();
@@ -6436,6 +6344,36 @@ var TagsWindow = function(editorUi, x, y, w, h)
 			graph.container.focus();
 		}
 	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
 };
 
 /**
@@ -7032,7 +6970,7 @@ var PluginsDialog = function(editorUi)
 				{
 					return function()
 					{
-						editorUi.confirm(window.parent.mxResources.get('delete') + ' "' + plugins[index] + '"?', function()
+						editorUi.confirm(mxResources.get('delete') + ' "' + plugins[index] + '"?', function()
 						{
 							plugins.splice(index, 1);
 							refresh();
@@ -8276,23 +8214,23 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 
 	var btn = mxUtils.button(mxResources.get('export'), function()
 	{
-	    	var data = editorUi.createLibraryDataFromImages(images);
-	    	var filename = nameInput.value;
+    	var data = editorUi.createLibraryDataFromImages(images);
+    	var filename = nameInput.value;
 	    	
 		if (!/(\.xml)$/i.test(filename))
 		{
 			filename += '.xml';
 		}
 	    	
-	    	if (editorUi.isLocalFileSave())
-	    	{
-	    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, true);
-	    	}
-	    	else
-	    	{
-	    		new mxXmlRequest(SAVE_URL, 'filename=' + encodeURIComponent(filename) +
-	    			'&format=xml&xml=' + encodeURIComponent(data)).simulate(document, '_blank');
-	    	}
+    	if (editorUi.isLocalFileSave())
+    	{
+    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, true);
+    	}
+    	else
+    	{
+    		new mxXmlRequest(SAVE_URL, 'filename=' + encodeURIComponent(filename) +
+    			'&format=xml&xml=' + encodeURIComponent(data)).simulate(document, '_blank');
+    	}
 	});
 	
 	btn.setAttribute('id', 'btnDownload');

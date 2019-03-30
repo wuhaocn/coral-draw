@@ -630,9 +630,7 @@ DrawioFileSync.prototype.fileChanged = function(success, error, abort)
 						}
 						else
 						{
-							this.catchup(this.file.getDescriptorEtag(desc),
-								this.file.getDescriptorSecret(desc),
-								success, error, abort);
+							this.catchup(desc, success, error, abort);
 						}
 					}
 				}), error);
@@ -684,12 +682,14 @@ DrawioFileSync.prototype.updateDescriptor = function(desc)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
+DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 {
 	if (abort == null || !abort())
 	{
+		var secret = this.file.getDescriptorSecret(desc);
+		var etag = this.file.getDescriptorEtag(desc);
 		var current = this.file.getCurrentEtag();
-	
+		
 		if (current == etag)
 		{
 			if (success != null)
@@ -820,7 +820,7 @@ DrawioFileSync.prototype.catchup = function(etag, secret, success, error, abort)
 										if (temp.length > 0)
 										{
 											this.file.stats.cacheHits++;
-											this.merge(temp, checksum, etag, success, error, abort);
+											this.merge(temp, checksum, desc, success, error, abort);
 										}
 										// Retries if cache entry was not yet there
 										else if (cacheReadyRetryCount <= this.maxCacheReadyRetries &&
@@ -882,7 +882,7 @@ DrawioFileSync.prototype.reload = function(success, error, abort, shadow)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, error, abort)
+DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, error, abort)
 {
 	try
 	{
@@ -897,6 +897,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 			this.ui.diffPages(this.file.shadowPages,
 			this.ui.pages) : null;
 		var ignored = this.file.ignorePatches(patches);
+		var etag = this.file.getDescriptorEtag(desc);
 
 		if (!ignored)
 		{
@@ -941,12 +942,28 @@ DrawioFileSync.prototype.merge = function(patches, checksum, etag, success, erro
 				this.file.patch(patches,
 					(DrawioFile.LAST_WRITE_WINS) ?
 					this.file.backupPatch : null);
+				
+				// Logs successull patch
+				try
+				{
+					var user = this.file.getCurrentUser();
+					var uid = (user != null) ? user.id : 'unknown';
+
+					EditorUi.logEvent({category: 'PATCH-SYNC-FILE-' + this.file.getHash(),
+						action: uid + '-patches-' + patches.length + '-recvd-' +
+						this.file.stats.bytesReceived + '-msgs-' + this.file.stats.msgReceived,
+						label: this.clientId});
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}
 		}
 
 		this.file.invalidChecksum = false;
 		this.file.inConflictState = false;
-		this.file.setCurrentEtag(etag);
+		this.file.patchDescriptor(this.file.getDescriptor(), desc);
 		this.file.backupPatch = null;
 		
 		if (success != null)
@@ -1099,6 +1116,22 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error)
 					'from', etag, 'to', current, data.length,
 					'bytes', 'diff', diff, 'checksum', checksum);
 			}
+			
+			// Logs successull diff
+			try
+			{
+				var user = this.file.getCurrentUser();
+				var uid = (user != null) ? user.id : 'unknown';
+				
+				EditorUi.logEvent({category: 'DIFF-SYNC-FILE-' + this.file.getHash(),
+					action: uid + '-diff-' + data.length + '-sent-' +
+					this.file.stats.bytesSent + '-msgs-' +
+					this.file.stats.msgSent, label: this.clientId});
+			}
+			catch (e)
+			{
+				// ignore
+			}
 		}
 	}
 	
@@ -1117,7 +1150,8 @@ DrawioFileSync.prototype.getIdParameters = function()
 {
 	var result = 'id=' + this.channelId;
 	
-	if (this.pusher != null && this.pusher.connection != null)
+	if (this.pusher != null && this.pusher.connection != null &&
+		this.pusher.connection.socket_id != null)
 	{
 		result += '&sid=' + this.pusher.connection.socket_id;
 	}
@@ -1146,9 +1180,7 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 		
 		if (desc != null)
 		{
-			var etag = this.file.getDescriptorEtag(desc);
-			var secret = this.file.getDescriptorSecret(desc);
-			this.catchup(etag, secret, success, error);
+			this.catchup(desc, success, error);
 		}
 		else
 		{

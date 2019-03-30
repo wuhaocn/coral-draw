@@ -192,6 +192,8 @@
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
+				<file name="DrawioComment.js" />
+				<file name="DrawioUser.js" />
 			</sources>
 					
 			<sources dir="${basedir}">
@@ -353,6 +355,8 @@
 				<file name="TrelloFile.js" />
 				<file name="TrelloLibrary.js" />
 				<file name="TrelloClient.js" />
+				<file name="DrawioComment.js" />
+				<file name="DriveComment.js" />
 			</sources>
 			
 			<sources dir="${war.dir}/js/diagramly">
