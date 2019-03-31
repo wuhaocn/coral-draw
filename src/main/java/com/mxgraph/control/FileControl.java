@@ -98,7 +98,7 @@ public class FileControl {
         if (dataList == null){
             dataList = new ArrayList<>();
         }
-        PageUtils pageUtils = new PageUtils(dataList.size(), 200, dataList);
+        PageUtils pageUtils = new PageUtils(dataList.size(), 0, dataList);
         return pageUtils;
     }
 }

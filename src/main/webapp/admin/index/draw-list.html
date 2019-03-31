@@ -27,13 +27,20 @@
 							<button class="layui-btn layui-btn-normal" lay-submit="search">搜索</button>
 						</div>
 					</form>
+
 					<div class="layui-form" id="table-list">
-						<table class="layui-hide" id="table_drawlist"></table>
+						<table class="layui-hide" id="table_drawlist" lay-filter="tableOpt"></table>
 					</div>
 				</div>
 		</div>
 		<script src="../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
+
+		<script type="text/html" id="optTool">
+			<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">编辑</a>
+			<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">删除</a>
+		</script>
+
 		<script>
 			layui.use('table', function(){
 				var table = layui.table;
@@ -45,15 +52,28 @@
 					,url: '/file/list/publicUser' //数据接口
 					,page: true //开启分页
 					,cols: [[ //表头
-						{field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
-						,{field: 'name', title: '文件名', width:80}
-						,{field: 'owner_id', title: '拥有者', width:80}
-						,{field: 'create_time', title: '创建时间', width:80}
+						{field: 'name', title: '文件名'}
+						,{field: 'ownerId', title: '拥有者'}
+						,{field: 'createTime', title: '创建时间' ,sort: true,}
+						,{field: 'updateTime', title: '更新时间' ,sort: true,}
+						,{field: 'uuid', fixed: 'right', width:150, align:'center', toolbar: '#optTool'}
 					]]
 				});
 
+				//监听性别操作
+				table.on('tool(tableOpt)', function(obj){
+					console.log("drawViewEdit", obj)
+					var uuid = obj.data.uuid;
+					var ownerId = obj.data.ownerId;
+					var urlOPen = "/index.html?offline=1&uuid=" + uuid + "&ownerId=" + ownerId;
+					window.open(urlOPen);                 //在另外新建窗口中打开窗口
+				});
 			});
+
+
 		</script>
+
+
 	</body>
 
 </html>

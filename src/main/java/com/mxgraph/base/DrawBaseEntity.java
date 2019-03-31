@@ -19,7 +19,6 @@ import java.util.Date;
 @Data
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value={"hibernateLazyInitializer","handler","fieldHandler"})
 public abstract class DrawBaseEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;
