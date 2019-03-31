@@ -47,9 +47,9 @@
 					</div>
 					<ul class="layui-nav" lay-filter="rightNav">
 					  <li class="layui-nav-item">
-					    <a href="javascript:;" data-url="admin-info.html" data-id='5' data-text="个人信息">超级管理员</a>
+					    <a id="user_div" href="javascript:;">publicUser</a>
 					  </li>
-					  <li class="layui-nav-item"><a href="javascript:;">退出</a></li>
+					  <li id="login_div" style="color: #00a0e9" class="layui-nav-item"><a href="login.html">请登录</a></li>
 					</ul>
 				</div>
 				<!--主体内容-->
@@ -74,14 +74,23 @@
 
 			</div>
 		</div>
+        <script src="../static/admin/js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">
 			var scope={
 				link:'./welcome.html'
 			}
+			checkUser();
+			function checkUser() {
+                $.get("/user/get",function(data,status){
+                    console.log(data, status)
+                });
+
+            }
 		</script>
 		<script src="../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
 		<script src="../static/admin/js/main.js" type="text/javascript" charset="utf-8"></script>
+
 
 	</body>
 </html>

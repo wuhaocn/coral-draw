@@ -7,7 +7,7 @@ import org.springframework.util.Base64Utils;
 
 public class UidUtils {
     public  static String getUid(String user){
-        String uid = System.currentTimeMillis() + Base64Utils.encodeToString(user.getBytes());
+        String uid = System.currentTimeMillis() + "_" + user.getBytes().hashCode();
         return uid;
     }
 

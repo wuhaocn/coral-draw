@@ -6,6 +6,7 @@ import com.mxgraph.bean.PageData;
 import com.mxgraph.config.CoralConfig;
 import com.mxgraph.service.DrawDataService;
 import com.mxgraph.utils.HttpUtil;
+import com.mxgraph.utils.SessionUtils;
 import com.mysql.jdbc.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,12 +94,12 @@ public class FileControl {
 
     @GetMapping("/list")
     @ResponseBody
-    public PageData get(@PathVariable String ownerId) throws IOException {
-        List<DrawData> dataList = dataService.findByOwnerId(ownerId);
+    public PageData get(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<DrawData> dataList = dataService.findByOwnerId(SessionUtils.getCurUid(request));
         if (dataList == null){
             dataList = new ArrayList<>();
         }
-        PageData pageUtils = new PageData(dataList.size(), 0, dataList);
-        return pageUtils;
+        PageData pageData = new PageData(dataList.size(), 0, dataList);
+        return pageData;
     }
 }

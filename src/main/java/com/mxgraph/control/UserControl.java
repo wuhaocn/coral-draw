@@ -73,7 +73,7 @@ public class UserControl {
     }
 
 
-    @PostMapping("/get")
+    @GetMapping("/get")
     @ResponseBody
     public DrawResult save(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Object drawUser = request.getSession().getAttribute(CoralConfig.SESSION_KEY);

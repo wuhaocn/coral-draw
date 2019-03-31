@@ -1,5 +1,8 @@
 package com.mxgraph.base;
 
+import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,7 +17,7 @@ import java.util.List;
 // JDK8函数式接口注解 仅能包含一个抽象方法
 @FunctionalInterface
 public interface DrawBaseService<E, ID extends Serializable> {
-
+    Logger LOGGER = LoggerFactory.getLogger(DrawBaseService.class);
     public DrawBaseDao<E, ID> getRepository();
     
     /**
@@ -48,8 +51,12 @@ public interface DrawBaseService<E, ID extends Serializable> {
      * @return
      */
     public default E save(E entity) {
-
-        return getRepository().save(entity);
+        try {
+            return getRepository().save(entity);
+        } catch (Exception e){
+            LOGGER.error("{}:{}", JSONObject.toJSONString(entity), e.getMessage());
+        }
+        return null;
     }
 
     /**

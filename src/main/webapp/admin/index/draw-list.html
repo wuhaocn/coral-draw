@@ -16,15 +16,10 @@
 				<div class="column-content-detail">
 					<form class="layui-form" action="">
 						<div class="layui-form-item">
-							<div class="layui-inline tool-btn">
-								<button class="layui-btn layui-btn-small layui-btn-normal addBtn" data-url="article-add.html"><i class="layui-icon">&#xe654;</i></button>
-								<button class="layui-btn layui-btn-small layui-btn-danger delBtn"  data-url="article-add.html"><i class="layui-icon">&#xe640;</i></button>
-								<button class="layui-btn layui-btn-small layui-btn-warm listOrderBtn hidden-xs" data-url="article-add.html"><i class="iconfont">&#xe656;</i></button>
-							</div>
-							<div class="layui-inline">
-								<input type="text" name="title" required lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
-							</div>
-							<button class="layui-btn layui-btn-normal" lay-submit="search">搜索</button>
+							<button class="layui-btn layui-btn-small layui-btn-normal addBtn" onclick="createDraw()">
+								<i class="layui-icon">&#xe654;</i>
+							</button>
+
 						</div>
 					</form>
 
@@ -71,6 +66,10 @@
 			});
 
 
+			function createDraw() {
+				var urlOPen = "/draw";
+				window.open(urlOPen);                 //在另外新建窗口中打开窗口
+			}
 		</script>
 
 

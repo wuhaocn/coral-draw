@@ -21,18 +21,18 @@ layui.use(['form', 'jquery', 'laydate', 'layer', 'laypage', 'dialog',   'element
 	});
 	//渲染表单
 	form.render();	
-	//顶部添加
-	$('.addBtn').click(function() {
-		var url=$(this).attr('data-url');
-		//将iframeObj传递给父级窗口,执行操作完成刷新
-		parent.page("菜单添加", url, iframeObj, w = "700px", h = "620px");
-		return false;
-
-	}).mouseenter(function() {
-
-		dialog.tips('添加', '.addBtn');
-
-	})
+	// //顶部添加
+	// $('.addBtn').click(function() {
+	// 	var url=$(this).attr('data-url');
+	// 	//将iframeObj传递给父级窗口,执行操作完成刷新
+	// 	parent.page("菜单添加", url, iframeObj, w = "700px", h = "620px");
+	// 	return false;
+	//
+	// }).mouseenter(function() {
+	//
+	// 	dialog.tips('添加', '.addBtn');
+	//
+	// })
 	//顶部排序
 	$('.listOrderBtn').click(function() {
 		var url=$(this).attr('data-url');
@@ -71,13 +71,13 @@ layui.use(['form', 'jquery', 'laydate', 'layer', 'laypage', 'dialog',   'element
 		dialog.tips('批量删除', '.delBtn');
 
 	})	
-	//列表添加
-	$('#table-list').on('click', '.add-btn', function() {
-		var url=$(this).attr('data-url');
-		//将iframeObj传递给父级窗口
-		parent.page("菜单添加", url, iframeObj, w = "700px", h = "620px");
-		return false;
-	})
+	// //列表添加
+	// $('#table-list').on('click', '.add-btn', function() {
+	// 	var url=$(this).attr('data-url');
+	// 	//将iframeObj传递给父级窗口
+	// 	parent.page("菜单添加", url, iframeObj, w = "700px", h = "620px");
+	// 	return false;
+	// })
 	//列表删除
 	$('#table-list').on('click', '.del-btn', function() {
 		var url=$(this).attr('data-url');
