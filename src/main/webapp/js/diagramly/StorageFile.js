@@ -25,6 +25,7 @@ mxUtils.extend(StorageFile, DrawioFile);
  */
 StorageFile.prototype.autosaveDelay = 2000;
 
+
 /**
  * Sets the delay for autosave in milliseconds. Default is 20000.
  */
@@ -113,15 +114,17 @@ StorageFile.prototype.saveAs = function(title, success, error)
 var synData = "";
 var synTitle = "";
 var synId = "";
+var ownerId = "";
 function saveToServer(){
 	//创建异步对象
 	var xhr = new XMLHttpRequest();
 	//设置请求的类型及url
-	xhr.open('post', '/file/save');
+	xhr.open('post', DRAW_SERVER_URL + '/save');
 	//post请求一定要添加请求头才行不然会报错
 	xhr.setRequestHeader("Content-type","application/json");
 	xhr.setRequestHeader("uuid", synId);
 	xhr.setRequestHeader("name", synTitle);
+	xhr.setRequestHeader("ownerId", ownerId);
 	//发送请求
 	xhr.send(synData);
 	xhr.onreadystatechange = function () {
@@ -153,6 +156,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 	synData = this.getData();
 	synTitle = title;
 	synId = getUrlParam("uuid");
+	ownerId = getUrlParam("ownerId");
 	console.log("storageFile synData:" , synTitle, synData); //返回一个对象
 	saveToServer();
 	if (!this.isEditable())

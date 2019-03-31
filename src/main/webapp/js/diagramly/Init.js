@@ -18,6 +18,8 @@ window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "https://convert.draw.io/emf2
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
+window.DRAW_SERVER_URL = window.DRAW_SERVER_URL || '/file';
+window.DRAWUSER = window.DRAWUSER || 'publicUser';
 window.VIEWER_URL = null;
 
 // Paths and files

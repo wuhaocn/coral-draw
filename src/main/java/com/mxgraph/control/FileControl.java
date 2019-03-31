@@ -2,6 +2,7 @@ package com.mxgraph.control;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mxgraph.bean.DrawData;
+import com.mxgraph.bean.PageUtils;
 import com.mxgraph.config.CoralConfig;
 import com.mxgraph.service.DrawDataService;
 import com.mxgraph.utils.HttpUtil;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -51,6 +54,7 @@ public class FileControl {
         if (drawData == null){
             drawData = new DrawData();
             drawData.setUuid(uuid);
+            drawData.setOwnerId(uuid);
             drawData.setName(CoralConfig.DNAME);
             drawData.setBody(CoralConfig.DXML.getBytes());
 
@@ -69,12 +73,14 @@ public class FileControl {
         String xmlBody = HttpUtil.getBodyString(request);
         String xmlName = request.getHeader("name");
         String xmlId = request.getHeader("uuid");
+        String ownerId = request.getHeader("ownerId");
         LOGGER.info("save File:{}", xmlId);
         DrawData drawData = dataService.findByUuid(xmlId);
         if (drawData == null){
             drawData = new DrawData();
         }
         drawData.setUuid(xmlId);
+        drawData.setOwnerId(ownerId);
         drawData.setName(xmlName);
         drawData.setBody(xmlBody.getBytes());
 
@@ -84,4 +90,15 @@ public class FileControl {
     }
 
 
+
+    @GetMapping("/list/{ownerId}")
+    @ResponseBody
+    public PageUtils get(@PathVariable String ownerId) throws IOException {
+        List<DrawData> dataList = dataService.findByOwnerId(ownerId);
+        if (dataList == null){
+            dataList = new ArrayList<>();
+        }
+        PageUtils pageUtils = new PageUtils(dataList.size(), 200, dataList);
+        return pageUtils;
+    }
 }

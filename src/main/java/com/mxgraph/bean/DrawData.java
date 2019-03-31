@@ -1,19 +1,18 @@
 package com.mxgraph.bean;
 
 import com.baomidou.mybatisplus.annotations.TableName;
-import com.mxgraph.base.KbsBaseEntity;
+import com.mxgraph.base.DrawBaseEntity;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 
 import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name="t_data_draw",uniqueConstraints=@UniqueConstraint(columnNames={"uuid"}))
-@TableName("t_data_draw")
+@Table(name="t_draw_data",uniqueConstraints=@UniqueConstraint(columnNames={"uuid"}))
+@TableName("t_draw_data")
 @ApiModel(value = "绘图")
-public class DrawData extends KbsBaseEntity {
+public class DrawData extends DrawBaseEntity {
 
     private String uuid;
 

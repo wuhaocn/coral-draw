@@ -1,6 +1,7 @@
 package com.mxgraph.config;
 
 public class CoralConfig {
+    public static final String SESSION_KEY = "SESSION_KEY";
     public static final String ownerId = "public";
     public static final String DNAME = "NewCoralFile.xml";
     public static final String DXML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +

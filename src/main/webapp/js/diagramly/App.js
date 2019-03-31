@@ -254,7 +254,7 @@ App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
-App.GOOGLE_APIS = 'client,drive-share'; 
+App.GOOGLE_APIS = 'client,drive-share';
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
@@ -2735,21 +2735,21 @@ App.prototype.loadServerFile = function(file)
 };
 
 
-function loadServerData(uuid, uiRefer){
+function loadServerData(uuid, uiRefer, ownerId){
 
     //创建异步对象
     var xhr = new XMLHttpRequest();
     //设置请求的类型及url
-    xhr.open('get', '/file/get/' + uuid);
+    xhr.open('get', DRAW_SERVER_URL + '/get/' + uuid);
     //post请求一定要添加请求头才行不然会报错
     xhr.setRequestHeader("Content-type","application/json");
     //发送请求
     xhr.send(null);
     console.log("loadServerData", uuid);
     xhr.onreadystatechange = function () {
-        // 这步为判断服务器是否正确响应
+        //加载服务器内容
 		uiRefer.mode == App.MODE_BROWSER;
-		var xmlName=  xhr.getResponseHeader("name");
+		var xmlName =  xhr.getResponseHeader("name");
         var xmlBody =  xhr.responseText;
 		var file = new StorageFile(uiRefer, xmlBody, xmlName, true);
 		uiRefer.loadServerFile(file);
@@ -2768,7 +2768,11 @@ App.prototype.showSplash = function(force)
 {
 
     if(urlParams['uuid'] != null || urlParams['uuid']  != undefined){
-        loadServerData(urlParams['uuid'], this);
+    	var ownerId = DRAWUSER;
+		if(urlParams['ownerId'] != null || urlParams['ownerId']  != undefined){
+			ownerId =  urlParams['ownerId'];
+		}
+        loadServerData(urlParams['uuid'], this, ownerId);
         return;
     }
 

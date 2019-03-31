@@ -1,5 +1,6 @@
 package com.mxgraph.control;
 
+import com.mxgraph.config.CoralConfig;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,11 +17,28 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/")
 public class IndexControl {
-    @GetMapping
+    @GetMapping("")
+    public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(302);
+        response.setHeader("Location", "/admin/index/login.html");
+    }
+
+    @GetMapping("draw")
     @ResponseBody
-    public void index(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void draw(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String uuid = UUID.randomUUID().toString();
         response.setStatus(302);
-        response.setHeader("Location", "/index.html?offline=1&uuid=" + uuid);
+        response.setHeader("Location", "/index.html?offline=1&ownerId=publicUser&uuid=" + uuid);
+    }
+
+    @GetMapping("admin")
+    @ResponseBody
+    public void admin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(302);
+        if (request.getSession().getAttribute(CoralConfig.SESSION_KEY) == null){
+
+            response.setHeader("Location", "/admin/index/login.html");
+        }
+        response.setHeader("Location", "/admin/index/index.html");
     }
 }

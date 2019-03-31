@@ -25,7 +25,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-quartz', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: springboot_version
-
+//    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: springboot_version
     compile (group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version:'2.3.3'){
         exclude group: 'org.springframework.boot', module: 'spring-boot-autoconfigure'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-jdbc'

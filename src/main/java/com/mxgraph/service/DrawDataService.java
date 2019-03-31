@@ -1,11 +1,11 @@
 package com.mxgraph.service;
 
-import com.mxgraph.base.KbsBaseService;
+import com.mxgraph.base.DrawBaseService;
 import com.mxgraph.bean.DrawData;
 
 import java.util.List;
 
-public interface DrawDataService extends KbsBaseService<DrawData,String> {
+public interface DrawDataService extends DrawBaseService<DrawData,String> {
 
     /**
      * 获取拥有者笔记本
