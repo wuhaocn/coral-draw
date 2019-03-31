@@ -120,14 +120,14 @@ function saveToServer(){
 	xhr.open('post', '/file/save');
 	//post请求一定要添加请求头才行不然会报错
 	xhr.setRequestHeader("Content-type","application/json");
-	xhr.setRequestHeader("flid", synId);
-	xhr.setRequestHeader("title", synTitle);
+	xhr.setRequestHeader("uuid", synId);
+	xhr.setRequestHeader("name", synTitle);
 	//发送请求
 	xhr.send(synData);
 	xhr.onreadystatechange = function () {
 		// 这步为判断服务器是否正确响应
 		if (xhr.readyState == 4 && xhr.status == 200) {
-			console.log(xhr.responseText);
+			console.log("saveToServer Response:", xhr.responseText);
 		}
 	};
 
@@ -152,9 +152,8 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 {
 	synData = this.getData();
 	synTitle = title;
-	synId = getUrlParam("flid");
-	console.log("storageFile synTitle:" + synTitle); //返回一个对象
-	console.log("storageFile synData:" + synData); //返回一个对象
+	synId = getUrlParam("uuid");
+	console.log("storageFile synData:" , synTitle, synData); //返回一个对象
 	saveToServer();
 	if (!this.isEditable())
 	{

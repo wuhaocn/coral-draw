@@ -1648,7 +1648,8 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 				heightInput.value = img.height;
 			}, function()
 			{
-				editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
+				console.log("file not fond");
+				//editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
 				urlInput.value = '';
 				widthInput.value = '';
 				heightInput.value = '';
@@ -3957,7 +3958,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		    		{
 		    			editorUi.spinner.stop();
 		    			fn(null);
-					editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
+						console.log("file not fond")
+						//editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
 		    		});
 			}
 			else

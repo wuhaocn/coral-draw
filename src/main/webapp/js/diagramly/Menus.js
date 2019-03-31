@@ -1272,8 +1272,9 @@
 								}
 								else
 								{
-									editorUi.handleError({message: mxResources.get('fileNotFound')},
-										mxResources.get('errorLoadingFile'));
+									console.log("file not fond")
+									// editorUi.handleError({message: mxResources.get('fileNotFound')},
+									// 	mxResources.get('errorLoadingFile'));
 								}
 							});
 						}

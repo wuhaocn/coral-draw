@@ -21,6 +21,6 @@ public class IndexControl {
     public void index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String uuid = UUID.randomUUID().toString();
         response.setStatus(302);
-        response.setHeader("Location", "/index.html?offline=1&spin=1&flid=" + uuid);
+        response.setHeader("Location", "/index.html?offline=1&uuid=" + uuid);
     }
 }

@@ -1304,16 +1304,16 @@ App.prototype.init = function()
 
 			var t0 = new Date().getTime();
 
-			mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
-			{
-				window.clearTimeout(timeoutThread);
-
-				if (acceptResponse)
-				{
-					EditorUi.logEvent({category: 'ALIVE-CACHE-CHECK', action: 'alive', label:
-						req.getStatus() + '.' + (new Date().getTime() - t0)});
-				}
-			}));
+			// mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
+			// {
+			// 	window.clearTimeout(timeoutThread);
+			//
+			// 	if (acceptResponse)
+			// 	{
+			// 		EditorUi.logEvent({category: 'ALIVE-CACHE-CHECK', action: 'alive', label:
+			// 			req.getStatus() + '.' + (new Date().getTime() - t0)});
+			// 	}
+			// }));
 		}
 	}
 	else if (this.menubar != null)
@@ -2698,26 +2698,62 @@ App.prototype.start = function()
 		this.handleError(e);
 	}
 };
+App.prototype.loadServerFile = function(file)
+{
+	var url = window.location.pathname;
+	url = this.getUrl(url);
 
-function loadServerData(flid, realodUI){
+	var data = file.getData();
+	var dataNode = (data.length > 0) ? this.editor.extractGraphModel(
+		mxUtils.parseXml(data).documentElement, true) : null;
+	var redirect = window.location.protocol + '//' + window.location.hostname + url;
+	var node = dataNode;
+	var graph = null;
+
+	// Handles special case where SVG files need a rendered graph to be saved
+	if (dataNode != null && /\.svg$/i.test(file.getTitle()))
+	{
+		graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+		document.body.appendChild(graph.container);
+		node = this.decodeNodeIntoGraph(node, graph);
+	}
+
+	file.setData(this.createFileData(dataNode, graph, file, redirect));
+
+	if (graph != null)
+	{
+		graph.container.parentNode.removeChild(graph.container);
+	}
+
+	var complete = mxUtils.bind(this, function()
+	{
+		this.spinner.stop();
+	});
+
+	this.fileLoaded(file, true);
+
+};
+
+
+function loadServerData(uuid, uiRefer){
 
     //创建异步对象
     var xhr = new XMLHttpRequest();
     //设置请求的类型及url
-    xhr.open('get', '/file/get/' + flid);
+    xhr.open('get', '/file/get/' + uuid);
     //post请求一定要添加请求头才行不然会报错
     xhr.setRequestHeader("Content-type","application/json");
     //发送请求
     xhr.send(null);
-    console.log(flid);
+    console.log("loadServerData", uuid);
     xhr.onreadystatechange = function () {
         // 这步为判断服务器是否正确响应
-		var xmlTitle =  xhr.getResponseHeader("title");
-        var dataResp =  xhr.responseText;
-        console.log(dataResp);
-		var prev = Editor.useLocalStorage;
-		realodUI.createFile(xmlTitle, dataResp, null, null, null, null, null, false);
-		Editor.useLocalStorage = prev;
+		uiRefer.mode == App.MODE_BROWSER;
+		var xmlName=  xhr.getResponseHeader("name");
+        var xmlBody =  xhr.responseText;
+		var file = new StorageFile(uiRefer, xmlBody, xmlName, true);
+		uiRefer.loadServerFile(file);
+
     };
 }
 
@@ -2731,8 +2767,8 @@ function loadServerData(flid, realodUI){
 App.prototype.showSplash = function(force)
 {
 
-    if(urlParams['flid'] != null || urlParams['flid']  != undefined){
-        loadServerData(urlParams['flid'], this);
+    if(urlParams['uuid'] != null || urlParams['uuid']  != undefined){
+        loadServerData(urlParams['uuid'], this);
         return;
     }
 
@@ -3781,7 +3817,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						}
 						else
 						{
-							throw {message: mxResources.get('fileNotFound')};
+							console.log("file not fond", tempFile);
+							var tempFile = this.getCurrentFile();
+							window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
+							//throw {message: mxResources.get('fileNotFound')};
 						}
 					}
 					catch (e)
@@ -3950,23 +3989,26 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						
 						if (!this.fileLoaded(tempFile, true) && !doFallback())
 						{
-							this.handleError({message: mxResources.get('fileNotFound')},
-								mxResources.get('errorLoadingFile'));
+							console.log("file not fond", tempFile);
+							// this.handleError({message: mxResources.get('fileNotFound')},
+							// 	mxResources.get('errorLoadingFile'));
 						}
 					}
 					else if (!doFallback())
 					{
-						this.handleError({message: mxResources.get('fileNotFound')},
-							mxResources.get('errorLoadingFile'));
+						console.log("file not fond", tempFile);
+						// this.handleError({message: mxResources.get('fileNotFound')},
+						// 	mxResources.get('errorLoadingFile'));
 					}
 				}), mxUtils.bind(this, function()
 				{
 					if (!doFallback())
 					{
 						this.spinner.stop();
-						console.log("errorLoadingFile" + "file Not found")
-						this.handleError({message: mxResources.get('fileNotFound')},
-							mxResources.get('errorLoadingFile'));
+						console.log("file not fond", tempFile);
+						// console.log("errorLoadingFile" + "file Not found")
+						// this.handleError({message: mxResources.get('fileNotFound')},
+						// 	mxResources.get('errorLoadingFile'));
 					}
 				}), (urlParams['template-filename'] != null) ?
 					decodeURIComponent(urlParams['template-filename']) : null);

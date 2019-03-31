@@ -170,7 +170,7 @@
 	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
-	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
+	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : '/cache';
 
 	/**
 	 * Switch to enable PlantUML in the insert from text dialog.
