@@ -1,13 +1,10 @@
 package com.mxgraph.control;
 
-import com.alibaba.fastjson.JSONObject;
-import com.mxgraph.bean.DrawData;
+import com.mxgraph.bean.DrawResult;
 import com.mxgraph.bean.DrawUser;
 import com.mxgraph.config.CoralConfig;
-import com.mxgraph.service.DrawDataService;
 import com.mxgraph.service.DrawUserService;
-import com.mxgraph.utils.HttpUtil;
-import com.mysql.jdbc.StringUtils;
+import com.mxgraph.utils.UidUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.UUID;
 
 /**
  *
@@ -49,6 +44,8 @@ public class UserControl {
         if (drawUserSelect != null){
             response.setHeader("Location", "/admin/index/register.html");
         } else {
+
+            drawUser.setUid(UidUtils.getUid(drawUser.getUser()));
             drawUser.setName(drawUser.getUser());
             drawUserService.save(drawUser);
             response.setHeader("Location", "/admin/index/login.html");
@@ -71,8 +68,22 @@ public class UserControl {
             response.setHeader("Location", "/admin/index/login.html");
             return;
         }
-        request.getSession().setAttribute("user", drawUser);
+        request.getSession().setAttribute(CoralConfig.SESSION_KEY, drawUser);
         response.setHeader("Location", "/admin/index/index.html");
+    }
+
+
+    @PostMapping("/get")
+    @ResponseBody
+    public DrawResult save(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Object drawUser = request.getSession().getAttribute(CoralConfig.SESSION_KEY);
+        DrawResult<DrawUser> drawResult = null;
+        if (drawUser == null){
+            drawResult = new DrawResult(404, "Not Found");
+        } else {
+            drawResult = new DrawResult(0, drawUser);
+        }
+        return drawResult;
     }
 
 }

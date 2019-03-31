@@ -6,18 +6,19 @@ import java.util.List;
 /**
  * @Author bootdo 1992lcg@163.com
  */
-public class PageUtils implements Serializable {
+public class PageData implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int count;
 	private int code;
 	private String msg;
 	private List<?> data;
 
-	public static long getSerialVersionUID() {
-		return serialVersionUID;
+	public PageData(int code, String msg) {
+		this.code = code;
+		this.msg = msg;
 	}
 
-	public PageUtils(int count, int code, List<?> data) {
+	public PageData(int count, int code, List<?> data) {
 		this.count = count;
 		this.code = code;
 		this.data = data;

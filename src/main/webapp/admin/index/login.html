@@ -11,7 +11,10 @@
 <body>
 <div class="m-login-bg">
 	<div class="m-login">
-		<h3>CoralDraw登录</h3>
+		<div style="text-align: center">
+			<img src="../static/admin/images/logo.png" width="180px"  height="90px">
+		</div>
+
 		<div class="m-login-warp">
 			<form class="layui-form" method='post' action="/user/check">
 				<div class="layui-form-item">
@@ -21,11 +24,14 @@
 					<input type="password"  name="pass" required lay-verify="required" placeholder="密码" autocomplete="off" class="layui-input">
 				</div>
 				<div class="layui-form-item m-login-btn">
+
 					<div class="layui-inline">
-						<button class="layui-btn layui-btn-normal" lay-submit lay-filter="check">登录</button>
+						<button class="layui-btn layui-btn-normal" lay-submit lay-filter="register">登录</button>
 					</div>
 					<div class="layui-inline">
-						<a href="register.html"><div type="reset" class="layui-btn layui-btn-primary">注册</div></a>
+						<button type="reset" class="layui-btn layui-btn-primary">
+							<a href="register.html">注册</a>
+						</button>
 					</div>
 				</div>
 			</form>

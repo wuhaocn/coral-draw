@@ -1,6 +1,7 @@
 package com.mxgraph.control;
 
 import com.mxgraph.config.CoralConfig;
+import com.mxgraph.utils.SessionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,7 +29,12 @@ public class IndexControl {
     public void draw(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String uuid = UUID.randomUUID().toString();
         response.setStatus(302);
-        response.setHeader("Location", "/index.html?offline=1&ownerId=publicUser&uuid=" + uuid);
+        StringBuilder sb = new StringBuilder();
+        sb.append("/index.html?offline=1&ownerId=");
+        sb.append(SessionUtils.getCurUid(request));
+        sb.append("&uuid=");
+        sb.append(uuid);
+        response.setHeader("Location", sb.toString());
     }
 
     @GetMapping("admin")
@@ -36,7 +42,6 @@ public class IndexControl {
     public void admin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
         if (request.getSession().getAttribute(CoralConfig.SESSION_KEY) == null){
-
             response.setHeader("Location", "/admin/index/login.html");
         }
         response.setHeader("Location", "/admin/index/index.html");

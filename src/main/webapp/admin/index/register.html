@@ -4,7 +4,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		<title>CoralDraw</title>
+		<title>CoralDraw注册</title>
 		<link rel="stylesheet" type="text/css" href="../static/admin/layui/css/layui.css" />
 		<link rel="stylesheet" type="text/css" href="../static/admin/css/login.css" />
 	</head>
@@ -12,7 +12,9 @@
 	<body>
 		<div class="m-login-bg">
 			<div class="m-login">
-				<h3>CoralDraw注册</h3>
+				<div style="text-align: center">
+					<img src="../static/admin/images/logo.png" width="180px"  height="90px">
+				</div>
 				<div class="m-login-warp">
 					<form class="layui-form"  method='post'  action="/user/register">
 						<div class="layui-form-item">
@@ -40,7 +42,6 @@
 				var form = layui.form(),
 					layer = layui.layer;
 
-
 				//自定义验证规则
 				form.verify({
 					title: function(value) {
@@ -53,7 +54,6 @@
 					
 				});
 
-				
 				//监听提交
 				form.on('submit(register)', function(data) {
 					return true;

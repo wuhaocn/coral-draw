@@ -8,6 +8,13 @@ server:
     min-spare-threads: 30
 
 spring:
+#  thymeleaf:
+#    prefix: classpath:/webapp/
+#    suffix: .html
+#    mode: HTML5
+#    encoding: UTF-8
+#    #热部署文件，页面不产生缓存，及时更新
+#    cache: false
   # 数据源
   datasource:
     url: jdbc:mysql://124.42.103.164:5260/CoralDrawDB?useUnicode=true&characterEncoding=utf-8

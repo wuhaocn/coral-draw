@@ -2,7 +2,7 @@ package com.mxgraph.control;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mxgraph.bean.DrawData;
-import com.mxgraph.bean.PageUtils;
+import com.mxgraph.bean.PageData;
 import com.mxgraph.config.CoralConfig;
 import com.mxgraph.service.DrawDataService;
 import com.mxgraph.utils.HttpUtil;
@@ -91,14 +91,14 @@ public class FileControl {
 
 
 
-    @GetMapping("/list/{ownerId}")
+    @GetMapping("/list")
     @ResponseBody
-    public PageUtils get(@PathVariable String ownerId) throws IOException {
+    public PageData get(@PathVariable String ownerId) throws IOException {
         List<DrawData> dataList = dataService.findByOwnerId(ownerId);
         if (dataList == null){
             dataList = new ArrayList<>();
         }
-        PageUtils pageUtils = new PageUtils(dataList.size(), 0, dataList);
+        PageData pageUtils = new PageData(dataList.size(), 0, dataList);
         return pageUtils;
     }
 }
