@@ -8,11 +8,55 @@ repositories {
     mavenLocal()
 }
 buildscript {
+    project.ext {
+        //是否推送至服务器
+        autoPush = false
+        //打包镜像名称
+        imagesTag = "10.10.208.193:5000/" + "coral-draw"
+
+        versionTail = new Date().format('yyMMddHHmm')
+    }
+    
+    dependencies {
+        classpath 'se.transmode.gradle:gradle-docker:1.2'
+    }
     repositories {
         maven { url "http://central.maven.org/maven2/" }
         maven { url "http://repo.maven.apache.org/maven2" }
         mavenCentral()
         mavenLocal()
+    }
+}
+
+
+apply plugin: 'docker'
+
+version = "3.0.0-$versionTail"
+
+jar {
+    manifest {
+    }
+    enabled = true
+
+}
+//可运行jar
+task buildRunJar(type:Copy, dependsOn: build) {
+    from configurations.runtime
+    from 'src/main/resources'
+    from 'src/main/webapp'
+    into 'build/libs' // 目标位置
+}
+//构建docker镜像
+task buildDocker(type: Docker, dependsOn: buildRunJar) {
+    push = autoPush
+    tag = imagesTag
+    applicationName = jar.baseName
+    dockerfile = file('src/main/docker/Dockerfile')
+    doFirst {
+        copy {
+            from 'build/libs'
+            into stageDir
+        }
     }
 }
 
