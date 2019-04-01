@@ -22,7 +22,7 @@ SERVICE_HOME=$basePath
 
 SERVICE_LIBS="$SERVICE_HOME/"
 
-SERVICE_MAIN="com.mxgraph.DrawIoApplication"
+SERVICE_MAIN="com.mxgraph.CoralDrawApplication"
 declare -a JAVA_ARGS
 JAVA_ARGS[0]="-Xmx256m"
 JAVA_ARGS[1]="-Xms256m"
