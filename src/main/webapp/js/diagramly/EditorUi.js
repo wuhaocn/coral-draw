@@ -11479,7 +11479,7 @@
 		
 		if (this.isAppCache())
 		{
-			var appCache = applicationCache;
+			var appCache = window.applicationCache;
 			
 			// NOTE: HTML5 Cache is deprecated
 			if (appCache != null && this.offlineStatus == null)
