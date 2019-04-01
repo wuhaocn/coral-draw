@@ -19,13 +19,12 @@ buildscript {
 dependencies {
 
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springboot_version
-//    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: springboot_version
+
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-quartz', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: springboot_version
-//    compile group: 'org.springframework.boot', name: 'spring-boot-starter-thymeleaf', version: springboot_version
     compile (group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version:'2.3.3'){
         exclude group: 'org.springframework.boot', module: 'spring-boot-autoconfigure'
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-jdbc'
@@ -57,13 +56,6 @@ dependencies {
     compile files('lib/mxgraph-core.jar')
     compile files('lib/pusher-http-java-1.0.0.jar')
     compile files('lib/mxPdf.jar')
-    //    compile group: 'commons-io', name: 'commons-io', version: '2.4'
-    //    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
-    //    compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
-    //    compile files('lib/httpclient-4.5.5.jar')
-    //    compile files('lib/httpcore-4.4.9.jar')
-    //    compile files('lib/jstl-1.2.jar')
-    //    compile files('lib/servlet-api.jar')
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:'2.0.3.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.12'
