@@ -33,7 +33,7 @@
 
 		<script type="text/html" id="optTool">
 			<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">编辑</a>
-			<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">删除</a>
+			<!--<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">删除</a>-->
 		</script>
 
 		<script>
@@ -51,7 +51,8 @@
 						,{field: 'ownerId', title: '拥有者'}
 						,{field: 'createTime', title: '创建时间' ,sort: true,}
 						,{field: 'updateTime', title: '更新时间' ,sort: true,}
-						,{field: 'uuid', fixed: 'right', width:150, align:'center', toolbar: '#optTool'}
+						,{field: 'uuid', title: '唯一ID',}
+						,{field: 'uuid', title: '操作',fixed: 'right', width:150, align:'center', toolbar: '#optTool'}
 					]]
 				});
 

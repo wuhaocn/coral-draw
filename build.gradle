@@ -1,4 +1,4 @@
-group 'drawio'
+group 'coral-draw'
 version '1.0'
 
 apply plugin: 'java'
