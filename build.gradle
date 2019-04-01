@@ -10,7 +10,7 @@ repositories {
 buildscript {
     project.ext {
         //是否推送至服务器
-        autoPush = false
+        autoPush = true
         //打包镜像名称
         imagesTag = "10.10.208.193:5000/" + "coral-draw"
 
