@@ -39,12 +39,17 @@ jar {
     enabled = true
 
 }
-//可运行jar
+//打包可运行jar包
 task buildRunJar(type:Copy, dependsOn: build) {
     from configurations.runtime
     from 'src/main/resources'
-    from 'src/main/webapp'
     into 'build/libs' // 目标位置
+    doFirst {
+        copy {
+            from 'src/main/webapp'
+            into 'build/libs/static' // 目标位置
+        }
+    }
 }
 //构建docker镜像
 task buildDocker(type: Docker, dependsOn: buildRunJar) {

@@ -17,7 +17,7 @@ spring:
 #    cache: false
   # 数据源
   datasource:
-    url: jdbc:mysql://124.42.103.164:5260/CoralDrawDB?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://10.10.208.194:5260/CoralDrawDB?useUnicode=true&characterEncoding=utf-8
     username: root
     password: urcs@2018
     driverClassName: com.mysql.jdbc.Driver
