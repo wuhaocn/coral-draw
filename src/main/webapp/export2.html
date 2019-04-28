@@ -54,16 +54,16 @@
 			};
 		})();
 
-		function render(data)
+		function render()
 		{
-			var graph = new Graph(document.getElementById('graph'));
+		    var data = {};
 			data.border = parseInt(data.border) || 0;
-			data.w = parseFloat(data.w) || 0;
-			data.h = parseFloat(data.h) || 0;
+			data.w = parseFloat(data.w) || 100;
+			data.h = parseFloat(data.h) || 100;
 			data.scale = parseFloat(data.scale) || 1;
 
 			// Parses XML
-			var xmlDoc = mxUtils.parseXml(data.xml);
+			var xmlDoc = mxUtils.parseXml('');
 			var diagrams = null;
 			var from = 0;
 			

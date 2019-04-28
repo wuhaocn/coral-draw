@@ -1,5 +1,7 @@
 package com.mxgraph.online;
 
+import java.awt.image.BufferedImage;
+
 public class Constants {
 
     /**
@@ -17,5 +19,7 @@ public class Constants {
      * The domain where legacy images are stored.
      */
     public static final String IMAGE_DOMAIN = "http://img.diagramly.com/";
+
+    public static BufferedImage EMPTY_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 
 }

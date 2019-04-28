@@ -2564,7 +2564,7 @@ var ParseDialog = function(editorUi, title, defaultType)
  */
 var NewDialog = function(editorUi, compact, showName, callback, createOnly, cancelCallback,
 		leftHighlight, rightHighlight, rightHighlightBorder, itemPadding, templateFile,
-		recentDocsCallback, searchDocsCallback, openExtDocCallback, showImport, createButtonLabel)
+		recentDocsCallback, searchDocsCallback, openExtDocCallback, showImport, createButtonLabel, customTempCallback)
 {
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
@@ -2707,10 +2707,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				var tmp = templates[i0++];
 				addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
-					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview);
+					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg);
 				first = false;
 			}
-		}
+		}		
 	};
 	
 	var spinner = new Spinner({
@@ -2740,7 +2740,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	if (recentDocsCallback || searchDocsCallback)
 	{
 		var tabsEl = [];
-		var oldTemplates = null;
+		var oldTemplates = null, origCategories = null, origCustomCatCount = null;
 		
 		var setActiveTab = function(index)
 		{
@@ -2774,7 +2774,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			if (oldTemplates != templates)
 			{
 				templates = oldTemplates;
-				addTemplates();	
+				categories = origCategories;
+				customCatCount = origCustomCatCount;
+				list.innerHTML = '';
+				initUi();	
 				oldTemplates = null;
 			}
 		});
@@ -2785,7 +2788,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		var getExtTemplates = function(isSearch)
 		{
 			list.style.display = 'none';
-			div.style.left = '30px';
+			div.style.left = '30px';				
 			
 			setActiveTab(isSearch? -1 : 1); //deselect all of them if isSearch 
 			
@@ -2797,25 +2800,52 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			div.scrollTop = 0;
 			div.innerHTML = '';
 			spinner.spin(div);
-			i0 = 0;
 
-			var callback2 = function(list, errorMsg) 
+			var callback2 = function(docList, errorMsg, searchImportCats) 
 			{
+				i0 = 0;
 				spinner.stop();
-				templates = list;
+				templates = docList;
+				searchImportCats = searchImportCats || {};
+				var importListsCount = 0;
+				
+				for (var cat in searchImportCats)
+				{
+					importListsCount += searchImportCats[cat].length;
+				}
 				
 				if (errorMsg)
 				{
 					div.innerHTML = errorMsg;
 				}
-				else if (list.length == 0)
+				else if (docList.length == 0 && importListsCount == 0)
 				{
 					div.innerHTML = mxUtils.htmlEntities(mxResources.get('noDiagrams', null, 'No Diagrams Found'));
 				}
 				else
 				{
 					div.innerHTML = '';
-					addTemplates();
+					
+					if (importListsCount > 0)
+					{
+						list.style.display = '';
+						div.style.left = '160px';
+						list.innerHTML = '';
+
+						customCatCount = 0;
+						categories = {'draw.io': docList};
+						
+						for (var cat in searchImportCats)
+						{	
+							categories[cat] = searchImportCats[cat];
+						}
+						
+						initUi();
+					}
+					else
+					{
+						addTemplates();
+					}
 				}
 			}
 			
@@ -2960,7 +2990,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		selectedElt.style.border = rightHighlightBorder;
 	};
 
-	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview)
+	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg)
 	{
 		var elt = document.createElement('div');
 		elt.className = 'geTemplate';
@@ -2990,7 +3020,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			});
 
 		}
-		else if (url != null && url.length > 0)
+		else if (!noImg && url != null && url.length > 0)
 		{
 			var png = preview || (TEMPLATE_PATH + '/' + url.substring(0, url.length - 4) + '.png');
 			
@@ -3042,8 +3072,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else
 		{
-			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1em;"><tr>' +
-				'<td align="center" valign="middle">' + mxResources.get(title) + '</td></tr></table>';
+			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1em;word-break: break-all;"><tr>' +
+				'<td align="center" valign="middle">' + mxResources.get(title, null, title) + '</td></tr></table>';
 			
 			if (select)
 			{
@@ -3058,7 +3088,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				mxEvent.addListener(elt, 'click', function(evt)
 				{
-					selectElement(elt);
+					selectElement(elt, null, null, url, infoObj);
 				});
 				
 				mxEvent.addListener(elt, 'dblclick', function(evt)
@@ -3071,8 +3101,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		div.appendChild(elt);
 	};
 
-	var categories = {};
-	var categoryCount = 1;
+	var categories = {}, customCats = {};
+	var customCatCount = 0, firstInitUi = true;
 	
 	// Adds local basic templates
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
@@ -3081,16 +3111,79 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	function initUi()
 	{
-		mxEvent.addListener(div, 'scroll', function(evt)
+		if (firstInitUi)
 		{
-			if (div.scrollTop + div.clientHeight >= div.scrollHeight)
+			firstInitUi = false;
+			
+			mxEvent.addListener(div, 'scroll', function(evt)
 			{
-				addTemplates();
-				mxEvent.consume(evt);
-			}
-		});
+				if (div.scrollTop + div.clientHeight >= div.scrollHeight)
+				{
+					addTemplates();
+					mxEvent.consume(evt);
+				}
+			});
+		}
 		
 		var currentEntry = null;
+		
+		if (customCatCount > 0)
+		{
+			var titleCss = 'font-weight: bold;background: #f9f9f9;padding: 5px 0 5px 0;text-align: center;';
+			var title = document.createElement('div');
+			title.style.cssText = titleCss;
+			mxUtils.write(title, mxResources.get('custom'));
+			list.appendChild(title);
+			
+			for (var cat in customCats)
+			{
+				var entry = document.createElement('div');
+				var label = cat;
+				var templateList = customCats[cat];
+				
+				if (label.length > 18)
+				{
+					label = label.substring(0, 18) + '&hellip;';
+				}
+				
+				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;';
+				entry.setAttribute('title', label + ' (' + templateList.length + ')');
+				mxUtils.write(entry, entry.getAttribute('title'));
+				
+				if (itemPadding != null)
+				{
+					entry.style.padding = itemPadding;
+				}
+
+				list.appendChild(entry);
+				
+				(function(cat2, entry2)
+				{
+					mxEvent.addListener(entry, 'click', function()
+					{
+						if (currentEntry != entry2)
+						{
+							currentEntry.style.backgroundColor = '';
+							currentEntry = entry2;
+							currentEntry.style.backgroundColor = leftHighlight;
+							
+							div.scrollTop = 0;
+							div.innerHTML = '';
+							i0 = 0;
+							
+							templates = customCats[cat2];
+							oldTemplates = null;
+							addTemplates();
+						}
+					});
+				})(cat, entry);
+			}
+			
+			title = document.createElement('div');
+			title.style.cssText = titleCss;
+			mxUtils.write(title, 'draw.io');
+			list.appendChild(title);
+		}
 		
 		for (var cat in categories)
 		{
@@ -3119,10 +3212,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 			list.appendChild(entry);
 			
-			if (currentEntry == null)
+			if (currentEntry == null && templateList.length > 0)
 			{
 				currentEntry = entry;
 				currentEntry.style.backgroundColor = leftHighlight;
+				templates = templateList;
 			}
 			
 			(function(cat2, entry2)
@@ -3162,52 +3256,78 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
 		}
 		
-		mxUtils.get(realUrl, function(req)
+		function loadDrawioTemplates()
 		{
-			// Workaround for index loaded 3 times in iOS offline mode
-			if (!indexLoaded)
+			mxUtils.get(realUrl, function(req)
 			{
-				indexLoaded = true;
-				var tmpDoc = req.getXml();
-				var node = tmpDoc.documentElement.firstChild;
-	
-				while (node != null)
+				// Workaround for index loaded 3 times in iOS offline mode
+				if (!indexLoaded)
 				{
-					if (typeof(node.getAttribute) !== 'undefined')
+					indexLoaded = true;
+					var tmpDoc = req.getXml();
+					var node = tmpDoc.documentElement.firstChild;
+		
+					while (node != null)
 					{
-						var url = node.getAttribute('url');
-						
-						if (url != null)
+						if (typeof(node.getAttribute) !== 'undefined')
 						{
-							var category = node.getAttribute('section');
+							var url = node.getAttribute('url');
 							
-							if (category == null)
+							if (url != null)
 							{
-								var slash = url.indexOf('/');
-								category = url.substring(0, slash);
+								var category = node.getAttribute('section');
+								
+								if (category == null)
+								{
+									var slash = url.indexOf('/');
+									category = url.substring(0, slash);
+								}
+								
+								var list = categories[category];
+								
+								if (list == null)
+								{
+									list = [];
+									categories[category] = list;
+								}
+								
+								list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+									title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
+									preview: node.getAttribute('preview')});
 							}
-							
-							var list = categories[category];
-							
-							if (list == null)
-							{
-								categoryCount++;
-								list = [];
-								categories[category] = list;
-							}
-							
-							list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-								title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
-								preview: node.getAttribute('preview')});
 						}
+						
+						node = node.nextSibling;
 					}
 					
-					node = node.nextSibling;
+					spinner.stop();
+					initUi();
 				}
-				
-				initUi();
-			}
-		});
+			});
+		};
+		
+		spinner.spin(div);
+		
+		if (customTempCallback != null)
+		{
+			customTempCallback(function(cats, count)
+			{
+				customCats = cats;
+				customCatCount = count;
+				//Custom templates doesn't change after being loaded, so cache them here. Also, only count is overridden
+				origCustomCatCount = count;
+
+				loadDrawioTemplates();
+			}, 
+			loadDrawioTemplates); //In case of an error, just load draw.io templates only
+		}
+		else
+		{
+			loadDrawioTemplates();
+		}
+		
+		//draw.io templates doesn't change after being loaded, so cache them here
+		origCategories = categories;
 	}
 	
 	mxEvent.addListener(nameInput, 'keypress', function(e)

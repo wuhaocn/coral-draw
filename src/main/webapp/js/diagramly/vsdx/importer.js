@@ -435,7 +435,7 @@ var com;
                     });                    
                 };
                 mxVsdxCodec.prototype.createMxGraph = function () {
-                    var graph = new mxGraph();
+                    var graph = new Graph();
                     graph.setExtendParents(false);
                     graph.setExtendParentsOnAdd(false);
                     graph.setConstrainChildren(false);
@@ -454,7 +454,7 @@ var com;
                         //var pageName_1 = org.apache.commons.lang3.StringEscapeUtils.escapeXml11(page.getPageName());
                     	//TODO FIXME htmlEntities is not exactly as escapeXml11 but close
                         var pageName_1 = mxUtils.htmlEntities(page.getPageName());
-                        output += "<diagram name=\"" + pageName_1 + "\">";
+                        output += '<diagram name="' + pageName_1 + '" id="' + pageName_1 + '">';
                     }
                     
                     output += Graph.compress(modelString);
@@ -579,6 +579,10 @@ var com;
                         this.importPage(backPage, graph, graph.getDefaultParent());
                     }
                 	
+                	//TODO KNOWN ISSUE: VSDX layers are virtual grouping where parts of a group can be members of a layers while the remaining group members belong to another layer
+                	//					This cannot be done in draw.io currently
+                	//					Also, layers should NOT affect cells order. So, as a best effort solution, layers should be orders such that the cells order is maintained
+                	
                 	//add page layers
                 	var layers = page.getLayers();
                 	this.layersMap[0] = graph.getDefaultParent();
@@ -692,6 +696,18 @@ var com;
                                     m.entries[i].value = v;
                                     return;
                                 } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexShapeMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, id), shape);
+                            
+                            var lnkObj = shape.getHyperlink();
+                            
+                            if (lnkObj.extLink)
+                            {
+                            	graph.setLinkForCell(v1, lnkObj.extLink);
+                            }
+                            else if (lnkObj.pageLink)
+                        	{
+                            	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
+                        	}
+                            
                             return v1;
                         }
                         else {
@@ -2487,6 +2503,14 @@ var com;
                         return parsedGeom.str;
                     };
                     /*private*/ mxVsdxGeometryList.prototype.processGeo = function (shape, p, parsedGeom, lastGeoStyle, withFill) {
+                    	var rounding = shape.getRounding();
+                    	var roundingStr = '';
+                        
+                        if (rounding > 0)
+                    	{
+                        	roundingStr = ' rounded="1" arcSize="' + (rounding * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor) + '" ';
+                    	}
+                        
                         var _loop_2 = function (index130) {
                             var geo = this_2.geomList[index130];
                             {
@@ -2496,12 +2520,12 @@ var com;
                                 if (!(str_1.length === 0)) {
                                     var geoStyle = this_2.getGeoStyle(geo);
                                     if (lastGeoStyle === -1) {
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path>"); })(parsedGeom);
+                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
                                     }
                                     else if (lastGeoStyle !== geoStyle) {
                                         this_2.closePath(parsedGeom, lastGeoStyle);
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path>"); })(parsedGeom);
+                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
                                     }
                                     else {
@@ -4070,8 +4094,28 @@ var com;
                             }
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if (retColor != null && (styleVariation & 8) > 0) {
-                            retColor = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if (retColor != null && (styleVariation & 8) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        	var lineHSLClr = lineClr.toHsl();
+                            var fillHSLClr = retColor.toHsl();
+                            
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
+                            }
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	retColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
+                            }
+                            else if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) > Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()))
+                        	{
+                            	retColor = lineClr;
+                        	}
                         }
                         return retColor;
                     };
@@ -4149,8 +4193,27 @@ var com;
                             lineClr = this.getStyleColor(lineColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if ((styleVariation & 4) > 0) {
-                            lineClr = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if ((styleVariation & 4) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                            var fillHSLClr = fillColor.toHsl();
+                            var lineHSLClr = lineClr.toHsl();
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
+                            }
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	lineClr = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
+                            }
+                            else if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) > Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()))
+                        	{
+                            	lineClr = fillColor;
+                        	}
                         }
                         return lineClr;
                     };
@@ -4283,18 +4346,43 @@ var com;
                             txtColor = this.getStyleColor(fontColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if ((styleVariation & 2) > 0) {
-                            var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if ((styleVariation & 2) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var txtHSLClr = txtColor.toHsl();
+                        	var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var fillHSLClr = fillColor.toHsl();
                             var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var lineHSLClr = lineClr.toHsl();
-                            if (fillHSLClr.getLum() < lineHSLClr.getLum()) {
-                                txtColor = fillColor;
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
                             }
-                            else {
-                                txtColor = lineClr;
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	txtColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
                             }
+                            else
+                        	{
+                            	var lineDiff = Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum());
+                            	var fillDiff = Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum());
+                            	var txtDiff = Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum());
+                            	var max = Math.max(lineDiff, fillDiff, txtDiff);
+                            	
+                            	if (max == lineDiff)
+                        		{
+                            		txtColor = lineClr;
+                        		}
+                            	else if (max == fillDiff)
+                        		{
+                            		txtColor = fillColor;
+                        		}
+                        	}
                         }
+                        
                         return txtColor;
                     };
                     mxVsdxTheme.prototype.getFontColor = function (quickStyleVals, fontColors) {
@@ -10142,6 +10230,20 @@ var com;
                         }
                         return hor;
                     };
+                    
+                    /**
+                     * Get hyperlink address or subaddress
+                     */
+                    VsdxShape.prototype.getHyperlink = function () 
+                    {
+                    	var addressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('Address', null, 'Hyperlink');
+                    	var extLink = this.getValue(addressElem, '');
+                    	
+                    	var subAddressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('SubAddress', null, 'Hyperlink');
+                    	var pageLink = this.getValue(subAddressElem, '');
+
+                    	return {extLink: extLink, pageLink: pageLink};
+                    };
                     /**
                      * Analyzes the shape and returns a string with the style.
                      * @return {*} style read from the shape.
@@ -10447,7 +10549,7 @@ var com;
                      * The property may to be defined in master shape or line stylesheet.<br/>
                      * @return {boolean} Returns <code>true</code> if the cell is Rounded.
                      */
-                    VsdxShape.prototype.isRounded = function () {
+                    VsdxShape.prototype.getRounding = function () {
                         var val = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.ROUNDING), "0");
                         if ((function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
@@ -10457,7 +10559,7 @@ var com;
                         } })("Themed", val)) {
                             val = "0";
                         }
-                        return parseFloat(val) > 0;
+                        return parseFloat(val);
                     };
                     /**
                      * Return if the line has shadow.<br/>
@@ -11012,7 +11114,26 @@ var com;
                         }
                         return false;
                     };
-                    VsdxShape.prototype.isRotatedLabel = function () {
+                    
+                    VsdxShape.prototype.isVerticalLabel = function ()
+                    {
+                    	var txtDir = this.getAttribute('TextDirection', 'V', '');
+                    	
+                    	if (!txtDir && this.masterShape != null)
+                		{
+                    		txtDir = this.masterShape.getAttribute('TextDirection', 'V', '');
+                		}
+                    	
+                    	return txtDir == '1';
+                    };
+                    
+                    VsdxShape.prototype.isRotatedLabel = function () 
+                    {
+                    	if (this.isVerticalLabel()) 
+                    	{
+                    		return true;
+                    	}
+                    		
                         var txtAngleValue = this.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE, "V", "");
                         if (this.masterShape != null) {
                             if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -11247,7 +11368,7 @@ var com;
                         } })(lbkgnd, "")) {
                             /* put */ (this.styleMap[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = lbkgnd);
                         }
-                        /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.isRounded() ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
+                        /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.getRounding() > 0 ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
                         return this.styleMap;
                     };
                     /**
@@ -11345,6 +11466,13 @@ var com;
                                 (styleMap["whiteSpace"] = "wrap");
                             /* remove */ delete styleMap["shape"];
                             /* remove */ delete styleMap["image"];
+                            
+                            if (this.isVerticalLabel())
+                        	{
+                            	txtAngleV += Math.PI + 0.01; //TODO Added 0.01 since we don't override the parent rotation if labRot is zero. Why?
+                            	styleMap['horizontal'] = '0';
+                        	}
+                            
                             var rotation = this.getRotation();
                             if (txtAngleV !== 0) {
                                 var labRot = 360 - (function (x) { return x * 180 / Math.PI; })(txtAngleV);

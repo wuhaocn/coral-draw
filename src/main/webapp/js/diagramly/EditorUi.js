@@ -255,6 +255,11 @@
 	EditorUi.prototype.maxBackgroundBytes = 2500000;
 
 	/**
+	 * Maximum size for text files in labels is 0.5 MB.
+	 */
+	EditorUi.prototype.maxTextBytes = 500000;
+
+	/**
 	 * Holds the current file.
 	 */
 	EditorUi.prototype.currentFile = null;
@@ -6727,6 +6732,8 @@
 	 */
 	EditorUi.prototype.convertLucidChart = function(data, success, error)
 	{
+		console.log(data);
+		
 		var delayed = mxUtils.bind(this, function()
 		{
 			this.loadingExtensions = false;
@@ -6952,6 +6959,14 @@
 				    		{
 				    			text = mxUtils.htmlEntities(text);
 				    		}
+
+				    		//TODO Refuse unsupported file types early as at this stage a lot of processing has beed done and time is wasted. 
+				    		//		For example, 5 MB PDF files is processed and then only 0.5 MB of meaningless text is added!
+				    		//Limit labels to maxTextBytes
+				    		if (text.length > this.maxTextBytes)
+			    			{
+				    			text = text.substring(0, this.maxTextBytes) + '...';
+			    			}
 				    		
 							// Apply value and updates the cell size to fit the text block
 							cell.value = text;
@@ -10091,6 +10106,7 @@
 					
 					var enableRecentDocs = data.enableRecent == 1;
 					var enableSearchDocs = data.enableSearch == 1;
+					var enableCustomTemp = data.enableCustomTemp == 1;
 					
 					var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
 					{
@@ -10127,11 +10143,19 @@
 							searchReadyCallback(null, 'Network Error!');
 						});
 					}) : null, 
-					function(url, info, name) 
+					mxUtils.bind(this, function(url, info, name) 
 					{
+						//If binary files are possible, we can get the file content using remote invokation, imported it, and send final mxFile back
 						parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
 							name: name}), '*');
-					});
+					}), null, null,
+					enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
+					{
+						this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
+						{
+							customTempCallback({}, 0); //ignore error by sending empty templates
+						});
+					}) : null);
 
 					this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
 					{
@@ -10587,29 +10611,15 @@
 			div.style.paddingBottom = '2px';
 
 			var button = document.createElement('button');
-			mxUtils.write(button, mxResources.get('save'));
-			button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
 			button.className = 'geBigButton';
 			button.style.fontSize = '12px';
 			button.style.padding = '4px 6px 4px 6px';
 			button.style.borderRadius = '3px';
 			
-			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+			if (urlParams['noSaveBtn'] == '1')
 			{
-				this.actions.get('save').funct();
-			}));
-			
-			div.appendChild(button);
-			
-			if (urlParams['saveAndExit'] == '1')
-			{
-				button = document.createElement('a');
 				mxUtils.write(button, mxResources.get('saveAndExit'));
 				button.setAttribute('title', mxResources.get('saveAndExit'));
-				button.style.fontSize = '12px';
-				button.style.marginLeft = '6px';
-				button.style.padding = '4px';
-				button.style.cursor = 'pointer';
 				
 				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 				{
@@ -10617,6 +10627,36 @@
 				}));
 				
 				div.appendChild(button);
+			}
+			else
+			{
+				mxUtils.write(button, mxResources.get('save'));
+				button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
+				
+				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('save').funct();
+				}));
+				
+				div.appendChild(button);
+				
+				if (urlParams['saveAndExit'] == '1')
+				{
+					button = document.createElement('a');
+					mxUtils.write(button, mxResources.get('saveAndExit'));
+					button.setAttribute('title', mxResources.get('saveAndExit'));
+					button.style.fontSize = '12px';
+					button.style.marginLeft = '6px';
+					button.style.padding = '4px';
+					button.style.cursor = 'pointer';
+					
+					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('saveAndExit').funct();
+					}));
+					
+					div.appendChild(button);
+				}
 			}
 
 			button = document.createElement('a');
@@ -10668,6 +10708,7 @@
 		{
     		var lines = text.split('\n');
     		var cells = [];
+    		var dups = {};
     		
     		if (lines.length > 0)
     		{
@@ -10832,7 +10873,12 @@
         			}
         		}
         		
-    			var keys = this.editor.csvToArray(lines[index]);
+        		if (lines[index] == null)
+        		{
+        			throw new Error(mxResources.get('invalidOrMissingFile'));
+        		}
+        		
+        		var keys = this.editor.csvToArray(lines[index]);
     			
     			// Converts name of identity and parent to indexes of column
     			var identityIndex = null;
@@ -10892,27 +10938,41 @@
 	    					{
 	    						cell = graph.model.getCell(id);
 	    					}
-
-	    					if (cell == null)
-	    					{
-				    			var cell = new mxCell(label, new mxGeometry(x0, y,
-				    				0, 0), style || 'whiteSpace=wrap;html=1;');
-								cell.vertex = true;
-								cell.id = id;
-	    					}
 	    					
+	    					var exists = cell != null;
+	    					var newCell = new mxCell(label, new mxGeometry(x0, y,
+			    				0, 0), style || 'whiteSpace=wrap;html=1;');
+	    					newCell.vertex = true;
+	    					newCell.id = id;
+							
 							for (var j = 0; j < values.length; j++)
 					    	{
-								graph.setAttributeForCell(cell, keys[j], values[j]);
+								graph.setAttributeForCell(newCell, keys[j], values[j]);
 					    	}
 							
-							graph.setAttributeForCell(cell, 'placeholders', '1');
-							cell.style = graph.replacePlaceholders(cell, cell.style);
+							graph.setAttributeForCell(newCell, 'placeholders', '1');
+							newCell.style = graph.replacePlaceholders(newCell, newCell.style);
+
+							if (exists)
+							{
+								graph.model.setGeometry(cell, newCell.geometry);
+								graph.model.setStyle(cell, newCell.style);
 								
-	    					for (var e = 0; e < edges.length; e++)
-	    					{
-	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
-	    					}
+								if (mxUtils.indexOf(cells, cell) < 0)
+								{
+									cells.push(cell);
+								}
+							}
+							
+							cell = newCell;
+	    					
+							if (!exists)
+							{
+		    					for (var e = 0; e < edges.length; e++)
+		    					{
+		    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
+		    					}
+							}
 							
 							if (link != null && link != 'link')
 							{
@@ -10959,18 +11019,30 @@
 								y += cell.geometry.height + nodespacing;
 							}
 							
-	    					var parent = (parentIndex != null) ? graph.model.getCell(
-	    						namespace + values[parentIndex]) : null;
-	    					
-	    					if (parent != null)
-	    					{
-	    						parent.style = graph.replacePlaceholders(parent, parentstyle);
-	    						graph.addCell(cell, parent);
-	    					}
-	    					else
-	    					{
-	    						cells.push(graph.addCell(cell));
-	    					}
+							if (!exists)
+							{
+		    					var parent = (parentIndex != null) ? graph.model.getCell(
+		    						namespace + values[parentIndex]) : null;
+		    					
+		    					if (parent != null)
+		    					{
+		    						parent.style = graph.replacePlaceholders(parent, parentstyle);
+		    						graph.addCell(cell, parent);
+		    					}
+		    					else
+		    					{
+		    						cells.push(graph.addCell(cell));
+		    					}
+							}
+							else
+							{
+								if (dups[id] == null)
+								{
+									dups[id] = [];
+								}
+								
+								dups[id].push(cell);
+							}
 		    			}
 		    		}
 	    			
@@ -10984,40 +11056,54 @@
 						for (var i = 0; i < cells.length; i++)
 	    				{
 							var cell = cells[i];
-	
-	    					var tmp = cell.getAttribute(edge.from);
-	    					
-	    					if (tmp != null)
-	    					{
-	    						// Removes attribute
-		    					graph.setAttributeForCell(cell, edge.from, null);
-	    						var refs = tmp.split(',');
+							
+							var insertEdge = mxUtils.bind(this, function(realCell, dataCell, edge)
+							{
+								var tmp = dataCell.getAttribute(edge.from);
 		    					
-		    					for (var j = 0; j < refs.length; j++)
-		        				{
-		    						var ref = lookups[edge.to][refs[j]];
+		    					if (tmp != null)
+		    					{
+		    						// Removes attribute
+			    					graph.setAttributeForCell(dataCell, edge.from, null);
+		    						var refs = tmp.split(',');
 		    						
-		    						if (ref != null)
-		    						{
-		    							var label = edge.label;
-		    							
-		    							if (edge.fromlabel != null)
-		    							{
-		    								label = (cell.getAttribute(edge.fromlabel) || '') + (label || '');
-		    							}
-		    							
-		    							if (edge.tolabel != null)
-		    							{
-		    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-		    							}
-		    							
-		    							select.push(graph.insertEdge(null, null, label || '',
-			    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
-							    			edge.style || graph.createCurrentEdgeStyle()));
-		    							mxUtils.remove((edge.invert) ? cell : ref, roots);
-		    						}
-		        				}
-	    					}
+			    					for (var j = 0; j < refs.length; j++)
+			        				{
+			    						var ref = lookups[edge.to][refs[j]];
+			    						
+			    						if (ref != null)
+			    						{
+			    							var label = edge.label;
+			    							
+			    							if (edge.fromlabel != null)
+			    							{
+			    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
+			    							}
+			    							
+			    							if (edge.tolabel != null)
+			    							{
+			    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+			    							}
+			    							
+			    							select.push(graph.insertEdge(null, null, label || '',
+				    							(edge.invert) ? ref : realCell, (edge.invert) ? realCell : ref,
+								    			edge.style || graph.createCurrentEdgeStyle()));
+			    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
+			    						}
+			        				}
+		    					}
+							});
+							
+							insertEdge(cell, cell, edge);
+
+    						// Checks more entries
+    						if (dups[cell.id] != null)
+    						{
+    							for (var j = 0; j < dups[cell.id].length; j++)
+    		    				{
+    								insertEdge(cell, dups[cell.id][j], edge);
+    		    				}
+    						}
 						}
 					}
 						
@@ -11035,125 +11121,128 @@
 						}
 					}
 					
-					var edgeLayout = new mxParallelEdgeLayout(graph);
-					edgeLayout.spacing = edgespacing;
-			
-					var postProcess = function()
+					if (cells.length > 0)
 					{
-						edgeLayout.execute(graph.getDefaultParent());
+						var edgeLayout = new mxParallelEdgeLayout(graph);
+						edgeLayout.spacing = edgespacing;
+				
+						var postProcess = function()
+						{
+							edgeLayout.execute(graph.getDefaultParent());
+							
+			    			// Aligns cells to grid and/or rounds positions
+							for (var i = 0; i < cells.length; i++)
+		    				{
+								var geo = graph.getCellGeometry(cells[i]);
+								geo.x = Math.round(graph.snap(geo.x));
+								geo.y = Math.round(graph.snap(geo.y));
+								
+								if (width == 'auto')
+								{
+									geo.width = Math.round(graph.snap(geo.width));	
+								}
+								
+								if (height == 'auto')
+								{
+									geo.height = Math.round(graph.snap(geo.height));	
+								}
+		    				}
+						};
 						
-    	    			// Aligns cells to grid and/or rounds positions
-						for (var i = 0; i < cells.length; i++)
-	    				{
-							var geo = graph.getCellGeometry(cells[i]);
-							geo.x = Math.round(graph.snap(geo.x));
-							geo.y = Math.round(graph.snap(geo.y));
-							
-							if (width == 'auto')
-							{
-								geo.width = Math.round(graph.snap(geo.width));	
-							}
-							
-							if (height == 'auto')
-							{
-								geo.height = Math.round(graph.snap(geo.height));	
-							}
-	    				}
-					};
-					
-					if (layout == 'circle')
-					{
-						var circleLayout = new mxCircleLayout(graph);
-	    				circleLayout.resetEdges = false;
-	    				
-	    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
-	    				
-    	    				// Ignore other cells
-	    				circleLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-					
-			    		this.executeLayout(function()
-			    		{
-			    			circleLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-			    		}, true, afterInsert);
-    				
-			    		afterInsert = null;
-					}
-					else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
-							(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
-	    				treeLayout.levelDistance = nodespacing;
-	    				treeLayout.edgeRouting = false;
-	    				treeLayout.resetEdges = false;
-	    				
-	    				this.executeLayout(function()
-	    	    		{
-	    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
-	    	    		}, true, afterInsert);
-	    				
-	    				afterInsert = null;
-	    			}
-	    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
-	    					(layout == 'auto' && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-		    			var flowLayout = new mxHierarchicalLayout(graph,
-		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
-		    			flowLayout.intraCellSpacing = nodespacing;
-		    			flowLayout.parallelEdgeSpacing = edgespacing;
-		    			flowLayout.interRankCellSpacing = levelspacing;
-		    			flowLayout.disableEdgeStyle = false;
-		    			
-		        		this.executeLayout(function()
-		        		{
-		        			flowLayout.execute(graph.getDefaultParent(), select);
-		        			
-		        			// Workaround for flow layout moving cells to origin
-		        			graph.moveCells(select, x0, y0);
-		        		}, true, afterInsert);
+						if (layout == 'circle')
+						{
+							var circleLayout = new mxCircleLayout(graph);
+		    				circleLayout.resetEdges = false;
+		    				
+		    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
+		    				
+			    				// Ignore other cells
+		    				circleLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+						
+				    		this.executeLayout(function()
+				    		{
+				    			circleLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+				    		}, true, afterInsert);
+						
+				    		afterInsert = null;
+						}
+						else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
+								(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
 			    			
-		    			afterInsert = null;
-		    		}
-	    			else if (layout == 'organic' || (layout == 'auto' &&
-	    					select.length > cells.length))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var organicLayout = new mxFastOrganicLayout(graph);
-	    				organicLayout.forceConstant = nodespacing * 3;
-	    				organicLayout.resetEdges = false;
-
-	    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
-
-    	    				// Ignore other cells
-	    				organicLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-
-	    				var edgeLayout = new mxParallelEdgeLayout(graph);
-	    				edgeLayout.spacing = edgespacing;
-	    				
-	    	    		this.executeLayout(function()
-	    	    		{
-	    	    			organicLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-	    	    		}, true, afterInsert);
-	    	    		
-	    	    		afterInsert = null;
-	    			}
+		    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
+		    				treeLayout.levelDistance = nodespacing;
+		    				treeLayout.edgeRouting = false;
+		    				treeLayout.resetEdges = false;
+		    				
+		    				this.executeLayout(function()
+		    	    		{
+		    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
+		    	    		}, true, afterInsert);
+		    				
+		    				afterInsert = null;
+		    			}
+		    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
+		    					(layout == 'auto' && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+			    			var flowLayout = new mxHierarchicalLayout(graph,
+			    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
+			    			flowLayout.intraCellSpacing = nodespacing;
+			    			flowLayout.parallelEdgeSpacing = edgespacing;
+			    			flowLayout.interRankCellSpacing = levelspacing;
+			    			flowLayout.disableEdgeStyle = false;
+			    			
+			        		this.executeLayout(function()
+			        		{
+			        			flowLayout.execute(graph.getDefaultParent(), select);
+			        			
+			        			// Workaround for flow layout moving cells to origin
+			        			graph.moveCells(select, x0, y0);
+			        		}, true, afterInsert);
+				    			
+			    			afterInsert = null;
+			    		}
+		    			else if (layout == 'organic' || (layout == 'auto' &&
+		    					select.length > cells.length))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+		    				var organicLayout = new mxFastOrganicLayout(graph);
+		    				organicLayout.forceConstant = nodespacing * 3;
+		    				organicLayout.resetEdges = false;
+		
+		    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
+		
+			    				// Ignore other cells
+		    				organicLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+		
+		    				var edgeLayout = new mxParallelEdgeLayout(graph);
+		    				edgeLayout.spacing = edgespacing;
+		    				
+		    	    		this.executeLayout(function()
+		    	    		{
+		    	    			organicLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+		    	    		}, true, afterInsert);
+		    	    		
+		    	    		afterInsert = null;
+		    			}
+					}
 	    			
 	    			this.hideDialog();
         		}
