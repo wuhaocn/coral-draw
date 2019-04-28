@@ -20,6 +20,8 @@
       
 ##### 本地运行
     依赖mysql、需创建数据库
+    http://127.0.0.1:8082/index.html?offline=1&uuid=8b4e7ef9-2757-48da-a8dc-d97f0e0a1b4d&ownerId=1554041140849d3VoYW90eA#LNewCoralFile.xml
+    http://127.0.0.1:8082/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=8b4e7ef9-2757-48da-a8dc-d97f0e0a1b4d&ownerId=1554041140849d3VoYW90eA#LNewCoralFile.xml
         
 ##### 功能截图
 

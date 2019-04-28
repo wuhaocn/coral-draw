@@ -84,7 +84,10 @@ public class FileControl {
         drawData.setOwnerId(ownerId);
         drawData.setName(xmlName);
         drawData.setBody(xmlBody.getBytes());
-
+        if(StringUtils.isNullOrEmpty(ownerId) || !ownerId.equals(drawData.getOwnerId())){
+            response.setStatus(403);
+            return;
+        }
         dataService.save(drawData);
         LOGGER.info("save File:{}", JSONObject.toJSONString(drawData));
         response.setStatus(200);
