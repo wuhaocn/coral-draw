@@ -21,7 +21,7 @@ public class IndexControl {
     @GetMapping("")
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
-        response.setHeader("Location", "/admin/index/login.html");
+        response.setHeader("Location", "/admin/index/index.html");
     }
 
     @GetMapping("draw")

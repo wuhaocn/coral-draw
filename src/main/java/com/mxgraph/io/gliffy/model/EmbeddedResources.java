@@ -1,6 +1,7 @@
 package com.mxgraph.io.gliffy.model;
 
-import org.apache.commons.codec.binary.Base64;
+
+import org.apache.tomcat.util.codec.binary.Base64;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;

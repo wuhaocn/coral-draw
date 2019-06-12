@@ -4,6 +4,9 @@
  */
 package com.mxgraph.online;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import java.io.IOException;
  * Servlet implementation ProxyServlet
  */
 @SuppressWarnings("serial")
+@RequestMapping("/i/*")
 public class ImgurRedirectServlet extends HttpServlet {
 
     /**
@@ -26,7 +30,8 @@ public class ImgurRedirectServlet extends HttpServlet {
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doGet(HttpServletRequest request,
+    @GetMapping
+    public void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException, IOException {
         String uri = request.getRequestURI();
         int last = uri.lastIndexOf("/");

@@ -1566,13 +1566,13 @@
   height: 100%;
 }
 .main-layout.hide-side .main-layout-side {
-  left: -200px;
+  left: -80px;
 }
 .main-layout.hide-side .main-layout-container {
   left: 0;
 }
 .main-layout-side {
-  width: 200px;
+  width: 80px;
   height: 100%;
   background: #444c63;
   position: absolute;
@@ -1642,7 +1642,7 @@
 }
 .main-layout-container {
   position: absolute;
-  left: 200px;
+  left: 80px;
   right: 0;
   top: 0;
   bottom: 0;
@@ -1653,7 +1653,7 @@
   transition: left 0.3s;
 }
 .main-layout-header {
-  height: 60px;
+  height: 0px;
   border-bottom: 1px solid #f0f0f0;
   background: #fff;
 }
@@ -1663,7 +1663,7 @@
 .main-layout-header .menu-btn {
   float: left;
   width: 60px;
-  height: 60px;
+  height: 0px;
   line-height: 60px;
   text-align: center;
 }
@@ -1699,7 +1699,7 @@
   background: #f2f2f2;
 }
 .main-layout-body {
-  position: absolute;
+
   left: 0;
   right: 0;
   bottom: 0;

@@ -14,44 +14,20 @@
 			<!--侧边栏-->
 			<div class="main-layout-side">
 
-				<div>
-					<img src="../static/admin/images/logo.png" width="180px"  height="90px">
-				</div>
-
 				<ul class="layui-nav layui-nav-tree" lay-filter="leftNav">
-
-				  <li class="layui-nav-item">
-				    <a href="javascript:;"><i class="iconfont">&#xe608;</i>绘图管理</a>
-				    <dl class="layui-nav-child">
-				      <dd><a href="javascript:;" data-url="draw-list.html" data-id='3' data-text="绘图管理"><span class="l-line"></span>绘图管理</a></dd>
-				      <dd><a href="javascript:;" data-url="/draw" data-id='9' data-text="创建绘图"><span class="l-line"></span>创建绘图</a></dd>
-				    </dl>
-				  </li>
-
-				  <li class="layui-nav-item">
-				    <a href="javascript:;" data-url="admin-info.html" data-id='5' data-text="个人信息"><i class="iconfont">&#xe606;</i>个人信息</a>
-				  </li>
-				  <li class="layui-nav-item">
-				  	<a href="javascript:;" data-url="system.html" data-id='6' data-text="系统设置"><i class="iconfont">&#xe60b;</i>系统设置</a>
-				  </li>
+					<li class="layui-nav-item">
+					  <a href="javascript:;" data-url="draw-list.html" data-id='3' data-text="管理"><span class="l-line"></span>管理</a>
+					</li>
+					<li class="layui-nav-item">
+					  <a href="javascript:;" data-url="/draw" data-id='9' data-text="创建"><span class="l-line"></span>创建</a>
+					</li>
+					<li class="layui-nav-item">
+						<a href="javascript:;" data-url="/draw" data-id='9' data-text="退出"><span class="l-line"></span>退出</a>
+					</li>
 				</ul>
 			</div>
-			<!--右侧内容-->
+			<!--内容-->
 			<div class="main-layout-container">
-				<!--头部-->
-				<div class="main-layout-header">
-					<div class="menu-btn" id="hideBtn">
-						<a href="javascript:;">
-							<span class="iconfont">&#xe60e;</span>
-						</a>
-					</div>
-					<ul class="layui-nav" lay-filter="rightNav">
-					  <li class="layui-nav-item">
-					    <a id="user_div" href="javascript:;">publicUser</a>
-					  </li>
-					  <li id="login_div" style="color: #00a0e9" class="layui-nav-item"><a href="login.html">请登录</a></li>
-					</ul>
-				</div>
 				<!--主体内容-->
 				<div class="main-layout-body">
 					<!--tab 切换-->
@@ -69,10 +45,7 @@
 					</div>
 				</div>
 			</div>
-			<!--遮罩-->
-			<div class="main-mask">
 
-			</div>
 		</div>
         <script src="../static/admin/js/jquery-3.3.1.min.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript">

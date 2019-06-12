@@ -71,26 +71,34 @@ public class FileControl {
     @ResponseBody
     public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String xmlBody = HttpUtil.getBodyString(request);
-        String xmlName = request.getHeader("name");
-        String xmlId = request.getHeader("uuid");
-        String ownerId = request.getHeader("ownerId");
-        LOGGER.info("save File:{}", xmlId);
-        DrawData drawData = dataService.findByUuid(xmlId);
-        if (drawData == null){
-            drawData = new DrawData();
+        try {
+            String drawJsonStr = HttpUtil.getBodyString(request);
+            JSONObject drawJson = JSONObject.parseObject(drawJsonStr);
+            LOGGER.info("save File:{}", drawJson);
+            String id = drawJson.getString("id");
+            String ownerId = drawJson.getString("ownerId");
+            String title = drawJson.getString("title");
+            String data = drawJson.getString("data");
+            DrawData drawData = dataService.findByUuid(id);
+            if (drawData == null){
+                drawData = new DrawData();
+            }
+            drawData.setUuid(id);
+            drawData.setOwnerId(ownerId);
+            drawData.setName(title);
+            drawData.setBody(data.getBytes());
+            if(StringUtils.isNullOrEmpty(ownerId) || !ownerId.equals(drawData.getOwnerId())){
+                response.setStatus(403);
+                return;
+            }
+            dataService.save(drawData);
+            LOGGER.info("save File:{}", JSONObject.toJSONString(drawData));
+            response.setStatus(200);
+        } catch (Exception e){
+            response.setStatus(400);
+            LOGGER.error("save error:{}", e.getMessage());
         }
-        drawData.setUuid(xmlId);
-        drawData.setOwnerId(ownerId);
-        drawData.setName(xmlName);
-        drawData.setBody(xmlBody.getBytes());
-        if(StringUtils.isNullOrEmpty(ownerId) || !ownerId.equals(drawData.getOwnerId())){
-            response.setStatus(403);
-            return;
-        }
-        dataService.save(drawData);
-        LOGGER.info("save File:{}", JSONObject.toJSONString(drawData));
-        response.setStatus(200);
+
     }
 
 

@@ -19,6 +19,9 @@
  */
 package com.mxgraph.online;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +32,7 @@ import java.io.OutputStream;
 /**
  * Servlet implementation class OpenServlet
  */
+@RequestMapping("/gadget.xml")
 public class GoogleGadgetServlet extends HttpServlet {
     /**
      *
@@ -45,7 +49,8 @@ public class GoogleGadgetServlet extends HttpServlet {
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
-    protected void doGet(HttpServletRequest request,
+    @GetMapping
+    public void doGet(HttpServletRequest request,
                          HttpServletResponse response) throws ServletException, IOException {
         String diagram = request.getParameter("diagram");
         String type = request.getParameter("type");

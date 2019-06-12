@@ -21,8 +21,10 @@ buildscript {
         classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
     repositories {
+        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+        maven { url "http://repo.spring.io/milestone/" }
+        maven { url "https://repo.spring.io/snapshot/" }
         maven { url "http://central.maven.org/maven2/" }
-        maven { url "http://repo.maven.apache.org/maven2" }
         mavenCentral()
         mavenLocal()
     }

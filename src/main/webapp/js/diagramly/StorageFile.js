@@ -111,22 +111,15 @@ StorageFile.prototype.saveAs = function(title, success, error)
  * 保存数据至服务器
  *
  */
-var synData = "";
-var synTitle = "";
-var synId = "";
-var ownerId = "";
-function saveToServer(){
+function saveToServer(drawData){
 	//创建异步对象
 	var xhr = new XMLHttpRequest();
 	//设置请求的类型及url
 	xhr.open('post', DRAW_SERVER_URL + '/save');
 	//post请求一定要添加请求头才行不然会报错
 	xhr.setRequestHeader("Content-type","application/json");
-	xhr.setRequestHeader("uuid", synId);
-	xhr.setRequestHeader("name", synTitle);
-	xhr.setRequestHeader("ownerId", ownerId);
 	//发送请求
-	xhr.send(synData);
+	xhr.send(drawData);
 	xhr.onreadystatechange = function () {
 		// 这步为判断服务器是否正确响应
 		if (xhr.readyState == 4 && xhr.status == 200) {
@@ -153,12 +146,20 @@ function getUrlParam(paramName) {
  */
 StorageFile.prototype.saveFile = function(title, revision, success, error)
 {
-	synData = this.getData();
-	synTitle = title;
-	synId = getUrlParam("uuid");
-	ownerId = getUrlParam("ownerId");
-	console.log("storageFile synData:" , synTitle, synData); //返回一个对象
-	saveToServer();
+	var synData = this.getData();
+	var synTitle = title;
+	var synId = getUrlParam("uuid");
+	var ownerId = getUrlParam("ownerId");
+
+	var drawData = {
+	    title: synTitle,
+	    id: synId,
+	    ownerId: ownerId,
+	    data: synData
+	 };
+	console.log("storageFile drawData:" , drawData); //返回一个对象
+	saveToServer(drawData);
+
 	if (!this.isEditable())
 	{
 		if (success != null)

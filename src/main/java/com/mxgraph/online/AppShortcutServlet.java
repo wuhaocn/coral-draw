@@ -4,6 +4,9 @@
  */
 package com.mxgraph.online;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +16,8 @@ import java.io.IOException;
 /**
  * Servlet implementation class OpenServlet
  */
-public class AppShortcutServlet extends HttpServlet {
+@RequestMapping("/app")
+public class AppShortcutServlet {
     /**
      *
      */
@@ -29,6 +33,7 @@ public class AppShortcutServlet extends HttpServlet {
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
+    @GetMapping
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setHeader("Location", "index.html?offline=1");
         response.setStatus(HttpServletResponse.SC_FOUND);

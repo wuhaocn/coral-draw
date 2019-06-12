@@ -1,5 +1,9 @@
 package com.mxgraph.online;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +18,7 @@ import java.util.logging.Logger;
 /**
  * Simple client-side logging servlet
  */
+@RequestMapping("/log")
 public class LogServlet extends HttpServlet {
 
     /**
@@ -58,10 +63,12 @@ public class LogServlet extends HttpServlet {
         warningFilters = new HashSet<String>(Arrays.asList(warningArray));
     }
 
+    @GetMapping
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         doPost(request, response);
     }
 
+    @PostMapping
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         try {
             String message = request.getParameter("msg");

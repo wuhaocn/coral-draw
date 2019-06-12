@@ -3,6 +3,9 @@
  */
 package com.mxgraph.online;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -18,7 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @SuppressWarnings("serial")
-public class MSGraphAuthServlet extends HttpServlet
+@RequestMapping("/microsoft")
+public class MSGraphAuthServlet
 {
 
 	/**
@@ -82,14 +86,14 @@ public class MSGraphAuthServlet extends HttpServlet
 	/**
 	 * Loads the key.
 	 */
-	protected void updateKeys()
+	protected void updateKeys(HttpServletRequest request)
 	{
 		if (DEV_CLIENT_SECRET == null)
 		{
 			try
 			{
 				DEV_CLIENT_SECRET = Utils
-						.readInputStream(getServletContext()
+						.readInputStream(request.getServletContext()
 								.getResourceAsStream(DEV_CLIENT_SECRET_FILE_PATH))
 						.replaceAll("\n", "");
 			}
@@ -104,7 +108,7 @@ public class MSGraphAuthServlet extends HttpServlet
 			try
 			{
 				CLIENT_SECRET = Utils
-						.readInputStream(getServletContext()
+						.readInputStream(request.getServletContext()
 								.getResourceAsStream(CLIENT_SECRET_FILE_PATH))
 						.replaceAll("\n", "");
 			}
@@ -119,7 +123,7 @@ public class MSGraphAuthServlet extends HttpServlet
 			try
 			{
 				DEV_CLIENT_ID = Utils
-						.readInputStream(getServletContext()
+						.readInputStream(request.getServletContext()
 								.getResourceAsStream(DEV_CLIENT_ID_FILE_PATH))
 						.replaceAll("\n", "");
 			}
@@ -134,7 +138,7 @@ public class MSGraphAuthServlet extends HttpServlet
 			try
 			{
 				CLIENT_ID = Utils
-						.readInputStream(getServletContext()
+						.readInputStream(request.getServletContext()
 								.getResourceAsStream(CLIENT_ID_FILE_PATH))
 						.replaceAll("\n", "");
 			}
@@ -148,12 +152,13 @@ public class MSGraphAuthServlet extends HttpServlet
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request,
+	@GetMapping
+	public void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		String code = request.getParameter("code");
 		String refreshToken = request.getParameter("refresh_token");
-		updateKeys();
+		updateKeys(request);
 		String secret, client, redirectUri;
 		
 		if ("127.0.0.1".equals(request.getServerName()))

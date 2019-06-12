@@ -4,6 +4,8 @@
  */
 package com.mxgraph.online;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +18,8 @@ import java.net.URL;
  * Servlet implementation ProxyServlet
  */
 @SuppressWarnings("serial")
-public class GitHubServlet extends HttpServlet {
+@RequestMapping("/github")
+public class GitHubServlet{
 
     /**
      * Path component under war/ to locate iconfinder_key file.
@@ -49,11 +52,11 @@ public class GitHubServlet extends HttpServlet {
     /**
      * Loads the key.
      */
-    protected void updateKeys() {
+    protected void updateKeys(HttpServletRequest request) {
         if (DEV_CLIENT_SECRET == null) {
             try {
                 DEV_CLIENT_SECRET = Utils
-                        .readInputStream(getServletContext()
+                        .readInputStream(request.getServletContext()
                                 .getResourceAsStream(DEV_CLIENT_SECRET_FILE_PATH))
                         .replaceAll("\n", "");
             } catch (IOException e) {
@@ -64,7 +67,7 @@ public class GitHubServlet extends HttpServlet {
         if (CLIENT_SECRET == null) {
             try {
                 CLIENT_SECRET = Utils
-                        .readInputStream(getServletContext()
+                        .readInputStream(request.getServletContext()
                                 .getResourceAsStream(CLIENT_SECRET_FILE_PATH))
                         .replaceAll("\n", "");
             } catch (IOException e) {
@@ -80,7 +83,7 @@ public class GitHubServlet extends HttpServlet {
                          HttpServletResponse response) throws ServletException, IOException {
         String client = request.getParameter("client_id");
         String code = request.getParameter("code");
-        updateKeys();
+        updateKeys(request);
 
         if (client != null && code != null) {
             String secret = client.equals("23bc97120b9035515661") ? DEV_CLIENT_SECRET : CLIENT_SECRET;
