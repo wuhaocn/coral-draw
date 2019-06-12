@@ -201,7 +201,9 @@ SelectPage.prototype.execute = function()
 		// Updates the display
 		editor.updateGraphComponents();
 		graph.view.validate();
+		graph.blockMathRender = true;
 		graph.sizeDidChange();
+		graph.blockMathRender = false;
 		
 //		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', 'transform 0.2s');
 //		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transform', 'translate(0,0)');
@@ -1092,7 +1094,7 @@ EditorUi.prototype.updateTabContainer = function()
 				}));
 				
 				wrapper.appendChild(tab);
-			}))(i, this.createTabForPage(this.pages[i], tabWidth, this.pages[i] != this.currentPage));
+			}))(i, this.createTabForPage(this.pages[i], tabWidth, this.pages[i] != this.currentPage, i + 1));
 		}
 		
 		this.tabContainer.innerHTML = '';
@@ -1348,12 +1350,12 @@ EditorUi.prototype.createPageInsertTab = function()
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled)
+EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled, pageNumber)
 {
 	var tab = this.createTab(hoverEnabled);
 	var name = page.getName() || mxResources.get('untitled');
 	var id = page.getId();
-	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : ''));
+	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : '') + ' [' + pageNumber + ']');
 	mxUtils.write(tab, name);
 	tab.style.maxWidth = tabWidth + 'px';
 	tab.style.width = tabWidth + 'px';

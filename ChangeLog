@@ -1,3 +1,61 @@
+11-JUN-2019: 10.7.6
+
+- Removes fallback to print dialog if offline in Electron
+- Fixes broken link if Google Drive is not loading
+
+04-JUN-2019: 10.7.5
+
+- Fixes Math rendering in graph viewer
+
+03-JUN-2019: 10.7.4
+
+- Adds MathJax codebase
+
+31-MAY-2019: 10.7.3
+
+- Enabling saving diagrams when the associated custom content is deleted or not found
+
+31-MAY-2019: 10.7.2
+
+- Fixes loading custom plugins in embed mode with configure URL parameter
+- Fixes math rendering with no scrollbars
+
+29-MAY-2019: 10.7.1
+
+- Adds JSON string for layouts in CSV import
+- Fixes zoomed position for data store label
+- Fixes changing of link colors in Firefox
+- Fixes limitations for Google docs add-on
+
+28-MAY-2019: 10.7.0
+
+- Replaces octet-stream with vnd.jgraph.mxfile in Drive
+- Fixes opaque background for server-side PNG export
+- Fixes line jump rendering with child edge labels
+- Fixes loading of large images via Insert dialog
+- Adds support to show/hide layers via tags
+- Adds edge flow to animation plugin
+- Fixes saving of OneDrive libraries
+
+25-MAY-2019: 10.6.9
+
+- Fixes missing VSDX import in stealth mode
+
+22-MAY-2019: 10.6.8
+
+- Add VMware stencils
+- VSDX import improvements
+
+07-MAY-2019: 10.6.7
+
+- Fixes first input element not firing change event
+
+02-MAY-2019: 10.6.6
+
+- Adds MS Active Directory stencils
+- Improvements to GCP stencils
+- Adds Confluence Cloud translations
+
 24-APR-2019: 10.6.5
 
 - Fixes style variation logic in VSDX import

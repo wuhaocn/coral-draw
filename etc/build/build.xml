@@ -101,6 +101,7 @@
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/sidebar.min.js">
 			<sources dir="${war.dir}/js/diagramly/sidebar">
 				<file name="Sidebar.js" />
+				<file name="Sidebar-ActiveDirectory.js" />
 				<file name="Sidebar-Advanced.js" />
 				<file name="Sidebar-AlliedTelesis.js" />
 				<file name="Sidebar-Android.js" />
@@ -144,6 +145,7 @@
 				<file name="Sidebar-Sitemap.js" />
 				<file name="Sidebar-Sysml.js" />
 				<file name="Sidebar-Veeam.js" />
+				<file name="Sidebar-VVD.js" />
 				<file name="Sidebar-WebIcons.js" />
 			</sources>
 		</jscomp>
@@ -406,12 +408,8 @@
 	</target>
 
 	<target name="clean" description="Cleans build directories">
-		<delete failonerror="false">
-			<fileset dir="${javac.dir}">
-			</fileset>
-			<fileset dir="${build.dir}">
-			</fileset>
-		</delete>
+		<delete dir="${javac.dir}"/>
+		<delete dir="${build.dir}"/>
 		<delete file="${basedir}/base.min.js"/>
 		<delete file="${basedir}/base-viewer.min.js"/>
 	</target>

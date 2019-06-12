@@ -295,12 +295,13 @@
 		'#\n' +
 		'# levelspacing: 100\n' +
 		'#\n' +
-		'## Spacing between parallel edges. Default is 40.\n' +
+		'## Spacing between parallel edges. Default is 40. Use 0 to disable.\n' +
 		'#\n' +
 		'# edgespacing: 40\n' +
 		'#\n' +
-		'## Name of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
-		'## verticalflow, horizontalflow, organic, circle. Default is auto.\n' +
+		'## Name or JSON of layout. Possible values are auto, none, verticaltree, horizontaltree,\n' +
+		'## verticalflow, horizontalflow, organic, circle or a JSON string as used in Layout, Apply.\n' +
+		'## Default is auto.\n' +
 		'#\n' +
 		'# layout: auto\n' +
 		'#\n' +
@@ -828,7 +829,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		src = (src != null) ? src : 'https://math.draw.io/current/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+		src = (src != null) ? src : DRAW_MATH_URL + '/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 		Editor.mathJaxQueue = [];
 		
 		Editor.doMathJaxRender = function(container)
@@ -900,7 +901,7 @@
 			Editor.mathJaxQueue = [];
 		};
 		
-		// Updates typeset after changes
+		// Updates math typesetting after changes
 		var editorInit = Editor.prototype.init;
 		
 		Editor.prototype.init = function()
@@ -909,7 +910,7 @@
 			
 			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 			{
-				if (this.graph.container != null && this.graph.mathEnabled)
+				if (this.graph.container != null && this.graph.mathEnabled && !this.graph.blockMathRender)
 				{
 					Editor.MathJaxRender(this.graph.container);
 				}
@@ -3754,17 +3755,17 @@
 
 		if (action.toggle != null)
 		{
-			this.toggleCells(this.getCellsForAction(action.toggle));
+			this.toggleCells(this.getCellsForAction(action.toggle, true));
 		}
 		
 		if (action.show != null)
 		{
-			this.setCellsVisible(this.getCellsForAction(action.show), true);
+			this.setCellsVisible(this.getCellsForAction(action.show, true), true);
 		}
 		
 		if (action.hide != null)
 		{
-			this.setCellsVisible(this.getCellsForAction(action.hide), false);
+			this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
 		}
 
 		if (action.scroll != null)
@@ -3782,10 +3783,10 @@
 	 * Handles each action in the action array of a custom link. This code
 	 * handles toggle actions for cell IDs.
 	 */
-	Graph.prototype.getCellsForAction = function(action)
+	Graph.prototype.getCellsForAction = function(action, includeLayers)
 	{
 		return this.getCellsById(action.cells).concat(
-			this.getCellsForTags(action.tags));
+			this.getCellsForTags(action.tags, null, null, includeLayers));
 	};
 	
 	/**
@@ -3828,7 +3829,7 @@
 	 * Returns the cells in the model (or given array) that have all of the
 	 * given tags in their tags property.
 	 */
-	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName)
+	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName, includeLayers)
 	{
 		var result = [];
 		
@@ -3839,7 +3840,8 @@
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
+				if ((includeLayers && this.model.getParent(cells[i]) == this.model.root) ||
+					this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
 				{
 					var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
 						mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
@@ -4737,7 +4739,7 @@
 					}
 					
 					doc.writeln('</script>');
-					doc.writeln('<script type="text/javascript" src="https://math.draw.io/current/MathJax.js"></script>');
+					doc.writeln('<script type="text/javascript" src="' + DRAW_MATH_URL + '/MathJax.js"></script>');
 				}
 				
 				pv.closeDocument();

@@ -433,9 +433,9 @@
 	/**
 	 * Returns true if no external comms allowed or possible
 	 */
-	EditorUi.prototype.isOffline = function()
+	EditorUi.prototype.isOffline = function(ignoreStealth)
 	{
-		return this.isOfflineApp() || !navigator.onLine || urlParams['stealth'] == '1';
+		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && urlParams['stealth'] == '1');
 	};
 
 	/**
@@ -1729,7 +1729,11 @@
 		{
 			bg = mxConstants.NONE;
 		}
-       	
+		else if (!transparent && (bg == null || bg == mxConstants.NONE))
+		{
+			bg = '#ffffff';
+		}
+		
 		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range + allPages +
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
@@ -2301,8 +2305,9 @@
 
 				if (!this.isOffline() && file.getMode() != null)
 				{
-					EditorUi.logEvent({category: 'File', action: 'open', label:
-						file.getMode() + '.' + file.getSize()})
+					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
+						action: 'size_' + file.getSize(),
+						label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off')});
 				}
 				
 				if (this.editor.editable && this.mode == file.getMode() &&
@@ -3712,6 +3717,11 @@
 	 */
 	EditorUi.prototype.setCurrentFile = function(file)
 	{
+		if (file != null)
+		{
+			file.opened = new Date().getTime();
+		}
+		
 		this.currentFile = file;
 	};
 
@@ -6607,9 +6617,7 @@
 							{
 								try
 								{
-									//add back the file name
-									xhr.response.name = filename;
-									this.doImportVisio(xhr.response, done, onerror);
+									this.doImportVisio(xhr.response, done, onerror, filename);
 								}
 								catch (e)
 								{
@@ -6629,7 +6637,7 @@
 				{
 					try
 					{
-						this.doImportVisio(file, done, onerror);
+						this.doImportVisio(file, done, onerror, filename);
 					}
 					catch (e)
 					{
@@ -6637,9 +6645,14 @@
 					}
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline())
+		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6676,9 +6689,14 @@
 					onerror(e);
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline())
+		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6714,9 +6732,14 @@
 					this.handleError(e);
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline())
+		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6757,7 +6780,7 @@
 		});
 		
 		if (typeof window.LucidImporter === 'undefined' &&
-			!this.loadingExtensions && !this.isOffline())
+			!this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			
@@ -7060,19 +7083,28 @@
 		if (device && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
 			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
 		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			
-			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+			if (this.importFileInputElt == null) 
 			{
-				if (input.files != null)
+				var input = document.createElement('input');
+				input.setAttribute('type', 'file');
+				
+				mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
 				{
-					// Using null for position will disable crop of input file
-					this.importFiles(input.files, null, null, this.maxImageSize);
-				}
-			}));
-
-			input.click();
+					if (input.files != null)
+					{
+						// Using null for position will disable crop of input file
+						this.importFiles(input.files, null, null, this.maxImageSize);
+					}
+					
+					input.value = '';
+				}));
+				
+				input.style.display = 'none';
+				document.body.appendChild(input);
+				this.importFileInputElt = input;
+			}
+			
+			this.importFileInputElt.click();
 		}
 		else
 		{
@@ -7406,219 +7438,219 @@
 							{
 								if (filterFn == null || filterFn(file))
 								{
-							    		if (file.type.substring(0, 6) == 'image/')
-							    		{
-							    			if (file.type.substring(0, 9) == 'image/svg')
-							    			{
-							    				// Checks if SVG contains content attribute
-						    					var data = e.target.result;
-						    					var comma = data.indexOf(',');
-						    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-						    					var root = mxUtils.parseXml(svgText);
-					    						var svgs = root.getElementsByTagName('svg');
-					    						
-					    						if (svgs.length > 0)
-						    					{
-					    							var svgRoot = svgs[0];
-							    					var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
-			
-							    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
-							    					{
-							    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
-							    					}
-							    					
-							    					if (cont != null && cont.charAt(0) == '%')
-							    					{
-							    						cont = decodeURIComponent(cont);
-							    					}
-			
-							    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
-							    						cont.substring(0, 14) === '<mxGraphModel '))
-							    					{
-							    						barrier(index, mxUtils.bind(this, function()
-									    				{
-									    					return fn(cont, 'text/xml', x + index * gs, y + index * gs, 0, 0, file.name);	
-									    				}));
-							    					}
-							    					else
-							    					{
-									    				// SVG needs special handling to add viewbox if missing and
-									    				// find initial size from SVG attributes (only for IE11)
-									    				barrier(index, mxUtils.bind(this, function()
-									    				{
-								    						try
-								    						{
-										    					var prefix = data.substring(0, comma + 1);
-										    					
-										    					// Parses SVG and find width and height
-										    					if (root != null)
-										    					{
-										    						var svgs = root.getElementsByTagName('svg');
-										    						
-										    						if (svgs.length > 0)
-											    					{
-										    							var svgRoot = svgs[0];
-											    						var w = parseFloat(svgRoot.getAttribute('width'));
-											    						var h = parseFloat(svgRoot.getAttribute('height'));
-											    						
-											    						// Check if viewBox attribute already exists
-											    						var vb = svgRoot.getAttribute('viewBox');
-											    						
-											    						if (vb == null || vb.length == 0)
-											    						{
-											    							svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-											    						}
-											    						// Uses width and height from viewbox for
-											    						// missing width and height attributes
-											    						else if (isNaN(w) || isNaN(h))
-											    						{
-											    							var tokens = vb.split(' ');
-											    							
-											    							if (tokens.length > 3)
-											    							{
-											    								w = parseFloat(tokens[2]);
-											    								h = parseFloat(tokens[3]);
-											    							}
-											    						}
+						    		if (file.type.substring(0, 6) == 'image/')
+						    		{
+						    			if (file.type.substring(0, 9) == 'image/svg')
+						    			{
+						    				// Checks if SVG contains content attribute
+					    					var data = e.target.result;
+					    					var comma = data.indexOf(',');
+					    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+					    					var root = mxUtils.parseXml(svgText);
+				    						var svgs = root.getElementsByTagName('svg');
+				    						
+				    						if (svgs.length > 0)
+					    					{
+				    							var svgRoot = svgs[0];
+						    					var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
 		
-											    						data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
-											    						var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
-											    							1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
-											    						
-											    						// Hack to fix width and height asynchronously
-											    						if (isNaN(w) || isNaN(h))
-											    						{
-											    							var img = new Image();
-											    							
-											    							img.onload = mxUtils.bind(this, function()
-											    							{
-											    								w = Math.max(1, img.width);
-											    								h = Math.max(1, img.height);
-											    								
-											    								cells[0].geometry.width = w;
-											    								cells[0].geometry.height = h;
-											    								
-											    								svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-											    								data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											    								
-											    								var semi = data.indexOf(';');
-											    								
-											    								if (semi > 0)
-											    								{
-											    									data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
-											    								}
-											    								
-											    								graph.setCellStyles('image', data, [cells[0]]);
-											    							});
-											    							
-											    							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											    						}
-											    						
-											    						return cells;
-											    					}
-										    					}
-								    						}
-								    						catch (e)
-								    						{
-								    							// ignores any SVG parsing errors
-								    						}
-									    					
-									    					return null;
-									    				}));
-							    					}
+						    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
+						    					{
+						    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
 						    					}
-					    						else
-					    						{
+						    					
+						    					if (cont != null && cont.charAt(0) == '%')
+						    					{
+						    						cont = decodeURIComponent(cont);
+						    					}
+		
+						    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
+						    						cont.substring(0, 14) === '<mxGraphModel '))
+						    					{
 						    						barrier(index, mxUtils.bind(this, function()
 								    				{
+								    					return fn(cont, 'text/xml', x + index * gs, y + index * gs, 0, 0, file.name);	
+								    				}));
+						    					}
+						    					else
+						    					{
+								    				// SVG needs special handling to add viewbox if missing and
+								    				// find initial size from SVG attributes (only for IE11)
+								    				barrier(index, mxUtils.bind(this, function()
+								    				{
+							    						try
+							    						{
+									    					var prefix = data.substring(0, comma + 1);
+									    					
+									    					// Parses SVG and find width and height
+									    					if (root != null)
+									    					{
+									    						var svgs = root.getElementsByTagName('svg');
+									    						
+									    						if (svgs.length > 0)
+										    					{
+									    							var svgRoot = svgs[0];
+										    						var w = parseFloat(svgRoot.getAttribute('width'));
+										    						var h = parseFloat(svgRoot.getAttribute('height'));
+										    						
+										    						// Check if viewBox attribute already exists
+										    						var vb = svgRoot.getAttribute('viewBox');
+										    						
+										    						if (vb == null || vb.length == 0)
+										    						{
+										    							svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+										    						}
+										    						// Uses width and height from viewbox for
+										    						// missing width and height attributes
+										    						else if (isNaN(w) || isNaN(h))
+										    						{
+										    							var tokens = vb.split(' ');
+										    							
+										    							if (tokens.length > 3)
+										    							{
+										    								w = parseFloat(tokens[2]);
+										    								h = parseFloat(tokens[3]);
+										    							}
+										    						}
+	
+										    						data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
+										    						var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
+										    							1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
+										    						
+										    						// Hack to fix width and height asynchronously
+										    						if (isNaN(w) || isNaN(h))
+										    						{
+										    							var img = new Image();
+										    							
+										    							img.onload = mxUtils.bind(this, function()
+										    							{
+										    								w = Math.max(1, img.width);
+										    								h = Math.max(1, img.height);
+										    								
+										    								cells[0].geometry.width = w;
+										    								cells[0].geometry.height = h;
+										    								
+										    								svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+										    								data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										    								
+										    								var semi = data.indexOf(';');
+										    								
+										    								if (semi > 0)
+										    								{
+										    									data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
+										    								}
+										    								
+										    								graph.setCellStyles('image', data, [cells[0]]);
+										    							});
+										    							
+										    							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+										    						}
+										    						
+										    						return cells;
+										    					}
+									    					}
+							    						}
+							    						catch (e)
+							    						{
+							    							// ignores any SVG parsing errors
+							    						}
+								    					
 								    					return null;
 								    				}));
-					    						}
-							    			}
-							    			else
-							    			{
-							    				// Checks if PNG+XML is available to bypass code below
-							    				var containsModel = false;
-							    				
-							    				if (file.type == 'image/png')
+						    					}
+					    					}
+				    						else
+				    						{
+					    						barrier(index, mxUtils.bind(this, function()
 							    				{
-							    					var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
-							    					
-							    					if (xml != null && xml.length > 0)
-							    					{
-							    						var img = new Image();
-							    						img.src = e.target.result;
-							    						
-									    				barrier(index, mxUtils.bind(this, function()
+							    					return null;
+							    				}));
+				    						}
+						    			}
+						    			else
+						    			{
+						    				// Checks if PNG+XML is available to bypass code below
+						    				var containsModel = false;
+						    				
+						    				if (file.type == 'image/png')
+						    				{
+						    					var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
+						    					
+						    					if (xml != null && xml.length > 0)
+						    					{
+						    						var img = new Image();
+						    						img.src = e.target.result;
+						    						
+								    				barrier(index, mxUtils.bind(this, function()
+								    				{
+								    					return fn(xml, 'text/xml', x + index * gs, y + index * gs,
+								    						img.width, img.height, file.name);	
+								    				}));
+						    						
+						    						containsModel = true;
+						    					}
+						    				}
+						    				
+							    			// Additional asynchronous step for finding image size
+						    				if (!containsModel)
+						    				{
+						    					// Cannot load local files in Chrome App
+						    					if (mxClient.IS_CHROMEAPP)
+						    					{
+						    						this.spinner.stop();
+						    						this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
+						    							mxResources.get('cancel'), mxUtils.bind(this, function()
+					    								{
+					    									// Hides the dialog
+					    								}), null, mxResources.get('ok'), mxUtils.bind(this, function()
+					    								{
+						    								// Redirects to import function
+					    									this.actions.get('import').funct();
+					    								})
+					    							);
+						    					}
+						    					else
+						    					{
+									    			this.loadImage(e.target.result, mxUtils.bind(this, function(img)
+									    			{
+									    				this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
 									    				{
-									    					return fn(xml, 'text/xml', x + index * gs, y + index * gs,
-									    						img.width, img.height, file.name);	
-									    				}));
-							    						
-							    						containsModel = true;
-							    					}
-							    				}
-							    				
-								    			// Additional asynchronous step for finding image size
-							    				if (!containsModel)
-							    				{
-							    					// Cannot load local files in Chrome App
-							    					if (mxClient.IS_CHROMEAPP)
-							    					{
-							    						this.spinner.stop();
-							    						this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
-							    							mxResources.get('cancel'), mxUtils.bind(this, function()
-						    								{
-						    									// Hides the dialog
-						    								}), null, mxResources.get('ok'), mxUtils.bind(this, function()
-						    								{
-							    								// Redirects to import function
-						    									this.actions.get('import').funct();
-						    								})
-						    							);
-							    					}
-							    					else
-							    					{
-										    			this.loadImage(e.target.result, mxUtils.bind(this, function(img)
-										    			{
-										    				this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
-										    				{
-											    				barrier(index, mxUtils.bind(this, function()
-													    		{
-											    					// Refuses to insert images above a certain size as they kill the app
-											    					if (data2 != null && data2.length < maxBytes)
-											    					{
-												    					var s = (!resizeImages || !this.isResampleImage(e.target.result, resampleThreshold)) ? 1 : Math.min(1, Math.min(maxSize / w2, maxSize / h2));
-													    				
-												    					return fn(data2, file.type, x + index * gs, y + index * gs, Math.round(w2 * s), Math.round(h2 * s), file.name);
-											    					}
-											    					else
-											    					{
-											    						this.handleError({message: mxResources.get('imageTooBig')});
-											    						
-											    						return null;
-											    					}
-													    		}));
-										    				}), resizeImages, maxSize, resampleThreshold);
-										    			}), mxUtils.bind(this, function()
-										    			{
-										    				this.handleError({message: mxResources.get('invalidOrMissingFile')});
-										    			}));
-							    					}
-							    				}
-							    			}
-							    		}
-							    		else
-							    		{
-											fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
-											{
-												barrier(index, function()
-					    	    				{
-					    		    				return cells;
-					    	    				});
-											});
-							    		}
+										    				barrier(index, mxUtils.bind(this, function()
+												    		{
+										    					// Refuses to insert images above a certain size as they kill the app
+										    					if (data2 != null && data2.length < maxBytes)
+										    					{
+											    					var s = (!resizeImages || !this.isResampleImage(e.target.result, resampleThreshold)) ? 1 : Math.min(1, Math.min(maxSize / w2, maxSize / h2));
+												    				
+											    					return fn(data2, file.type, x + index * gs, y + index * gs, Math.round(w2 * s), Math.round(h2 * s), file.name);
+										    					}
+										    					else
+										    					{
+										    						this.handleError({message: mxResources.get('imageTooBig')});
+										    						
+										    						return null;
+										    					}
+												    		}));
+									    				}), resizeImages, maxSize, resampleThreshold);
+									    			}), mxUtils.bind(this, function()
+									    			{
+									    				this.handleError({message: mxResources.get('invalidOrMissingFile')});
+									    			}));
+						    					}
+						    				}
+						    			}
+						    		}
+						    		else
+						    		{
+										fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+										{
+											barrier(index, function()
+				    	    				{
+				    		    				return cells;
+				    	    				});
+										});
+						    		}
 								}
 							});
 							
@@ -7649,6 +7681,16 @@
 		
 		if (largeImages)
 		{
+			// Workaround for lost files array in async code
+			var tmp = [];
+			
+			for (var i = 0; i < files.length; i++)
+			{
+				tmp.push(files[i]);
+			}
+			
+			files = tmp;
+			
 			this.confirmImageResize(function(doResize)
 			{
 				resizeImages = doResize;
@@ -8906,7 +8948,7 @@
 		
 		this.installSettings();
 	};
-	
+
 	/**
 	 * 
 	 */
@@ -10699,8 +10741,37 @@
 		this.importCsvDialog.init();
 	};
 
+
 	/**
-	 * TODO: Move to Editor
+	 * Runs the layout from the given JavaScript array which is of the form [{layout: name, config: obj}, ...]
+	 * where name is the layout constructor name and config contains the properties of the layout instance.
+	 */
+	EditorUi.prototype.executeLayoutList = function(layoutList, done)
+	{
+		var graph = this.editor.graph;
+		var cells = graph.getSelectionCells();
+
+		for (var i = 0; i < layoutList.length; i++)
+		{
+			var layout = new window[layoutList[i].layout](graph);
+			
+			if (layoutList[i].config != null)
+			{
+				for (var key in layoutList[i].config)
+				{
+					layout[key] = layoutList[i].config[key];
+				}
+			}
+			
+			this.executeLayout(function()
+			{
+				layout.execute(graph.getDefaultParent(), cells.length == 0 ? null : cells);
+			}, i == layoutList.length - 1, done);
+		}
+	};
+	
+	/**
+	 *
 	 */
 	EditorUi.prototype.importCsv = function(text, done)
 	{
@@ -11128,7 +11199,10 @@
 				
 						var postProcess = function()
 						{
-							edgeLayout.execute(graph.getDefaultParent());
+							if (edgeLayout.spacing > 0)
+							{
+								edgeLayout.execute(graph.getDefaultParent());
+							}
 							
 			    			// Aligns cells to grid and/or rounds positions
 							for (var i = 0; i < cells.length; i++)
@@ -11149,14 +11223,26 @@
 		    				}
 						};
 						
-						if (layout == 'circle')
+						if (layout.charAt(0) == '[')
+						{
+			    			// Required for layouts to work with new cells
+							var temp = afterInsert;
+			    			graph.view.validate();
+							this.executeLayoutList(JSON.parse(layout), function()
+							{
+								postProcess();
+								temp();
+							});
+							afterInsert = null;
+						}
+						else if (layout == 'circle')
 						{
 							var circleLayout = new mxCircleLayout(graph);
 		    				circleLayout.resetEdges = false;
 		    				
 		    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
 		    				
-			    				// Ignore other cells
+			    			// Ignore other cells
 		    				circleLayout.isVertexIgnored = function(vertex)
 		    				{
 		    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
@@ -11771,22 +11857,39 @@
 			}
 		    else
 		    {
-		    		var data = editorUi.getFileData(true, null, null, null, null, true);
-		    		var bounds = graph.getGraphBounds();
+		    	var data = editorUi.getFileData(true, null, null, null, null, true);
+		    	var bounds = graph.getGraphBounds();
 				var w = Math.floor(bounds.width * s / graph.view.scale);
 				var h = Math.floor(bounds.height * s / graph.view.scale);
 				
 				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
 				{
 					editorUi.hideDialog();
-					editorUi.saveRequest(name, format,
-						function(newTitle, base64)
+					
+					if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
+					{
+						if (format == 'png')
 						{
-							return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
-								((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
-								'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
-								'&border=' + b + '&xml=' + encodeURIComponent(data));
-						});
+							editorUi.exportImage(s, bg == null || bg == 'none', true,
+						   		false, false, b, true, false);
+						}
+						else 
+						{
+							editorUi.exportImage(s, false, true,
+								false, false, b, true, false, 'jpeg');
+						}
+					}
+					else 
+					{
+						editorUi.saveRequest(name, format,
+							function(newTitle, base64)
+							{
+								return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
+									((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
+									'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
+									'&border=' + b + '&xml=' + encodeURIComponent(data));
+							});
+					}
 				}
 				else
 				{
@@ -12273,6 +12376,47 @@
 		{
 			return new DrawioComment(this, null, content, Date.now(), Date.now(), false, user);
 		}
+	};
+	
+	//==================================================== End of comments =================================================================
+	
+	/**
+	 * Does revisions history available
+	 */
+	EditorUi.prototype.isRevisionHistorySupported = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null && file.isRevisionHistorySupported();
+	};
+
+	/**
+	 * Get revisions of current file
+	 */
+	EditorUi.prototype.getRevisions = function(success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && file.getRevisions)
+		{
+			file.getRevisions(success, error);
+		}
+		else
+		{
+			error({message: mxResources.get('unknownError')});
+		}
+	};
+	
+	/**
+	 * Is revisions history enabled
+	 */
+	EditorUi.prototype.isRevisionHistoryEnabled = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null &&
+				((file.constructor == DriveFile && file.isEditable()) ||
+				file.constructor == DropboxFile);
 	};
 })();
 
