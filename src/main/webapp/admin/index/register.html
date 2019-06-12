@@ -13,7 +13,7 @@
 		<div class="m-login-bg">
 			<div class="m-login">
 				<div style="text-align: center">
-					<img src="../static/admin/images/logo.png" width="180px"  height="90px">
+					<h3>账号注册</h3>
 				</div>
 				<div class="m-login-warp">
 					<form class="layui-form"  method='post'  action="/user/register">
@@ -23,13 +23,15 @@
 						<div class="layui-form-item">
 							<input type="password"  name="pass" required lay-verify="required" placeholder="密码" autocomplete="off" class="layui-input">
 						</div>
-						<div class="layui-form-item m-login-btn">
+						<div class="layui-form-item m-login-btn" style="text-align: center;">
 							<div class="layui-inline">
 								<button class="layui-btn layui-btn-normal" lay-submit lay-filter="register">注册</button>
 							</div>
-							<div class="layui-inline">
-								<button type="reset" class="layui-btn layui-btn-primary">取消</button>
-							</div>
+						</div>
+						<div class="layui-form-item m-login-btn" style="text-align: center;">
+							已注册账号，请前去
+							<a href="login.html">登录</a>
+
 						</div>
 					</form>
 				</div>
@@ -56,6 +58,7 @@
 
 				//监听提交
 				form.on('submit(register)', function(data) {
+				    alert("注册成功请登录");
 					return true;
 				});
 

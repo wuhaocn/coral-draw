@@ -33,7 +33,7 @@
 
 		<script type="text/html" id="optTool">
 			<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">编辑</a>
-			<!--<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">删除</a>-->
+			<a class="layui-btn layui-btn-xs" lay-event="delete" lay-filter="edit">删除</a>
 		</script>
 
 		<script>
@@ -58,6 +58,7 @@
 
 				//监听操作
 				table.on('tool(tableOpt)', function(obj){
+					//obj.event删除
 					console.log("drawViewEdit", obj)
 					var uuid = obj.data.uuid;
 					var ownerId = obj.data.ownerId;
