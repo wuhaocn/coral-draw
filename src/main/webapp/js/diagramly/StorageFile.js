@@ -119,7 +119,7 @@ function saveToServer(drawData){
 	//post请求一定要添加请求头才行不然会报错
 	xhr.setRequestHeader("Content-type","application/json");
 	//发送请求
-	xhr.send(drawData);
+	xhr.send(JSON.stringify(drawData));
 	xhr.onreadystatechange = function () {
 		// 这步为判断服务器是否正确响应
 		if (xhr.readyState == 4 && xhr.status == 200) {

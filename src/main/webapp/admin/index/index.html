@@ -5,7 +5,7 @@
 		<meta name="renderer" content="webkit">
   		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		<title>CoralDraw</title>
+		<title>绘图管理台</title>
 		<link rel="stylesheet" type="text/css" href="../static/admin/layui/css/layui.css"/>
 		<link rel="stylesheet" type="text/css" href="../static/admin/css/admin.css"/>
 	</head>
@@ -19,7 +19,7 @@
 					  <a href="javascript:;" data-url="draw-list.html" data-id='3' data-text="管理"><span class="l-line"></span>管理</a>
 					</li>
 					<li class="layui-nav-item">
-					  <a href="javascript:;" data-url="/draw" data-id='9' data-text="创建"><span class="l-line"></span>创建</a>
+						<a href="javascript:;" onclick="createDraw()"  data-id='9' data-text="创建"><span class="l-line"></span>创建</a>
 					</li>
 					<li class="layui-nav-item">
 						<a href="javascript:;" onclick="logout()" data-text="退出"><span class="l-line"></span>退出</a>
@@ -33,7 +33,7 @@
 					<!--tab 切换-->
 					<div class="layui-tab layui-tab-brief main-layout-tab" lay-filter="tab" lay-allowClose="true">
 					  <ul class="layui-tab-title">
-					    <li class="layui-this welcome">后台主页</li>
+					    <li class="layui-this welcome">绘图管理</li>
 					  </ul>
 					  <div class="layui-tab-content">
 					    <div class="layui-tab-item layui-show" style="background: #f5f5f5;">
@@ -58,6 +58,10 @@
                     console.log(data, status)
                 });
             }
+			function createDraw() {
+				var urlOPen = "/draw";
+				window.open(urlOPen);                 //在另外新建窗口中打开窗口
+			}
             function logout() {
                 window.location.href="login.html";
             }

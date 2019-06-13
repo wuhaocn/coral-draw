@@ -8,6 +8,9 @@ import com.mxgraph.service.DrawDataService;
 import com.mxgraph.utils.HttpUtil;
 import com.mxgraph.utils.SessionUtils;
 import com.mysql.jdbc.StringUtils;
+
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +64,10 @@ public class FileControl {
 
         }
         LOGGER.info("get File:{}-{}", JSONObject.toJSONString(drawData));
-        response.getOutputStream().write(drawData.getBody());
-        response.setHeader("name", drawData.getName());
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", drawData.getName());
+        jsonObject.put("data", new String(drawData.getBody()));
+        response.getOutputStream().write(jsonObject.toJSONString().getBytes());
         response.setStatus(200);
     }
 
@@ -87,7 +92,8 @@ public class FileControl {
             drawData.setOwnerId(ownerId);
             drawData.setName(title);
             drawData.setBody(data.getBytes());
-            if(StringUtils.isNullOrEmpty(ownerId) || !ownerId.equals(drawData.getOwnerId())){
+            if(StringUtils.isNullOrEmpty(ownerId)  || StringUtils.isNullOrEmpty(data) ||
+                    StringUtils.isNullOrEmpty(title) || !ownerId.equals(drawData.getOwnerId())){
                 response.setStatus(403);
                 return;
             }
@@ -112,5 +118,19 @@ public class FileControl {
         }
         PageData pageData = new PageData(dataList.size(), 0, dataList);
         return pageData;
+    }
+
+    @RequestMapping(value = "/del/{ids}", method = RequestMethod.POST)
+    @ResponseBody
+    public JSONObject delAllByIds(@PathVariable String[] ids) {
+        JSONObject jsonObject = new JSONObject();
+        for (String id: ids) {
+            DrawData drawData = dataService.findByUuid(id);
+            if (drawData != null){
+                dataService.delete(drawData);
+            }
+        }
+        jsonObject.put("code", "200");
+        return jsonObject;
     }
 }

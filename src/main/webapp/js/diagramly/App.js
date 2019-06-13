@@ -2785,9 +2785,9 @@ function loadServerData(uuid, uiRefer, ownerId){
     xhr.onreadystatechange = function () {
         //加载服务器内容
 		uiRefer.mode == App.MODE_BROWSER;
-		var xmlName =  xhr.getResponseHeader("name");
-        var xmlBody =  xhr.responseText;
-		var file = new StorageFile(uiRefer, xmlBody, xmlName, true);
+        var jsonBody =  xhr.responseText;
+		var jsonData = JSON.parse(jsonBody);
+		var file = new StorageFile(uiRefer, jsonData.data, jsonData.name, true);
 		uiRefer.loadServerFile(file);
 
     };

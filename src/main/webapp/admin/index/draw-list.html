@@ -1,80 +1,124 @@
 <!DOCTYPE html>
 <html class="iframe-h">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="renderer" content="webkit">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		<title>绘图管理</title>
-		<link rel="stylesheet" type="text/css" href="../static/admin/layui/css/layui.css" />
-		<link rel="stylesheet" type="text/css" href="../static/admin/css/admin.css" />
-	</head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>绘图管理</title>
+    <link rel="stylesheet" type="text/css" href="../static/admin/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/admin/css/admin.css"/>
+</head>
 
-	<body>
-		<div class="wrap-container clearfix">
-				<div class="column-content-detail">
-					<form class="layui-form" action="">
-						<div class="layui-form-item">
-							<button class="layui-btn layui-btn-small layui-btn-normal addBtn" onclick="createDraw()">
-								<i class="layui-icon">&#xe654;</i>
-							</button>
+<body>
+<div class="wrap-container clearfix">
+    <div class="column-content-detail">
+        <!--<form class="layui-form" action="">-->
+            <!--<div class="layui-form-item">-->
+                <!--<button class="layui-btn layui-btn-small layui-btn-normal addBtn" onclick="createDraw()">-->
+                    <!--<i class="layui-icon">&#xe654;</i>-->
+                <!--</button>-->
 
-						</div>
-					</form>
+            <!--</div>-->
+        <!--</form>-->
 
-					<div class="layui-form" id="table-list">
-						<table class="layui-hide" id="table_drawlist" lay-filter="tableOpt"></table>
-					</div>
-				</div>
-		</div>
-		<script src="../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
-		<script src="../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
+        <div class="layui-form" id="table-list">
+            <table class="layui-hide" id="table_drawlist" lay-filter="tableOpt"></table>
+        </div>
+    </div>
+</div>
+<script src="../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
 
-		<script type="text/html" id="optTool">
-			<a class="layui-btn layui-btn-xs" lay-event="edit" lay-filter="edit">编辑</a>
-			<a class="layui-btn layui-btn-xs" lay-event="delete" lay-filter="edit">删除</a>
-		</script>
+<script type="text/html" id="optTool">
+    <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="share" lay-filter="share">分享</a>
+    <a class="layui-btn layui-btn-sm " lay-event="view" lay-filter="view">预览</a>
+    <a class="layui-btn layui-btn-sm layui-btn-xs" lay-event="edit" lay-filter="edit">编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete" lay-filter="delete">删除</a>
+</script>
 
-		<script>
-			layui.use('table', function(){
-				var table = layui.table;
+<script>
+    layui.use('table', function () {
+        var table = layui.table;
 
-				//第一个实例
-				table.render({
-					elem: '#table_drawlist'
-					,height: 800
-					,url: '/file/list' //数据接口
-					,page: true //开启分页
-					,cols: [[ //表头
-						{field: 'name', title: '文件名'}
-						,{field: 'ownerId', title: '拥有者'}
-						,{field: 'createTime', title: '创建时间' ,sort: true,}
-						,{field: 'updateTime', title: '更新时间' ,sort: true,}
-						,{field: 'uuid', title: '唯一ID',}
-						,{field: 'uuid', title: '操作',fixed: 'right', width:150, align:'center', toolbar: '#optTool'}
-					]]
-				});
+        table.render({
+            elem: '#table_drawlist'
+            , height: 600
+            , url: '/file/list' //数据接口
+            , page: true //开启分页
+            , cols: [[ //表头
+                {field: 'name', title: '名称', width: 150 }
+                , {field: 'uuid', title: '唯一ID', width: 300, align: 'center' }
+                , {field: 'createTime', title: '更新时间', width: 200, sort: true,}
+                , {field: 'updateTime', title: '更新时间', width: 200, sort: true,}
+                , {field: 'uuid', title: '操作', fixed: 'right', align: 'center', toolbar: '#optTool'}
+            ]]
+        });
 
-				//监听操作
-				table.on('tool(tableOpt)', function(obj){
-					//obj.event删除
-					console.log("drawViewEdit", obj)
-					var uuid = obj.data.uuid;
-					var ownerId = obj.data.ownerId;
-					var urlOPen = "/index.html?offline=1&uuid=" + uuid + "&ownerId=" + ownerId;
-					window.open(urlOPen);                 //在另外新建窗口中打开窗口
-				});
-			});
+        //监听操作
+        table.on('tool(tableOpt)', function (obj) {
+            var uuid = obj.data.uuid;
+            var ownerId = obj.data.ownerId;
+            //obj.event删除
+            var layEvent = obj.event;
+            if (layEvent === 'share') {
+                shareDraw(uuid, ownerId);
+            } else if (layEvent === 'view') {
+                var urlOPen = "/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=" + uuid;
+                window.open(urlOPen);
+            } else if (layEvent === 'edit') {
+                var urlOPen = "/index.html?offline=1&uuid=" + uuid + "&ownerId=" + ownerId;
+                window.open(urlOPen);
+
+            } else if (layEvent === 'delete') {
+                layer.confirm('删除绘图', function (index) {
+                    //向服务端发送删除指令
+                    deleteDraw(uuid, ownerId);
+                });
+            }
+        });
+    });
+
+    function shareDraw(uuid, ownerId) {
+        var hContent = '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
+            '编辑链接:<br> http://urcs.feinno.com:8081/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=' + uuid +
+            '<br><br> 查看链接:<br> http://urcs.feinno.com:8081/index.html?offline=1&ownerId=' + ownerId + "&uuid=" + uuid +
+            '</div>';
+
+        //分享
+        layer.open({
+            type: 1
+            ,title: '分享' //不显示标题栏
+            ,area: ['666px', '399px']
+            ,shade: 0.8
+            ,id: 'share_draw' //设定一个id，防止重复弹出
+            ,btn: ['关闭']
+            ,moveType: 1 //拖拽模式，0或者1
+            ,content: hContent
+        });
+    }
+    function deleteDraw(uuid, ownerId) {
+        var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+        httpRequest.open('POST', '/file/del/' + uuid, true); //第二步：打开连接
+        httpRequest.setRequestHeader("Content-type","application/x-www-form-urlencoded");//设置请求头
+        httpRequest.send('{key:delete}');//发送请求 将情头体写在send中
+        /**
+         * 获取数据后的处理程序
+         */
+        httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+            if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                var json = httpRequest.responseText;//获取到服务端返回的数据
+                console.log(json);
+                location.reload();
+            }
+        };
+    }
+
+</script>
 
 
-			function createDraw() {
-				var urlOPen = "/draw";
-				window.open(urlOPen);                 //在另外新建窗口中打开窗口
-			}
-		</script>
-
-
-	</body>
+</body>
 
 </html>
