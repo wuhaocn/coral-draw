@@ -3,9 +3,9 @@ docker stop coral-draw
 docker rm `docker ps -a -q`
 
 docker run --privileged=true \
-           -p 8081:8081 \
+           -p 8081:8082 \
            -d --name coral-draw \
-           10.10.208.193:5000/coral-draw:3.0.0-1904011555
+           10.10.208.193:5000/coral-draw:3.0.0-1906132057
 
 docker logs -f coral-draw
 
