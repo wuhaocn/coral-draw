@@ -745,7 +745,7 @@ OpenFile.prototype.cancel = function(cancel)
 /**
  * Basic dialogs that are available in the viewer (print dialog).
  */
-function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent, onResize)
+function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent, onResize, ignoreBgClick)
 {
 	var dx = 0;
 	
@@ -850,10 +850,13 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		document.body.appendChild(img);
 		this.dialogImg = img;
 		
-		mxEvent.addGestureListeners(this.bg, null, null, mxUtils.bind(this, function(evt)
+		if (!ignoreBgClick)
 		{
-			editorUi.hideDialog(true);
-		}));
+			mxEvent.addGestureListeners(this.bg, null, null, mxUtils.bind(this, function(evt)
+			{
+				editorUi.hideDialog(true);
+			}));
+		}
 	}
 	
 	this.resizeListener = mxUtils.bind(this, function()
@@ -984,6 +987,116 @@ Dialog.prototype.close = function(cancel, isEsc)
 	
 	mxEvent.removeListener(window, 'resize', this.resizeListener);
 	this.container.parentNode.removeChild(this.container);
+};
+
+/**
+ * 
+ */
+var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, buttonText2, fn2, hide, buttonText3, fn3)
+{
+	hide = (hide != null) ? hide : true;
+	
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+
+	if (title != null)
+	{
+		var hd = document.createElement('div');
+		hd.style.padding = '0px';
+		hd.style.margin = '0px';
+		hd.style.fontSize = '18px';
+		hd.style.paddingBottom = '16px';
+		hd.style.marginBottom = '10px';
+		hd.style.borderBottom = '1px solid #c0c0c0';
+		hd.style.color = 'gray';
+		hd.style.whiteSpace = 'nowrap';
+		hd.style.textOverflow = 'ellipsis';
+		hd.style.overflow = 'hidden';
+		mxUtils.write(hd, title);
+		hd.setAttribute('title', title);
+		div.appendChild(hd);
+	}
+
+	var p2 = document.createElement('div');
+	p2.style.lineHeight = '1.2em';
+	p2.style.padding = '6px';
+	p2.innerHTML = message;
+	div.appendChild(p2);
+	
+	var btns = document.createElement('div');
+	btns.style.marginTop = '12px';
+	btns.style.textAlign = 'center';
+	
+	if (retry != null)
+	{
+		var retryBtn = mxUtils.button(mxResources.get('tryAgain'), function()
+		{
+			editorUi.hideDialog();
+			retry();
+		});
+		retryBtn.className = 'geBtn';
+		btns.appendChild(retryBtn);
+		
+		btns.style.textAlign = 'center';
+	}
+	
+	if (buttonText3 != null)
+	{
+		var btn3 = mxUtils.button(buttonText3, function()
+		{
+			if (fn3 != null)
+			{
+				fn3();
+			}
+		});
+		
+		btn3.className = 'geBtn';
+		btns.appendChild(btn3);
+	}
+	
+	var btn = mxUtils.button(buttonText, function()
+	{
+		if (hide)
+		{
+			editorUi.hideDialog();
+		}
+		
+		if (fn != null)
+		{
+			fn();
+		}
+	});
+	
+	btn.className = 'geBtn';
+	btns.appendChild(btn);
+
+	if (buttonText2 != null)
+	{
+		var mainBtn = mxUtils.button(buttonText2, function()
+		{
+			if (hide)
+			{
+				editorUi.hideDialog();
+			}
+			
+			if (fn2 != null)
+			{
+				fn2();
+			}
+		});
+		
+		mainBtn.className = 'geBtn gePrimaryBtn';
+		btns.appendChild(mainBtn);
+	}
+
+	this.init = function()
+	{
+		btn.focus();
+	};
+	
+	div.appendChild(btns);
+
+	this.container = div;
 };
 
 /**

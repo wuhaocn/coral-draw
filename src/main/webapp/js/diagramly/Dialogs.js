@@ -370,7 +370,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		buttons.style.padding = '30px 0px 26px 0px';
 	}
 	
-	if (Graph.fileSupport && !mxClient.IS_IE && !mxClient.IS_IE11)
+	if (Graph.fileSupport)
 	{
 		var link = document.createElement('div');
 		link.style.cursor = 'pointer';
@@ -395,9 +395,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 						// Using null for position will disable crop of input file
 						editorUi.hideDialog();
 						editorUi.openFiles(input.files, true);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
 					}
-					
-					input.value = '';
 				});
 				
 				input.style.display = 'none';
@@ -2211,65 +2214,87 @@ var ParseDialog = function(editorUi, title, defaultType)
 			if (lines.length > 0)
 			{
 				var graph = editorUi.editor.graph;
-				
-				var listCell = new mxCell(lines[0], new mxGeometry(0, 0, 160, 26 + 4),
-				    'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
-				listCell.vertex = true;
-				
-				var size = graph.getPreferredSizeForCell(listCell);
-		
-	   			if (size != null && listCell.geometry.width < size.width + 10)
-	   			{
-	   				listCell.geometry.width = size.width + 10;
-	   			}
-				
-	   			var inserted = [listCell];
-	   			
-				if (lines.length > 1)
+				var listCell = null;
+				var cells = [];
+				var x0 = 0;
+
+				for (var i = 0; i < lines.length; i++)
 				{
-					for (var i = 1; i < lines.length; i++)
+					if (lines[i].charAt(0) != ';')
 					{
-						if (lines[i] == '--')
+						if (lines[i].length == 0)
 						{
-							var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
-							divider.vertex = true;
-							listCell.geometry.height += divider.geometry.height;
-							listCell.insert(divider);
-							inserted.push(divider);
+							listCell = null;
 						}
-						else if (lines[i].length > 0 && lines[i].charAt(0) != ';')
+						else
 						{
-							var field = new mxCell(lines[i], new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
-							field.vertex = true;
-							
-							var size = graph.getPreferredSizeForCell(field);
-		   			
-				   			if (size != null && field.geometry.width < size.width)
-				   			{
-				   				field.geometry.width = size.width;
-				   			}
-							
-				   			listCell.geometry.width = Math.max(listCell.geometry.width, field.geometry.width);
-							listCell.geometry.height += field.geometry.height;
-							listCell.insert(field);
-							inserted.push(field);
+							if (listCell == null)
+							{
+								listCell = new mxCell(lines[i], new mxGeometry(x0, 0, 160, 26 + 4),
+									'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+								listCell.vertex = true;
+								cells.push(listCell);
+
+								var size = graph.getPreferredSizeForCell(listCell);
+						
+					   			if (size != null && listCell.geometry.width < size.width + 10)
+					   			{
+					   				listCell.geometry.width = size.width + 10;
+					   			}
+					   			
+					   			x0 += listCell.geometry.width + 40;
+							}
+							else if (lines[i] == '--')
+							{
+								var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+								divider.vertex = true;
+								listCell.geometry.height += divider.geometry.height;
+								listCell.insert(divider);
+							}
+							else if (lines[i].length > 0)
+							{
+								var field = new mxCell(lines[i], new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+								field.vertex = true;
+								
+								var size = graph.getPreferredSizeForCell(field);
+			   			
+					   			if (size != null && field.geometry.width < size.width)
+					   			{
+					   				field.geometry.width = size.width;
+					   			}
+								
+					   			listCell.geometry.width = Math.max(listCell.geometry.width, field.geometry.width);
+								listCell.geometry.height += field.geometry.height;
+								listCell.insert(field);
+							}
 						}
 					}
 				}
 				
-				graph.getModel().beginUpdate();
-				try
+				if (cells.length > 0)
 				{
-					listCell = graph.importCells([listCell], insertPoint.x, insertPoint.y)[0];
-					graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [listCell].concat(listCell.children)));
+					graph.getModel().beginUpdate();
+					try
+					{
+						cells = graph.importCells(cells, insertPoint.x, insertPoint.y);
+						var inserted = [];
+						
+						for (var i = 0; i < cells.length; i++)
+						{
+							inserted.push(cells[i]);
+							inserted = inserted.concat(cells[i].children);
+						}
+						
+						graph.fireEvent(new mxEventObject('cellsInserted', 'cells', inserted));
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
+					}
+					
+					graph.setSelectionCells(cells);
+					graph.scrollCellToVisible(graph.getSelectionCell());
 				}
-				finally
-				{
-					graph.getModel().endUpdate();
-				}
-				
-				graph.setSelectionCell(listCell);
-				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}
 		else
@@ -2454,7 +2479,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 	{
 		if (typeSelect.value == 'list')
 		{
-			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean';
+			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean\n\n' +
+				'Address\n-street: String\n-city: String\n-state: String';
 		}
 		else if (typeSelect.value == 'table')
 		{
@@ -3355,6 +3381,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	btns.style.left = '40px';
 	btns.style.bottom = '24px';
 	btns.style.right = '40px';
+	
+	if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
+	{
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
+		});
+		
+		helpBtn.className = 'geBtn';	
+		btns.appendChild(helpBtn);
+	}
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -3371,17 +3408,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	if (editorUi.editor.cancelFirst && (!createOnly || cancelCallback != null))
 	{
 		btns.appendChild(cancelBtn);
-	}
-	
-	if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
-		});
-		
-		helpBtn.className = 'geBtn';	
-		btns.appendChild(helpBtn);
 	}
 
 	if (!compact && urlParams['embed'] != '1' && !createOnly)
@@ -3462,7 +3488,10 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
 	rowLimit = (rowLimit != null) ? rowLimit : 4;
+
 	var div = document.createElement('div');
+	div.style.whiteSpace = 'nowrap';
+	
 	var showButtons = true;
 	
 	if (cancelFn == null)
@@ -3483,6 +3512,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	nameInput.style.width = '280px';
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.marginBottom = '20px';
+	nameInput.style.maxWidth = '70%';
 		
 	this.init = function()
 	{
@@ -3858,7 +3888,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	{
 		btns.appendChild(cancelBtn);
 	}
-	
+
 	function create(mode)
 	{
 		var title = nameInput.value;
@@ -4258,7 +4288,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
         linkInput.focus();
 	};
 
-	if (Graph.fileSupport && document.documentMode == null)
+	if (Graph.fileSupport)
 	{
 		if (editorUi.imgDlgFileInputElt == null)
 		{
@@ -4268,26 +4298,32 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 			
 			mxEvent.addListener(fileInput, 'change', function(evt)
 			{
-		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
-		    	{
-		    		apply(data);
-		    	}, function()
-		    	{
-		    		// No post processing
-		    	}, function(file)
-		    	{
-		    		// Handles only images
-		    		return file.type.substring(0, 6) == 'image/';
-		    	}, function(queue)
-		    	{
-		    		// Invokes elements of queue in order
-		    		for (var i = 0; i < queue.length; i++)
-		    		{
-		    			queue[i]();
-		    		}
-		    	}, true);
-		    	
-		    	fileInput.value = '';
+				if (fileInput.files != null)
+				{
+					editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h)
+			    	{
+			    		apply(data);
+			    	}, function()
+			    	{
+			    		// No post processing
+			    	}, function(file)
+			    	{
+			    		// Handles only images
+			    		return file.type.substring(0, 6) == 'image/';
+			    	}, function(queue)
+			    	{
+			    		// Invokes elements of queue in order
+			    		for (var i = 0; i < queue.length; i++)
+			    		{
+			    			queue[i]();
+			    		}
+			    	}, true);
+					
+		    		// Resets input to force change event for same file (type reset required for IE)
+					fileInput.type = '';
+					fileInput.type = 'file';
+					fileInput.value = '';
+				}
 			});
 			
 			fileInput.style.display = 'none';
@@ -4299,8 +4335,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		{
 			editorUi.imgDlgFileInputElt.click();
 		});
+
 		btn.className = 'geBtn';
-		
 		btns.appendChild(btn);
 	}
 
@@ -4310,11 +4346,12 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	{
 		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
 		{
-		    	var dlg = new CropImageDialog(editorUi, linkInput.value, function(image)
-		    	{
-		    		linkInput.value = image;
-		    	});
-		    	editorUi.showDialog(dlg.container, 200, 185, true, true);
+	    	var dlg = new CropImageDialog(editorUi, linkInput.value, function(image)
+	    	{
+	    		linkInput.value = image;
+	    	});
+	    	
+	    	editorUi.showDialog(dlg.container, 200, 185, true, true);
 			dlg.init();
 		});
 		
@@ -4394,6 +4431,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	{
 		apply(linkInput.value);
 	});
+	
 	applyBtn.className = 'geBtn gePrimaryBtn';
 	btns.appendChild(applyBtn);
 	
@@ -4664,6 +4702,20 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	btns.style.marginTop = '20px';
 	btns.style.textAlign = 'right';
 	
+	var helpBtn = mxUtils.button(mxResources.get('help'), function()
+	{
+		editorUi.openLink('https://desk.draw.io/solution/articles/16000080137');
+	});
+
+	helpBtn.style.verticalAlign = 'middle';
+	helpBtn.className = 'geBtn';
+	btns.appendChild(helpBtn);
+
+	if (editorUi.isOffline() && !mxClient.IS_CHROMEAPP)
+	{
+		helpBtn.style.display = 'none';
+	}
+	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
@@ -4674,20 +4726,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	if (editorUi.editor.cancelFirst)
 	{
 		btns.appendChild(cancelBtn);
-	}
-	
-	var helpBtn = mxUtils.button(mxResources.get('help'), function()
-	{
-		editorUi.openLink('https://desk.draw.io/solution/articles/16000080137');
-	});
-	helpBtn.style.verticalAlign = 'middle';
-	helpBtn.className = 'geBtn';
-	
-	btns.appendChild(helpBtn);
-
-	if (editorUi.isOffline() && !mxClient.IS_CHROMEAPP)
-	{
-		helpBtn.style.display = 'none';
 	}
 	
 	LinkDialog.selectedDocs = null;
@@ -7193,12 +7231,14 @@ var PluginsDialog = function(editorUi)
 		editorUi.showDialog(dlg.container, 300, 80, true, true);
 		dlg.init();
 	});
+	
 	addBtn.className = 'geBtn';
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
 	});
+	
 	cancelBtn.className = 'geBtn';
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
@@ -7208,7 +7248,13 @@ var PluginsDialog = function(editorUi)
 		editorUi.hideDialog();
 		editorUi.alert(mxResources.get('restartForChangeRequired'));
 	});
+	
 	applyBtn.className = 'geBtn gePrimaryBtn';
+
+	var buttons = document.createElement('div');
+	buttons.style.marginTop = '14px';
+	buttons.style.textAlign = 'right';
+
 
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{
@@ -7222,20 +7268,16 @@ var PluginsDialog = function(editorUi)
 		helpBtn.style.display = 'none';
 	}
 	
-	var buttons = document.createElement('div');
-	buttons.style.marginTop = '14px';
-	buttons.style.textAlign = 'right';
-
+	buttons.appendChild(helpBtn);
+	
 	if (editorUi.editor.cancelFirst)
 	{
 		buttons.appendChild(cancelBtn);
-		buttons.appendChild(helpBtn);
 		buttons.appendChild(addBtn);
 		buttons.appendChild(applyBtn);
 	}
 	else
 	{
-		buttons.appendChild(helpBtn);
 		buttons.appendChild(addBtn);
 		buttons.appendChild(applyBtn);
 		buttons.appendChild(cancelBtn);
@@ -7858,6 +7900,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		// Ignores duplicates
 		try
 		{
+			editorUi.spinner.stop();
+			
 			if (mimeType == null || mimeType.substring(0, 6) == 'image/')
 			{
 				if ((data == null && img != null) || entries[data] == null)
@@ -8164,7 +8208,6 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				
 				try
 				{
-					editorUi.spinner.stop();
 					var doc = mxUtils.parseXml(data);
 					
 					if (doc.documentElement.nodeName == 'mxlibrary')
@@ -8262,13 +8305,12 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		return function(data, mimeType, x, y, w, h, img, doneFn, file)
 		{
-			if  (file != null && (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name)))
+			if (file != null && (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name)))
 			{
 				editorUi.importVisio(file, mxUtils.bind(this, function(xml)
 				{
-					editorUi.spinner.stop();
-		    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-		    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+		    		addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+		    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
 				}));
 			}
 			else if (file != null && !editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
@@ -8279,13 +8321,12 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					{
 						editorUi.spinner.stop();
 	    				
-	    					if (xhr.status >= 200 && xhr.status <= 299)
+	    				if (xhr.status >= 200 && xhr.status <= 299)
 						{
 							var xml = xhr.responseText;
-							
-				    			addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-				    					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
-				    			div.scrollTop = div.scrollHeight;
+							addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+				    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+							div.scrollTop = div.scrollHeight;
 						}
 					}
 				}));
@@ -8359,6 +8400,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		editorUi.hideDialog(true);
 	});
+	
 	cancelBtn.setAttribute('id', 'btnCancel');
 	cancelBtn.className = 'geBtn';
 	
@@ -8392,7 +8434,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	btn.className = 'geBtn';
 	btns.appendChild(btn);
 	
-	if (document.documentMode == null)
+	if (Graph.fileSupport)
 	{
 		if (editorUi.libDlgFileInputElt == null) 
 		{
@@ -8403,13 +8445,18 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 			mxEvent.addListener(fileInput, 'change', function(evt)
 			{
 		    	errorShowed = false;
-					
+
 		    	editorUi.importFiles(fileInput.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, img, doneFn, file)
 		    	{
-		    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
-	
-		    		// Resets input to force change event for same file
-		    		fileInput.value = '';
+					if (fileInput.files != null)
+					{
+			    		createImportHandler(evt)(data, mimeType, x, y, w, h, img, doneFn, file);
+		
+			    		// Resets input to force change event for same file (type reset required for IE)
+			    		fileInput.type = '';
+			    		fileInput.type = 'file';
+			    		fileInput.value = '';
+					}
 		    	});
 	
 				div.scrollTop = div.scrollHeight;
@@ -8467,6 +8514,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 			}
 		});
 	});
+	
 	btn.setAttribute('id', 'btnAddImageUrl');
 	btn.className = 'geBtn';
 	btns.appendChild(btn);
@@ -8476,6 +8524,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		editorUi.saveLibrary(name, images, file, mode);
 	};
+	
 	var btn = mxUtils.button(mxResources.get('save'),mxUtils.bind(this, function()
 	{
 		if (stopEditing != null)
@@ -8486,6 +8535,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		
 		this.saveBtnClickHandler(nameInput.value, images, file, mode);
 	}));
+	
 	btn.setAttribute('id', 'btnSave');
 	btn.className = 'geBtn gePrimaryBtn';
 	btns.appendChild(btn);
@@ -8586,17 +8636,6 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	td.style.whiteSpace = 'nowrap';
 	td.setAttribute('align', 'right');
 	
-	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
-	{
-		editorUi.hideDialog();
-	});
-	cancelBtn.className = 'geBtn';
-	
-	if (editorUi.editor.cancelFirst)
-	{
-		td.appendChild(cancelBtn);
-	}
-	
 	if (!editorUi.isOffline())
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
@@ -8608,6 +8647,17 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 		td.appendChild(helpBtn);
 	}
 	
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	});
+	cancelBtn.className = 'geBtn';
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		td.appendChild(cancelBtn);
+	}
+
 	var updateShape = function(targetGraph, targetCell, hide)
 	{
 		var newValue = nameInput.value;
@@ -8711,7 +8761,18 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	{
 		btns.appendChild(buttonsContent);
 	}
-
+	
+	if (!editorUi.isOffline() && helpLink != null)
+	{
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink(helpLink);
+		});
+		
+		helpBtn.className = 'geBtn';
+		btns.appendChild(helpBtn);
+	}
+	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
@@ -8721,6 +8782,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 			cancelFn();
 		}
 	});
+	
 	cancelBtn.className = 'geBtn';
 	
 	if (hideCancel)
@@ -8728,23 +8790,11 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 		cancelBtn.style.display = 'none';
 	}
 	
-	
 	if (editorUi.editor.cancelFirst)
 	{
 		btns.appendChild(cancelBtn);
 	}
-	
-	if (!editorUi.isOffline() && helpLink != null)
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink(helpLink);
-		});
-		
-		helpBtn.className = 'geBtn';	
-		btns.appendChild(helpBtn);
-	}
-	
+
 	var okBtn = mxUtils.button(okButtonText || mxResources.get('ok'), function()
 	{
 		editorUi.hideDialog();

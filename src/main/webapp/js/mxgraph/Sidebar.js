@@ -12,9 +12,11 @@ function Sidebar(editorUi, container)
 	this.taglist = new Object();
 	this.showTooltips = true;
 	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
-	this.graph.cellRenderer.antiAlias = false;
-	this.graph.foldingEnabled = false;
+    this.graph.cellRenderer.minSvgStrokeWidth = this.minThumbStrokeWidth;
+	this.graph.cellRenderer.antiAlias = this.thumbAntiAlias;
 	this.graph.container.style.visibility = 'hidden';
+	this.graph.foldingEnabled = false;
+
 	document.body.appendChild(this.graph.container);
 	
 	this.pointerUpHandler = mxUtils.bind(this, function()
@@ -156,6 +158,16 @@ Sidebar.prototype.thumbWidth = 42;
 Sidebar.prototype.thumbHeight = 42;
 
 /**
+ * Specifies the width of the thumbnails.
+ */
+Sidebar.prototype.minThumbStrokeWidth = 1;
+
+/**
+ * Specifies the width of the thumbnails.
+ */
+Sidebar.prototype.thumbAntiAlias = false;
+
+/**
  * Specifies the padding for the thumbnails. Default is 3.
  */
 Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 2 : 3;
@@ -164,6 +176,19 @@ Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 2 : 3;
  * Specifies the delay for the tooltip. Default is 2 px.
  */
 Sidebar.prototype.thumbBorder = 2;
+
+/*
+ * Experimental smaller sidebar entries
+ */
+if (urlParams['sidebar-entries'] != 'large')
+{
+	Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
+	Sidebar.prototype.thumbBorder = 1;
+	Sidebar.prototype.thumbWidth = 32;
+	Sidebar.prototype.thumbHeight = 30;
+	Sidebar.prototype.minThumbStrokeWidth = 1.3;
+	Sidebar.prototype.thumbAntiAlias = true;
+}
 
 /**
  * Specifies the size of the sidebar titles.
@@ -645,7 +670,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	button.style.marginTop = '4px';
 	button.style.marginBottom = '8px';
 	center.style.paddingTop = '4px';
-	center.style.paddingBottom = '8px';
+	center.style.paddingBottom = '4px';
 	
 	center.appendChild(button);
 	div.appendChild(center);
@@ -933,6 +958,9 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	    this.createVertexTemplateEntry('shape=card;whiteSpace=wrap;html=1;', 80, 100, '', 'Card'),
 	    this.createVertexTemplateEntry('shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80, '', 'Callout', null, null, 'bubble chat thought speech message'),
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;html=1;outlineConnect=0;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
+	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;', 60, 80, '', 'Or', null, null, 'logic or'),
+	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
+	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;', 100, 80, '', 'Data Storage'),    
 	 	this.addEntry('curve', mxUtils.bind(this, function()
 	 	{
 			var cell = new mxCell('', new mxGeometry(0, 0, 50, 50), 'curved=1;endArrow=classic;html=1;');
@@ -1098,9 +1126,6 @@ Sidebar.prototype.createAdvancedShapes = function()
 	field.vertex = true;
 
 	return [
-	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;', 60, 80, '', 'Or', null, null, 'logic or'),
-	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
-	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;', 100, 80, '', 'Data Storage'),    
 	 	this.createVertexTemplateEntry('shape=tapeData;whiteSpace=wrap;html=1;perimeter=ellipsePerimeter;', 80, 80, '', 'Tape Data'),
 	 	this.createVertexTemplateEntry('shape=manualInput;whiteSpace=wrap;html=1;', 80, 80, '', 'Manual Input'),
 	 	this.createVertexTemplateEntry('shape=loopLimit;whiteSpace=wrap;html=1;', 100, 80, '', 'Loop Limit'),
@@ -1822,7 +1847,6 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	
 	node.style.position = 'relative';
 	node.style.overflow = 'hidden';
-	node.style.cursor = 'move';
 	node.style.left = this.thumbBorder + 'px';
 	node.style.top = this.thumbBorder + 'px';
 	node.style.width = width + 'px';
@@ -3396,7 +3420,7 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 						mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
 						funct(content, title);
 						mxClient.NO_FO = fo;
-					}, 0);
+					}, (mxClient.IS_FF) ? 20 : 0);
 				}
 				else
 				{

@@ -1,7 +1,11 @@
+window.PLUGINS_BASE_PATH = '.';
 window.OPEN_URL = 'https://www.draw.io/open';
 window.TEMPLATE_PATH = 'templates';
 window.DRAW_MATH_URL = window.mxIsElectron5? 'math' : 'https://www.draw.io/math';
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
+
+//Disables eval for JS (uses shapes.min.js)
+mxStencilRegistry.allowEval = false;
 
 (function()
 {
@@ -412,21 +416,30 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	{
 		var paths = argsObj.args;
 		
-		// If a file is passed 
-		if (paths !== undefined && paths[0] != null)
+		// If a file is passed
+		if (paths !== undefined && paths[0] != null && this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			var path = paths[0];
+			this.hideDialog();
 			
-			var success = mxUtils.bind(this, function(fileEntry, data, stat)
+			var success = mxUtils.bind(this, function(fileEntry, data, stat, name)
 			{
-				var file = new LocalFile(this, data, '');
-				file.fileObject = fileEntry;
-				file.stat = stat;
-				this.fileLoaded(file);
+				this.spinner.stop();
+				
+				if (data != null)
+				{
+					var file = new LocalFile(this, data, name || '');
+					file.fileObject = fileEntry;
+					file.stat = stat;
+					
+					this.fileLoaded(file);
+				}
 			});
 			
 			var error = mxUtils.bind(this, function(e)
 			{
+				this.spinner.stop();
+				
 				if (e.code === 'ENOENT')
 				{
 					var title = path.replace(/^.*[\\\/]/, '');
@@ -642,10 +655,12 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 			    			{
 			    				this.handleError(e, mxResources.get('errorLoadingFile'));
 			    			}
+							
+							fn();
 						}
 						else
 						{
-							this.openLocalFile(xml, name);
+							fn(null, xml, null, name);
 						}
 					}), null, name);
 					
@@ -808,12 +823,13 @@ FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 	
 	// Restores default implementation of open with autosave
 	LocalFile.prototype.open = DrawioFile.prototype.open;
-
+	
 	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 	{
-		DrawioFile.prototype.save.apply(this, arguments);
-		
-		this.saveFile(revision, success, error, unloading, overwrite);
+		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+		{
+			this.saveFile(revision, success, error, unloading, overwrite);
+		}), error, unloading, overwrite]);
 	};
 
 	LocalFile.prototype.isConflict = function(stat)

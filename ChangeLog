@@ -1,3 +1,111 @@
+11-JUL-2019: 10.9.5
+
+- Fixes desktop startup
+
+11-JUL-2019: 10.9.4
+
+- Adds named styles for CSV import
+
+10-JUL-2019: 10.9.3
+
+- Fixes trailing newline in plain text labels
+- Allows inserting multiple lists from text
+- Adds treeMoving style for moving subtrees
+- Fixes table cell align and color editing
+- Uses mxGraph 4.0.2 beta 4
+
+09-JUL-2019: 10.9.2
+
+- Fixes reset of handles after remote style changes
+- Fixes background color for rotated text editing
+- Improves command line export in Electron
+- Uses mxGraph 4.0.2 beta 3
+
+09-JUL-2019: 10.9.1
+
+- Fixes NPE in Electron and ChromeOS apps
+
+08-JUL-2019: 10.9.0
+
+- Fixes custom link execution for visibility changes
+- Fixes format panel CSS in Firefox for Linux
+- Fixes inconsistent text editing alignment
+- Uses mxGraph 4.0.2 beta 2
+
+04-JUL-2019: 10.8.9
+
+- Uses mxGraph 4.0.2 beta 1
+- Adds fill-/strokealpha for stencils
+- Setting autosave to true triggers save
+
+03-JUL-2019: 10.8.8
+
+- Adds timer to check for unsaved changes
+- Fixes lightbox height for Confluence Cloud viewer
+
+02-JUL-2019: 10.8.7
+
+- Fixes PlantUML connect add attachment call
+
+02-JUL-2019: 10.8.6
+
+- Fixes ignored properties for child cells in CSV
+- Logs file idle states
+- Uses mxGraph 4.0.1
+
+02-JUL-2019: 10.8.5
+
+- Removed RPC calls in Confluence Connect
+- Adds support for digrams in Confluence Cloud comments
+- Fixes handling of move in rounded paths
+- Uses mxGraph 4.0.1 beta 11
+
+29-JUN-2019: 10.8.4
+
+- No longer selects parent after delete of child
+- Updates in-place editor after window resize
+- Uses mxGraph 4.0.1 beta 10
+
+28-JUN-2019: 10.8.3
+
+- Embed diagrams from URL in Jira Cloud
+- Makes custom fonts persistent
+- Uses mxGraph 4.0.1 beta 9
+
+27-JUN-2019: 10.8.2
+
+- Fixes handling of special font names
+- Shows warning if file copy is loaded
+- Smaller sidebar entries
+- Adds tags plugin
+
+26-JUN-2019: 10.8.1
+
+- Fixed preview image aspect ratio in Confluence Cloud
+- Increases preview image export quality in Confluence Cloud
+- Uses default picker for loading files in IE11
+
+21-JUN-2019: 10.8.0
+
+- Removes unsafe-eval CSP for desktop app
+- Fixes plugins in desktop app
+
+19-JUN-2019: 10.7.9
+
+- Ignores refs and manage columns in CSV example
+
+19-JUN-2019: 10.7.8
+
+- Fixes double click handling with pen and touch on Windows
+- Fixes ignored transparent background in viewer
+- Adds optional custom labels for IC pins
+- Uses mxGraph 4.0.1 beta 8
+- Fixes UI inconsistencies
+
+12-JUN-2019: 10.7.7
+
+- Adds validation of color picker input to fix XSS vulnerability
+
 11-JUN-2019: 10.7.6
 
 - Removes fallback to print dialog if offline in Electron

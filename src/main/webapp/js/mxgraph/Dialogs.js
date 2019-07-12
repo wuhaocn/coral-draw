@@ -204,15 +204,24 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		var color = input.value;
-		ColorDialog.addRecentColor(color, 12);
 		
-		if (color != 'none' && color.charAt(0) != '#')
+		// Blocks any non-alphabetic chars in colors
+		if (/(^#?[a-zA-Z0-9]*$)/.test(color))
 		{
-			color = '#' + color;
-		}
+			ColorDialog.addRecentColor(color, 12);
+			
+			if (color != 'none' && color.charAt(0) != '#')
+			{
+				color = '#' + color;
+			}
 
-		applyFunction(color);
-		editorUi.hideDialog();
+			applyFunction(color);
+			editorUi.hideDialog();
+		}
+		else
+		{
+			editorUi.handleError({message: mxResources.get('invalidInput')});	
+		}
 	});
 	applyBtn.className = 'geBtn gePrimaryBtn';
 	buttons.appendChild(applyBtn);
@@ -1400,7 +1409,6 @@ var EditDataDialog = function(ui, cell)
 	var id = (EditDataDialog.getDisplayIdForCell != null) ?
 		EditDataDialog.getDisplayIdForCell(ui, cell) : null;
 	
-	// FIXME: Fix remove button for quirks mode
 	var addRemoveButton = function(text, name)
 	{
 		var wrapper = document.createElement('div');
@@ -1497,12 +1505,11 @@ var EditDataDialog = function(ui, cell)
 
 	if (id != null)
 	{	
-		var text = document.createElement('input');
-		text.style.width = '420px';
+		var text = document.createElement('div');
+		text.style.width = '100%';
+		text.style.fontSize = '11px';
 		text.style.textAlign = 'center';
-		text.setAttribute('type', 'text');
-		text.setAttribute('readOnly', 'true');
-		text.setAttribute('value', id);
+		mxUtils.write(text, id);
 		
 		form.addField(mxResources.get('id') + ':', text);
 	}
@@ -1518,15 +1525,20 @@ var EditDataDialog = function(ui, cell)
 	top.appendChild(form.table);
 
 	var newProp = document.createElement('div');
+	newProp.style.boxSizing = 'border-box';
+	newProp.style.paddingRight = '160px';
 	newProp.style.whiteSpace = 'nowrap';
 	newProp.style.marginTop = '6px';
-
+	newProp.style.width = '100%';
+	
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('placeholder', mxResources.get('enterPropertyName'));
 	nameInput.setAttribute('type', 'text');
 	nameInput.setAttribute('size', (mxClient.IS_IE || mxClient.IS_IE11) ? '36' : '40');
+	nameInput.style.boxSizing = 'border-box';
 	nameInput.style.marginLeft = '2px';
-
+	nameInput.style.width = '100%';
+	
 	newProp.appendChild(nameInput);
 	top.appendChild(newProp);
 	div.appendChild(top);
@@ -1567,6 +1579,7 @@ var EditDataDialog = function(ui, cell)
 					text.focus();
 				}
 
+				addBtn.setAttribute('disabled', 'disabled');
 				nameInput.value = '';
 			}
 			catch (e)
@@ -1592,9 +1605,14 @@ var EditDataDialog = function(ui, cell)
 		}
 	};
 	
+	addBtn.setAttribute('title', mxResources.get('addProperty'));
 	addBtn.setAttribute('disabled', 'disabled');
-	addBtn.style.marginLeft = '10px';
+	addBtn.style.textOverflow = 'ellipsis';
+	addBtn.style.position = 'absolute';
+	addBtn.style.overflow = 'hidden';
 	addBtn.style.width = '144px';
+	addBtn.style.right = '0px';
+	addBtn.className = 'geBtn';
 	newProp.appendChild(addBtn);
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()

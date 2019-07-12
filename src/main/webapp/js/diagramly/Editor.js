@@ -123,21 +123,23 @@
 	Editor.commonEdgeProperties = [
         {type: 'separator'},
         {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: mxConstants.LINE_ARCSIZE},
-        {name: 'targetPortConstraint', dispName: 'Target Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'sourcePortConstraint', dispName: 'Source Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'sourcePortConstraint', dispName: 'Source Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'targetPortConstraint', dispName: 'Target Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
+        {name: 'jettySize', dispName: 'Jetty Size', type: 'int', min: 0, defVal: 'auto', allowAuto: true, isVisible: function(state)
+        {
+    		return mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) == 'orthogonalEdgeStyle';
+        }},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'startFill', dispName: 'Start Fill', type: 'bool', defVal: true},
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
-        {name: 'sourcePerimeterSpacing', dispName: 'Source Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'targetPerimeterSpacing', dispName: 'Target Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'perimeterSpacing', dispName: 'Perimeter Spacing', type: 'float', defVal: 0},
-        {name: 'anchorPointDirection', dispName: 'Anchor Point Direction', type: 'bool', defVal: true},
-        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
+        {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
+        {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
+        {name: 'snapToPoint', dispName: 'Snap to Anchor', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
         {
@@ -166,12 +168,12 @@
         {name: 'noLabel', dispName: 'Hide Label', type: 'bool', defVal: false},
         {name: 'labelPadding', dispName: 'Label Padding', type: 'float', defVal: 0},
         {name: 'direction', dispName: 'Direction', type: 'enum', defVal: 'east',
-        	enumList: [{val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        	enumList: [{val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'portConstraint', dispName: 'Port Constraint', type: 'enum', defVal: 'none',
-        	enumList: [{val: 'none', dispName: 'None'}, {val: 'east', dispName: 'East'}, {val: 'north', dispName: 'North'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
+        {name: 'portConstraint', dispName: 'Constraint', type: 'enum', defVal: 'none',
+        	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
-        {name: 'portConstraintRotation', dispName: 'Port Const. Rot.', type: 'bool', defVal: false},
+        {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
@@ -201,7 +203,9 @@
         {name: 'resizeHeight', dispName: 'Resize Height', type: 'bool', defVal: false},
         {name: 'rotatable', dispName: 'Rotatable', type: 'bool', defVal: true},
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
-        {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true}
+        {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
+        {name: 'treeFolding', dispName: 'Tree Folding', type: 'bool', defVal: false},
+        {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false}
 	];
 	/**
 	 * Default value for the CSV import dialog.
@@ -225,6 +229,16 @@
 		'## Parent style for nodes with child nodes (placeholders are replaced once).\n' +
 		'#\n' +
 		'# parentstyle: swimlane;whiteSpace=wrap;html=1;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;\n' +
+		'#\n' +
+		'## Optional column name that contains a reference to a named style in styles.\n' +
+		'## Default is the current style for nodes.\n' +
+		'#\n' +
+		'# stylename: -\n' +
+		'#\n' +
+		'## JSON for named styles of the form {"name": "style", "name": "style"} where style is a cell style with\n' +
+		'## placeholders that are replaced once.\n' +
+		'#\n' +
+		'# styles: -\n' +
 		'#\n' +
 		'## Uses the given column name as the identity for cells (updates existing cells).\n' +
 		'## Default is no identity (empty value or -).\n' +
@@ -281,7 +295,7 @@
 		'## Comma-separated list of ignored columns for metadata. (These can be\n' +
 		'## used for connections and styles but will not be added as metadata.)\n' +
 		'#\n' +
-		'# ignore: id,image,fill,stroke\n' +
+		'# ignore: id,image,fill,stroke,refs,manager\n' +
 		'#\n' +
 		'## Column to be renamed to link attribute (used as link).\n' +
 		'#\n' +
@@ -311,7 +325,123 @@
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
 		'Ron Donovan,System Admin,rdo,Office 3,Evan Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
+	
+	/**
+	 * Helper function to extract the graph model XML node.
+	 */
+	Editor.extractGraphModel = function(node, allowMxFile)
+	{
+		if (node != null && typeof(pako) !== 'undefined')
+		{
+			var tmp = node.ownerDocument.getElementsByTagName('div');
+			var divs = [];
+			
+			if (tmp != null && tmp.length > 0)
+			{
+				for (var i = 0; i < tmp.length; i++)
+				{
+					if (tmp[i].getAttribute('class') == 'mxgraph')
+					{
+						divs.push(tmp[i]);
+						break;
+					}	
+				}
+			}
+			
+			if (divs.length > 0)
+			{
+				var data = divs[0].getAttribute('data-mxgraph');
 
+				if (data != null)
+				{
+					var config = JSON.parse(data);
+
+					if (config != null && config.xml != null)
+					{
+						var doc2 = mxUtils.parseXml(config.xml);
+						node = doc2.documentElement;
+					}
+				}
+				else
+				{
+					var divs2 = divs[0].getElementsByTagName('div');
+					
+					if (divs2.length > 0)
+					{
+						var data = mxUtils.getTextContent(divs2[0]);
+		        		data = Graph.decompress(data);
+		        		
+		        		if (data.length > 0)
+		        		{
+		        			var doc2 = mxUtils.parseXml(data);
+		        			node = doc2.documentElement;
+		        		}
+					}
+				}
+			}
+		}
+		
+		if (node != null && node.nodeName == 'svg')
+		{
+			var tmp = node.getAttribute('content');
+			
+			if (tmp != null && tmp.charAt(0) != '<' && tmp.charAt(0) != '%')
+			{
+				tmp = unescape((window.atob) ? atob(tmp) : Base64.decode(cont, tmp));
+			}
+			
+			if (tmp != null && tmp.charAt(0) == '%')
+			{
+				tmp = decodeURIComponent(tmp);
+			}
+			
+			if (tmp != null && tmp.length > 0)
+			{
+				node = mxUtils.parseXml(tmp).documentElement;
+			}
+			else
+			{
+				throw {message: mxResources.get('notADiagramFile')};
+			}
+		}
+		
+		if (node != null && !allowMxFile)
+		{
+			var diagramNode = null;
+			
+			if (node.nodeName == 'diagram')
+			{
+				diagramNode = node;
+			}
+			else if (node.nodeName == 'mxfile')
+			{
+				var diagrams = node.getElementsByTagName('diagram');
+
+				if (diagrams.length > 0)
+				{
+					diagramNode = diagrams[Math.max(0, Math.min(diagrams.length - 1, urlParams['page'] || 0))];
+				}
+			}
+			
+			if (diagramNode != null)
+			{
+				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
+				
+				if (tmp != null && tmp.length > 0)
+				{
+					node = mxUtils.parseXml(tmp).documentElement;
+				}
+			}
+		}
+		
+		if (node != null && node.nodeName != 'mxGraphModel' && (!allowMxFile || node.nodeName != 'mxfile'))
+		{
+			node = null;
+		}
+		
+		return node;
+	};
+	
 	/**
 	 * Disables the shadow option in the format panel.
 	 */
@@ -677,115 +807,7 @@
 	 */
 	Editor.prototype.extractGraphModel = function(node, allowMxFile)
 	{
-		if (node != null && typeof(pako) !== 'undefined')
-		{
-			var tmp = node.ownerDocument.getElementsByTagName('div');
-			var divs = [];
-			
-			if (tmp != null && tmp.length > 0)
-			{
-				for (var i = 0; i < tmp.length; i++)
-				{
-					if (tmp[i].getAttribute('class') == 'mxgraph')
-					{
-						divs.push(tmp[i]);
-						break;
-					}	
-				}
-			}
-			
-			if (divs.length > 0)
-			{
-				var data = divs[0].getAttribute('data-mxgraph');
-
-				if (data != null)
-				{
-					var config = JSON.parse(data);
-
-					if (config != null && config.xml != null)
-					{
-						var doc2 = mxUtils.parseXml(config.xml);
-						node = doc2.documentElement;
-					}
-				}
-				else
-				{
-					var divs2 = divs[0].getElementsByTagName('div');
-					
-					if (divs2.length > 0)
-					{
-						var data = mxUtils.getTextContent(divs2[0]);
-		        		data = Graph.decompress(data);
-		        		
-		        		if (data.length > 0)
-		        		{
-		        			var doc2 = mxUtils.parseXml(data);
-		        			node = doc2.documentElement;
-		        		}
-					}
-				}
-			}
-		}
-		
-		if (node != null && node.nodeName == 'svg')
-		{
-			var tmp = node.getAttribute('content');
-			
-			if (tmp != null && tmp.charAt(0) != '<' && tmp.charAt(0) != '%')
-			{
-				tmp = unescape((window.atob) ? atob(tmp) : Base64.decode(cont, tmp));
-			}
-			
-			if (tmp != null && tmp.charAt(0) == '%')
-			{
-				tmp = decodeURIComponent(tmp);
-			}
-			
-			if (tmp != null && tmp.length > 0)
-			{
-				node = mxUtils.parseXml(tmp).documentElement;
-			}
-			else
-			{
-				throw {message: mxResources.get('notADiagramFile')};
-			}
-		}
-		
-		if (node != null && !allowMxFile)
-		{
-			var diagramNode = null;
-			
-			if (node.nodeName == 'diagram')
-			{
-				diagramNode = node;
-			}
-			else if (node.nodeName == 'mxfile')
-			{
-				var diagrams = node.getElementsByTagName('diagram');
-
-				if (diagrams.length > 0)
-				{
-					diagramNode = diagrams[Math.max(0, Math.min(diagrams.length - 1, urlParams['page'] || 0))];
-				}
-			}
-			
-			if (diagramNode != null)
-			{
-				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
-				
-				if (tmp != null && tmp.length > 0)
-				{
-					node = mxUtils.parseXml(tmp).documentElement;
-				}
-			}
-		}
-		
-		if (node != null && node.nodeName != 'mxGraphModel' && (!allowMxFile || node.nodeName != 'mxfile'))
-		{
-			node = null;
-		}
-		
-		return node;
+		return Editor.extractGraphModel.apply(this, arguments);
 	};
 	
 	/**
@@ -2053,6 +2075,11 @@
 					}, function(checked)
 					{
 						ui.editor.setAutosave(checked);
+						
+						if (ui.editor.autosave && file.isModified())
+						{
+							file.fileChanged();
+						}
 					},
 					{
 						install: function(apply)
@@ -3542,6 +3569,21 @@
 	};
 
 	/**
+	 * Cached default stylesheet for image export in dark mode.
+	 */
+	Graph.prototype.getDefaultStylesheet = function()
+	{
+		if (this.defaultStylesheet == null)
+		{
+			var node = this.themes['default-style2'];
+			var dec = new mxCodec(node.ownerDocument);
+			this.defaultStylesheet = dec.decode(node);
+		}
+		
+		return this.defaultStylesheet;
+	};
+	
+	/**
 	 * Temporarily overrides stylesheet during image export in dark mode.
 	 */
 	var graphGetSvg = Graph.prototype.getSvg;
@@ -3553,10 +3595,7 @@
 		if (this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
-			this.stylesheet = new mxStylesheet();
-			var node = this.themes['default-style2'];
-			var dec = new mxCodec(node.ownerDocument);
-			dec.decode(node, this.getStylesheet());
+			this.stylesheet = this.getDefaultStylesheet()
 			this.refresh();
 		}
 		
@@ -3694,88 +3733,90 @@
 		if (href.substring(0, 17) == 'data:action/json,')
 		{
 			// Some actions are stateless and must be handled before the transaction
-			var action = JSON.parse(href.substring(17));
+			var link = JSON.parse(href.substring(17));
 
-			if (action.actions != null)
+			if (link.actions != null)
 			{
 				// Executes open actions before starting transaction
-				for (var i = 0; i < action.actions.length; i++)
+				for (var i = 0; i < link.actions.length; i++)
 				{
-					if (action.actions[i].open != null)
+					var action = link.actions[i];
+					
+					if (action.open != null)
 					{
-						if (this.isCustomLink(action.actions[i].open))
+						if (this.isCustomLink(action.open))
 						{
-							if (!this.customLinkClicked(action.actions[i].open))
+							if (!this.customLinkClicked(action.open))
 							{
 								return;
 							}
 						}
 						else
 						{
-							this.openLink(action.actions[i].open);
+							this.openLink(action.open);
 						}
 					}
 				}
 
+				// Executes all actions that change cell states
 	    		this.model.beginUpdate();
 	    		try
 	    		{
-					for (var i = 0; i < action.actions.length; i++)
+					for (var i = 0; i < link.actions.length; i++)
 					{
-						this.handleLinkAction(action.actions[i]);
+						var action = link.actions[i];
+						
+						if (action.toggle != null)
+						{
+							this.toggleCells(this.getCellsForAction(action.toggle, true));
+						}
+						
+						if (action.show != null)
+						{
+							this.setCellsVisible(this.getCellsForAction(action.show, true), true);
+						}
+						
+						if (action.hide != null)
+						{
+							this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
+						}
 					}
 				}
 	    		finally
 	    		{
 	    			this.model.endUpdate();
 	    		}
+	    		
+				// Executes stateless actions on cells
+				for (var i = 0; i < link.actions.length; i++)
+				{
+					var action = link.actions[i];
+					var cells = [];
+					
+					if (action.select != null && this.isEnabled())
+					{
+						cells = this.getCellsForAction(action.select);
+						this.setSelectionCells(cells);
+					}
+
+					if (action.highlight != null)
+					{
+						cells = this.getCellsForAction(action.highlight);
+						this.highlightCells(cells, action.highlight.color,
+							action.highlight.duration, action.highlight.opacity);
+					}
+
+					if (action.scroll != null)
+					{
+						cells = this.getCellsForAction(action.scroll);
+					}
+					
+					if (cells.length > 0)
+					{
+						this.scrollCellToVisible(cells[0]);
+					}
+				}
 			}
-		}
-	};
-
-	/**
-	 * Executes the given action if it must be executed inside of a transaction.
-	 */
-	Graph.prototype.handleLinkAction = function(action)
-	{
-		var cells = [];
-		
-		if (action.select != null && this.isEnabled())
-		{
-			cells = this.getCellsForAction(action.select);
-			this.setSelectionCells(cells);
-		}
-
-		if (action.highlight != null)
-		{
-			cells = this.getCellsForAction(action.highlight);
-			this.highlightCells(cells, action.highlight.color,
-				action.highlight.duration, action.highlight.opacity);
-		}
-
-		if (action.toggle != null)
-		{
-			this.toggleCells(this.getCellsForAction(action.toggle, true));
-		}
-		
-		if (action.show != null)
-		{
-			this.setCellsVisible(this.getCellsForAction(action.show, true), true);
-		}
-		
-		if (action.hide != null)
-		{
-			this.setCellsVisible(this.getCellsForAction(action.hide, true), false);
-		}
-
-		if (action.scroll != null)
-		{
-			cells = this.getCellsForAction(action.scroll);
-		}
-		
-		if (cells.length > 0)
-		{
-			this.scrollCellToVisible(cells[0]);
 		}
 	};
 
@@ -3824,7 +3865,7 @@
 		
 		return result;
 	};
-	
+
 	/**
 	 * Returns the cells in the model (or given array) that have all of the
 	 * given tags in their tags property.
@@ -3838,6 +3879,18 @@
 			cells = (cells != null) ? cells : this.model.getDescendants(this.model.getRoot());
 			propertyName = (propertyName != null) ? propertyName : 'tags';
 			
+			var tagCount = 0;
+			var lookup = {};
+			
+			for (var i = 0; i < tagList.length; i++)
+			{
+				if (tagList[i].length > 0)
+				{
+					lookup[tagList[i].toLowerCase()] = true;
+					tagCount++;
+				}
+			}
+			
 			for (var i = 0; i < cells.length; i++)
 			{
 				if ((includeLayers && this.model.getParent(cells[i]) == this.model.root) ||
@@ -3845,17 +3898,25 @@
 				{
 					var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
 						mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
-					var match = true;
+					var match = false;
 	
 					if (tags.length > 0)
 					{
 						var tmp = tags.toLowerCase().split(' ');
 						
-						for (var j = 0; j < tagList.length && match; j++)
+						if (tmp.length >= tagList.length)
 						{
-							var tag = mxUtils.trim(tagList[j]).toLowerCase();
+							var matchCount = 0;
 							
-							match = match && (tag.length == 0 || mxUtils.indexOf(tmp, tag) >= 0);
+							for (var j = 0; j < tmp.length && (matchCount < tagCount); j++)
+							{
+								if (lookup[tmp[j]] != null)
+								{
+									matchCount++;
+								}
+							}
+							
+							match = matchCount == tagCount;
 						}
 					}
 					else
@@ -3873,7 +3934,7 @@
 		
 		return result;
 	};
-
+	
 	/**
 	 * Shows or hides the given cells.
 	 */
@@ -4899,116 +4960,6 @@
 	}
 	
 })();
-
-/**
- * 
- */
-var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, buttonText2, fn2, hide, buttonText3, fn3)
-{
-	hide = (hide != null) ? hide : true;
-	
-	var div = document.createElement('div');
-	div.style.textAlign = 'center';
-
-	if (title != null)
-	{
-		var hd = document.createElement('div');
-		hd.style.padding = '0px';
-		hd.style.margin = '0px';
-		hd.style.fontSize = '18px';
-		hd.style.paddingBottom = '16px';
-		hd.style.marginBottom = '10px';
-		hd.style.borderBottom = '1px solid #c0c0c0';
-		hd.style.color = 'gray';
-		hd.style.whiteSpace = 'nowrap';
-		hd.style.textOverflow = 'ellipsis';
-		hd.style.overflow = 'hidden';
-		mxUtils.write(hd, title);
-		hd.setAttribute('title', title);
-		div.appendChild(hd);
-	}
-
-	var p2 = document.createElement('div');
-	p2.style.lineHeight = '1.2em';
-	p2.style.padding = '6px';
-	p2.innerHTML = message;
-	div.appendChild(p2);
-	
-	var btns = document.createElement('div');
-	btns.style.marginTop = '12px';
-	btns.style.textAlign = 'center';
-	
-	if (retry != null)
-	{
-		var retryBtn = mxUtils.button(mxResources.get('tryAgain'), function()
-		{
-			editorUi.hideDialog();
-			retry();
-		});
-		retryBtn.className = 'geBtn';
-		btns.appendChild(retryBtn);
-		
-		btns.style.textAlign = 'center';
-	}
-	
-	if (buttonText3 != null)
-	{
-		var btn3 = mxUtils.button(buttonText3, function()
-		{
-			if (fn3 != null)
-			{
-				fn3();
-			}
-		});
-		
-		btn3.className = 'geBtn';
-		btns.appendChild(btn3);
-	}
-	
-	var btn = mxUtils.button(buttonText, function()
-	{
-		if (hide)
-		{
-			editorUi.hideDialog();
-		}
-		
-		if (fn != null)
-		{
-			fn();
-		}
-	});
-	
-	btn.className = 'geBtn';
-	btns.appendChild(btn);
-
-	if (buttonText2 != null)
-	{
-		var mainBtn = mxUtils.button(buttonText2, function()
-		{
-			if (hide)
-			{
-				editorUi.hideDialog();
-			}
-			
-			if (fn2 != null)
-			{
-				fn2();
-			}
-		});
-		
-		mainBtn.className = 'geBtn gePrimaryBtn';
-		btns.appendChild(mainBtn);
-	}
-
-	this.init = function()
-	{
-		btn.focus();
-	};
-	
-	div.appendChild(btns);
-
-	this.container = div;
-};
 
 // Extends codec for ChangePageSetup
 (function()

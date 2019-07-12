@@ -996,7 +996,7 @@ EditorUi.prototype.sidebarFooterHeight = 34;
  * Specifies the position of the horizontal split bar. Default is 240 or 118 for
  * screen widths <= 640px.
  */
-EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : 240;
+EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : ((urlParams['sidebar-entries'] != 'large') ? 212 : 240);
 
 /**
  * Specifies if animations are allowed in <executeLayout>. Default is true.
@@ -3354,9 +3354,55 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
 };
 
 /**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage)
+{
+	var e = (resp != null && resp.error != null) ? resp.error : resp;
+
+	if (e != null || title != null)
+	{
+		var msg = mxUtils.htmlEntities(mxResources.get('unknownError'));
+		var btn = mxResources.get('ok');
+		title = (title != null) ? title : mxResources.get('error');
+		
+		if (e != null && e.message != null)
+		{
+			msg = mxUtils.htmlEntities(e.message);
+		}
+
+		this.showError(title, msg, btn, fn, null, null, null, null, null,
+			null, null, null, (invokeFnOnClose) ? fn : null);
+	}
+	else if (fn != null)
+	{
+		fn();
+	}
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide, onClose)
+{
+	var height = (msg != null && msg.length > 120) ? 180 : 150;
+	var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'),
+		fn, retry, btn2, fn2, hide, btn3, fn3);
+	this.showDialog(dlg.container, w || 340, h || ((msg != null && msg.length > 120) ?
+		180 : 150), true, false, onClose);
+	dlg.init();
+};
+
+/**
  * Displays a print dialog.
  */
-EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize)
+EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize, ignoreBgClick)
 {
 	this.editor.graph.tooltipHandler.hideTooltip();
 	
@@ -3365,7 +3411,7 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 		this.dialogs = [];
 	}
 	
-	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize);
+	this.dialog = new Dialog(this, elt, w, h, modal, closable, onClose, noScroll, trasparent, onResize, ignoreBgClick);
 	this.dialogs.push(this.dialog);
 };
 
@@ -3386,14 +3432,23 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc)
 		}
 		
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
-
+		this.editor.fireEvent(new mxEventObject('hideDialog'));
+		
 		if (this.dialog == null && this.editor.graph.container.style.visibility != 'hidden')
 		{
-			this.editor.graph.container.focus();
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				if (this.editor.graph.isEditing() && this.editor.graph.cellEditor.textarea != null)
+				{
+					this.editor.graph.cellEditor.textarea.focus();
+				}
+				else
+				{
+					mxUtils.clearSelection();
+					this.editor.graph.container.focus();
+				}
+			}), 0);
 		}
-		
-		mxUtils.clearSelection();
-		this.editor.fireEvent(new mxEventObject('hideDialog'));
 	}
 };
 

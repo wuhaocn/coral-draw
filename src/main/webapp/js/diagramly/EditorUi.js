@@ -1556,7 +1556,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent)
+	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border)
 	{
 		try
 		{
@@ -1657,7 +1657,7 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage, scale, border);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1681,7 +1681,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border)
 	{
 		var bounds = this.editor.graph.getGraphBounds();
 		
@@ -1738,7 +1738,9 @@
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
-			'&filename=' + encodeURIComponent(filename) : ''));
+			'&filename=' + encodeURIComponent(filename) : '') +
+			(scale != null? '&scale=' + scale : '') +
+			(border != null? '&border=' + border : ''));
 	};
 	
 	/**
@@ -3648,23 +3650,7 @@
 			fn();
 		}
 	};
-	
-	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide, onClose)
-	{
-		var height = (msg != null && msg.length > 120) ? 180 : 150;
-		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'),
-			fn, retry, btn2, fn2, hide, btn3, fn3);
-		this.showDialog(dlg.container, w || 340, h || ((msg != null && msg.length > 120) ?
-			180 : 150), true, false, onClose);
-		dlg.init();
-	};
-	
+
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -3719,7 +3705,7 @@
 	{
 		if (file != null)
 		{
-			file.opened = new Date().getTime();
+			file.opened = new Date();
 		}
 		
 		this.currentFile = file;
@@ -5124,16 +5110,39 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude)
+	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude, showZoomBorder)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('image'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:' + (showZoomBorder? '10' : '4') +'px';
 		div.appendChild(hd);
 
+		if (showZoomBorder)
+		{
+			mxUtils.write(div, mxResources.get('zoom') + ':');
+			var zoomInput = document.createElement('input');
+			zoomInput.setAttribute('type', 'text');
+			zoomInput.style.marginRight = '16px';
+			zoomInput.style.width = '60px';
+			zoomInput.style.marginLeft = '4px';
+			zoomInput.style.marginRight = '12px';
+			zoomInput.value = this.lastExportZoom || '100%';
+			div.appendChild(zoomInput);
+			
+			mxUtils.write(div, mxResources.get('borderWidth') + ':');
+			var borderInput = document.createElement('input');
+			borderInput.setAttribute('type', 'text');
+			borderInput.style.marginRight = '16px';
+			borderInput.style.width = '60px';
+			borderInput.style.marginLeft = '4px';
+			borderInput.value = this.lastExportBorder || '0';
+			div.appendChild(borderInput);
+			mxUtils.br(div);
+		}
+		
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'), false,
 			this.editor.graph.isSelectionEmpty());
 		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
@@ -5149,10 +5158,13 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
+			var scale = parseInt(zoomInput.value) / 100 || 1;
+			var border = parseInt(borderInput.value) || 0;
+			
 			callback(!selection.checked, (include != null) ? include.checked : false,
-				(transparent != null) ? transparent.checked : false);
+				(transparent != null) ? transparent.checked : false, scale, border);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 300, (hideInclude) ? 100 : 186, true, true);
+		this.showDialog(dlg.container, 300, (showZoomBorder? 25 : 0) + (hideInclude ? 125 : 210), true, true);
 	};
 	
 	/**
@@ -5312,7 +5324,7 @@
 			mxUtils.br(div);
 			height += 26;
 		}
-		
+
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			this.lastExportBorder = borderInput.value;
@@ -5322,7 +5334,7 @@
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
 				linkSelect.value);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, height, true, true);
+		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
 		
 		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
@@ -6292,36 +6304,46 @@
 			{
 				(mxUtils.bind(this, function(img)
 				{
-					var src = converter.convert(img.getAttribute(srcAttr));
-		        	
-					// Data URIs are pass-through
-					if (src != null && src.substring(0, 5) != 'data:')
+					try
 					{
-						var tmp = cache[src];
-						
-						if (tmp == null)
+						if (img != null)
 						{
-							inc();
-							
-							this.convertImageToDataUri(src, function(uri)
+							var src = converter.convert(img.getAttribute(srcAttr));
+				        	
+							// Data URIs are pass-through
+							if (src != null && src.substring(0, 5) != 'data:')
 							{
-								if (uri != null)
-								{
-									cache[src] = uri;
-									img.setAttribute(srcAttr, uri);
-								}
+								var tmp = cache[src];
 								
-								dec();
-							});
-						}
-						else
-						{
-							img.setAttribute(srcAttr, tmp);
+								if (tmp == null)
+								{
+									inc();
+									
+									this.convertImageToDataUri(src, function(uri)
+									{
+										if (uri != null)
+										{
+											cache[src] = uri;
+											img.setAttribute(srcAttr, uri);
+										}
+										
+										dec();
+									});
+								}
+								else
+								{
+									img.setAttribute(srcAttr, tmp);
+								}
+							}
+							else if (src != null)
+							{
+								img.setAttribute(srcAttr, src);
+							}
 						}
 					}
-					else if (src != null)
+					catch (e)
 					{
-						img.setAttribute(srcAttr, src);
+						// ignore
 					}
 				}))(images[i]);
 			}
@@ -6433,54 +6455,89 @@
 	 */
 	EditorUi.prototype.convertImageToDataUri = function(url, callback)
 	{
-		if (/(\.svg)$/i.test(url))
+		try
 		{
-			mxUtils.get(url, mxUtils.bind(this, function(req)
+			var acceptResponse = true;
+			
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				callback(this.createSvgDataUri(req.getText()));
-			}),
-			function()
-			{
+				acceptResponse = false;
 				callback(this.svgBrokenImage.src);
-			});
+			}), this.timeout);
+	
+			if (/(\.svg)$/i.test(url))
+			{
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(this.createSvgDataUri(req.getText()));
+					}
+				}),
+				function()
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(this.svgBrokenImage.src);
+					}
+				});
+			}
+			else
+			{
+			    var img = new Image();
+			    var self = this;
+			    
+			    if (this.crossOriginImages)
+		    	{
+				    img.crossOrigin = 'anonymous';
+			    }
+			    
+			    img.onload = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+				        try
+				        {
+					        var canvas = document.createElement('canvas');
+					        var ctx = canvas.getContext('2d');
+					        canvas.height = img.height;
+					        canvas.width = img.width;
+					        ctx.drawImage(img, 0, 0);
+
+				        	callback(canvas.toDataURL());
+				        }
+				        catch (e)
+				        {
+			        		callback(self.svgBrokenImage.src);
+				        }
+					}
+			    };
+			    
+			    img.onerror = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(self.svgBrokenImage.src);
+					}
+			    };
+			    
+			    img.src = url;
+			}
 		}
-		else
+		catch (e)
 		{
-		    var img = new Image();
-		    var self = this;
-		    
-		    if (this.crossOriginImages)
-	    	{
-			    img.crossOrigin = 'anonymous';
-		    }
-		    
-		    img.onload = function()
-		    {
-		        var canvas = document.createElement('canvas');
-		        var ctx = canvas.getContext('2d');
-		        canvas.height = img.height;
-		        canvas.width = img.width;
-		        ctx.drawImage(img, 0, 0);
-		        
-		        try
-		        {
-	        		callback(canvas.toDataURL());
-		        }
-		        catch (e)
-		        {
-	        		callback(self.svgBrokenImage.src);
-		        }
-		    };
-		    
-		    img.onerror = function()
-		    {
-	    		callback(self.svgBrokenImage.src);
-		    };
-		    
-		    img.src = url;
+			callback(this.svgBrokenImage.src);
 		}
 	};
-	
+
 	/**
 	 * Handling drag and drop and import.
 	 */
@@ -6508,7 +6565,7 @@
 					
 					// Checks for mxfile with multiple pages
 					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
-					
+
 					if (node != null && node.nodeName == 'mxfile' && this.pages != null)
 					{
 						var diagrams = node.getElementsByTagName('diagram');
@@ -6519,6 +6576,8 @@
 						}
 						else if (diagrams.length > 1)
 						{
+							var mapping = {};
+							var pages = [];
 							var i0 = 0;
 							
 							// Adds first page to current page if current page is only page and empty
@@ -6531,10 +6590,13 @@
 
 							for (var i = i0; i < diagrams.length; i++)
 							{
-								// Imported pages must obtain a new ID
+								// Imported pages must obtain a new ID and
+								// all links to pages must be updated below
+								var oldId = diagrams[i].getAttribute('id')
 								diagrams[i].removeAttribute('id');
 								
 								var page = this.updatePageRoot(new DiagramPage(diagrams[i]));
+								mapping[oldId] = diagrams[i].getAttribute('id');
 								var index = this.pages.length;
 								
 								// Checks for invalid page names
@@ -6544,7 +6606,10 @@
 								}
 								
 								graph.model.execute(new ChangePage(this, page, page, index, true));
+								pages.push(page);
 							}
+							
+							this.updatePageLinks(mapping, pages);
 						}
 					}
 					
@@ -6572,6 +6637,70 @@
 		}
 		
 		return cells;
+	};
+	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLinks = function(mapping, pages)
+	{
+		for (var i = 0; i < pages.length; i++)
+		{
+			this.updatePageLinksForCell(mapping, pages[i].root);
+		}
+	};
+	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLinksForCell = function(mapping, cell)
+	{
+		var temp = document.createElement('div');
+		var graph = this.editor.graph;
+		var href = graph.getLinkForCell(cell);
+		
+		if (href != null && href.substring(0, 13) == 'data:page/id,')
+		{
+			graph.setLinkForCell(cell, this.updatePageLink(mapping, href));
+		}
+		
+		if (graph.isHtmlLabel(cell))
+		{
+			temp.innerHTML = graph.getLabel(cell);
+			var links = temp.getElementsByTagName('a');
+			var changed = false;
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				href = links[i].getAttribute('href');
+				
+				if (href != null && href.substring(0, 13) == 'data:page/id,')
+				{
+					links[i].setAttribute('href', this.updatePageLink(mapping, href));
+					changed = true;
+				}
+			}
+			
+			if (changed)
+			{
+				graph.labelChanged(cell, temp.innerHTML);
+			}
+		}
+		
+		for (var i = 0; i < graph.model.getChildCount(cell); i++)
+		{
+			this.updatePageLinksForCell(mapping, graph.model.getChildAt(cell, i));
+		}
+	};
+
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLink = function(mapping, href)
+	{
+		var newId = mapping[href.substring(href.indexOf(',') + 1)];
+		
+		return (newId != null) ? 'data:page/id,' + newId : null;
 	};
 	
 	/**
@@ -6755,8 +6884,6 @@
 	 */
 	EditorUi.prototype.convertLucidChart = function(data, success, error)
 	{
-		console.log(data);
-		
 		var delayed = mxUtils.bind(this, function()
 		{
 			this.loadingExtensions = false;
@@ -7071,7 +7198,9 @@
 	 */
 	EditorUi.prototype.isLucidChartData = function(data)
 	{
-		return data != null && data.substring(0, 26) == '{"state":"{\\"Properties\\":';
+		return data != null && (data.substring(0, 26) ==
+			'{"state":"{\\"Properties\\":' ||
+			data.substring(0, 14) == '{"Properties":');
 	};
 
 	/**
@@ -7079,9 +7208,7 @@
 	 */
 	EditorUi.prototype.importLocalFile = function(device, noSplash)
 	{
-		// input.click does not work in IE on Windows 7
-		if (device && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
-			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
+		if (device && Graph.fileSupport)
 		{
 			if (this.importFileInputElt == null) 
 			{
@@ -7094,9 +7221,12 @@
 					{
 						// Using null for position will disable crop of input file
 						this.importFiles(input.files, null, null, this.maxImageSize);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
 					}
-					
-					input.value = '';
 				}));
 				
 				input.style.display = 'none';
@@ -7377,7 +7507,7 @@
 			{
 				graph.setSelectionCells(cells);
 			});
-	
+			
 			if (this.spinner.spin(document.body, mxResources.get('loading')))
 			{
 				var count = files.length;
@@ -9028,7 +9158,18 @@
 
 			// Updates UI to reflect current edge style
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
-
+			
+			/**
+			 * Persists custom fonts.
+			 */
+			this.menus.customFonts = mxSettings.getCustomFonts();
+			
+			this.addListener('customFontsChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setCustomFonts(this.menus.customFonts);
+				mxSettings.save();
+			}));
+			
 			/**
 			 * Persists copy on connect switch.
 			 */
@@ -10331,14 +10472,15 @@
 							   	}), null, null, null, mxUtils.bind(this, function()
 								{
 							   		processUri(null);
-								}), null, null, null, null, null, null, graph);
+								}), null, null, data.scale, null, null, null, graph);
 							}
 							else
 							{
 								// Data from server is base64 encoded to avoid binary XHR
 								// Double encoding for XML arg is needed for UTF8 encoding
 						       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
-						       		((data.format == 'xmlpng') ? '1' : '0') + '&base64=1&xml=' +
+						       		((data.format == 'xmlpng') ? '1' : '0') + 
+						       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
 						       		encodeURIComponent(encodeURIComponent(xml)));
 
 								req.send(mxUtils.bind(this, function(req)
@@ -10778,6 +10920,7 @@
 		try
 		{
     		var lines = text.split('\n');
+    		var allCells = [];
     		var cells = [];
     		var dups = {};
     		
@@ -10788,6 +10931,8 @@
         		
         		// Default values
         		var style = null;
+        		var styles = null;
+        		var stylename = null;
         		var parentstyle = null;
         		var identity = null;
         		var parent = null;
@@ -10879,6 +11024,14 @@
 		    				else if (key == 'parentstyle')
 		    				{
 		    					parentstyle = value;
+		    				}
+		    				else if (key == 'stylename' && value.length > 0 && value != '-')
+		    				{
+		    					stylename = value;
+		    				}
+		    				else if (key == 'styles' && value.length > 0 && value != '-')
+		    				{
+		    					styles = JSON.parse(value);
 		    				}
 		    				else if (key == 'identity' && value.length > 0 && value != '-')
 		    				{
@@ -11020,7 +11173,17 @@
 					    	{
 								graph.setAttributeForCell(newCell, keys[j], values[j]);
 					    	}
-							
+
+							if (stylename != null && styles != null)
+							{
+								var tempStyle = styles[newCell.getAttribute(stylename)];
+								
+								if (tempStyle != null)
+								{
+									newCell.style = tempStyle;
+								}
+							}
+	
 							graph.setAttributeForCell(newCell, 'placeholders', '1');
 							newCell.style = graph.replacePlaceholders(newCell, newCell.style);
 
@@ -11052,7 +11215,7 @@
 								// Removes attribute
 								graph.setAttributeForCell(cell, link, null);
 							}
-	
+							
 							// Sets the size
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
 							var size = this.editor.graph.getPreferredSizeForCell(cell);
@@ -11094,6 +11257,7 @@
 							{
 		    					var parent = (parentIndex != null) ? graph.model.getCell(
 		    						namespace + values[parentIndex]) : null;
+								allCells.push(cell);
 		    					
 		    					if (parent != null)
 		    					{
@@ -11181,9 +11345,9 @@
 					// Removes ignored attributes after processing above
 					if (ignore != null)
 					{
-						for (var i = 0; i < cells.length; i++)
+						for (var i = 0; i < allCells.length; i++)
 						{
-							var cell = cells[i];
+							var cell = allCells[i];
 							
 							for (var j = 0; j < ignore.length; j++)
 					    	{
@@ -11760,6 +11924,22 @@
 		// do nothing
 	};
 	
+	/**
+	 * Hook for subclassers
+	 */
+	EditorUi.prototype.scheduleSanityCheck = function()
+	{
+		// do nothing
+	};
+	
+	/**
+	 * Hook for subclassers
+	 */
+	EditorUi.prototype.stopSanityCheck = function()
+	{
+		// do nothing
+	};
+
 	/**
 	 * Returns true if a diagram is cative and editable.
 	 */
