@@ -5,7 +5,7 @@ docker rm `docker ps -a -q`
 docker run --privileged=true \
            -p 8081:8082 \
            -d --name coral-draw \
-           10.10.208.193:5000/coral-draw:3.0.0-1906132057
+           10.10.208.193:5000/coral-draw:3.0.0-1907130008
 
 docker logs -f coral-draw
 
