@@ -37,7 +37,7 @@ public class FileControl {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     /**
-     * http://127.0.0.1:8081/index.html?offline=1&local=1&flid=1&spin=1
+     * http://127.0.0.1:8081/index.html?local=1&flid=1&spin=1
      *
      * @param uuid
      * @param request

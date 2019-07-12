@@ -30,7 +30,7 @@ public class IndexControl {
         String uuid = UUID.randomUUID().toString();
         response.setStatus(302);
         StringBuilder sb = new StringBuilder();
-        sb.append("/index.html?offline=1&ownerId=");
+        sb.append("/index.html?ownerId=");
         sb.append(SessionUtils.getCurUid(request));
         sb.append("&uuid=");
         sb.append(uuid);

@@ -748,7 +748,7 @@ var SplashDialog = function(editorUi)
 			addLogout(function()
 			{
 				editorUi.dropbox.logout();
-				editorUi.openLink('https://www.dropbox.com/logout');
+				//editorUi.openLink('https://www.dropbox.com/logout');
 			});
 		}
 		

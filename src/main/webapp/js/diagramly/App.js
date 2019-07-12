@@ -349,9 +349,9 @@ App.getStoredMode = function()
 			{
 				urlParams['mode'] = 'dropbox';
 			}
-			
+
 			App.mode = urlParams['mode'];
-			
+
 			if (App.mode == null)
 			{
 				// Stored mode overrides preferred mode
@@ -408,7 +408,7 @@ App.getStoredMode = function()
 							mxscript(App.DROPBOX_URL);
 							
 							// Must load this after the dropbox SDK since they use the same namespace
-							mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY);
+							//mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY);
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -569,15 +569,15 @@ App.main = function(callback, createUi)
 				// Mapping from key to URL in App.plugins
 				App.loadPlugins(temp.split(';'));
 			}
-			
+
 			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
 			{
-				// Loading plugins inside the asynchronous block below stops the page from loading so a 
+				// Loading plugins inside the asynchronous block below stops the page from loading so a
 				// hardcoded message for the warning dialog is used since the resources are loadd below
 				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
 				var tmp = window.location.protocol + '//' + window.location.host;
 				var local = true;
-				
+
 				for (var i = 0; i < plugins.length && local; i++)
 				{
 					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
@@ -585,7 +585,7 @@ App.main = function(callback, createUi)
 						local = false;
 					}
 				}
-				
+
 				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
 				{
 					for (var i = 0; i < plugins.length; i++)
@@ -615,7 +615,7 @@ App.main = function(callback, createUi)
 			(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
 			isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
 		{
-			mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
+			//mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
 		}
 		// Disables client
 		else if (typeof window.gapi === 'undefined')
@@ -668,10 +668,10 @@ App.main = function(callback, createUi)
 					mxscript(App.DROPBOX_URL, function()
 					{
 						// Must load this after the dropbox SDK since they use the same namespace
-						mxscript(App.DROPINS_URL, function()
-						{
-							DrawDropboxClientCallback();
-						}, 'dropboxjs', App.DROPBOX_APPKEY);
+						// mxscript(App.DROPINS_URL, function()
+						// {
+						// 	DrawDropboxClientCallback();
+						// }, 'dropboxjs', App.DROPBOX_APPKEY);
 					});
 				}
 				// Disables client
@@ -2051,7 +2051,7 @@ App.prototype.appIconClicked = function(evt)
 		}
 		else if (mode == App.MODE_DROPBOX)
 		{
-			this.openLink('https://www.dropbox.com/');
+			//this.openLink('https://www.dropbox.com/');
 		}
 		else if (mode == App.MODE_ONEDRIVE)
 		{
