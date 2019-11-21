@@ -118,6 +118,33 @@
 	Editor.enableCustomProperties = true;
 
 	/**
+	 * Specifies if XML files should be compressed. Default is true.
+	 */
+	Editor.compressXml = true;
+
+	/**
+	 * Specifies global variables.
+	 */
+	Editor.globalVars = null;
+
+	/**
+	 * Disables the shadow option in the format panel.
+	 */
+	Editor.shadowOptionEnabled = true;
+
+	/**
+	 * Reference to the config object passed to <configure>.
+	 */
+	Editor.config = null;
+
+	/**
+	 * Reference to the version of the last config object in
+	 * <configure>. If this is different to the last version in
+	 * mxSettings.parse, then the settings are reset.
+	 */
+	Editor.configVersion = null;
+	
+	/**
 	 * Common properties for all edges.
 	 */
 	Editor.commonEdgeProperties = [
@@ -139,7 +166,7 @@
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
         {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
         {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
-        {name: 'snapToPoint', dispName: 'Snap to Anchor', type: 'bool', defVal: false},
+        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
         {
@@ -175,6 +202,7 @@
         },
         {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
+        {name: 'allowArrows', dispName: 'Allow Arrows', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
         	enumList: [{val: 'none', dispName: 'None'},
@@ -205,7 +233,11 @@
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'treeFolding', dispName: 'Tree Folding', type: 'bool', defVal: false},
-        {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false}
+        {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false},
+        {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+        	return state.vertices.length > 0 && format.editorUi.editor.graph.isContainer(state.vertices[0]);
+        }}
 	];
 	/**
 	 * Default value for the CSV import dialog.
@@ -239,6 +271,16 @@
 		'## placeholders that are replaced once.\n' +
 		'#\n' +
 		'# styles: -\n' +
+		'#\n' +
+		'## Optional column name that contains a reference to a named label in labels.\n' +
+		'## Default is the current label.\n' +
+		'#\n' +
+		'# labelname: -\n' +
+		'#\n' +
+		'## JSON for named labels of the form {"name": "label", "name": "label"} where label is a cell label with\n' +
+		'## placeholders.\n' +
+		'#\n' +
+		'# labels: -\n' +
 		'#\n' +
 		'## Uses the given column name as the identity for cells (updates existing cells).\n' +
 		'## Default is no identity (empty value or -).\n' +
@@ -325,7 +367,37 @@
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
 		'Ron Donovan,System Admin,rdo,Office 3,Evan Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
-	
+
+	/**
+	 * Compresses the given string.
+	 */
+	Editor.fastCompress = function(data)
+	{
+		if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+		{
+			return data;
+		}
+		else
+		{
+			return pako.deflateRaw(data, {to: 'string'});
+		}
+	};
+
+	/**
+	 * Decompresses the given string.
+	 */
+	Editor.fastDecompress = function(data)
+	{
+	   	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+		{
+			return data;
+		}
+		else
+		{
+			return pako.inflateRaw(data, {to: 'string'});
+		}
+	};
+
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
@@ -425,12 +497,7 @@
 			
 			if (diagramNode != null)
 			{
-				var tmp = Graph.decompress(mxUtils.getTextContent(diagramNode));
-				
-				if (tmp != null && tmp.length > 0)
-				{
-					node = mxUtils.parseXml(tmp).documentElement;
-				}
+				node = Editor.parseDiagramNode(diagramNode);
 			}
 		}
 		
@@ -443,24 +510,153 @@
 	};
 	
 	/**
-	 * Disables the shadow option in the format panel.
+	 * Extracts the XML from the compressed or non-compressed text chunk.
 	 */
-	Editor.shadowOptionEnabled = true;
-
-	/**
-	 * Reference to the config object passed to <configure>.
-	 */
-	Editor.config = null;
-
-	/**
-	 * Reference to the version of the last config object in
-	 * <configure>. If this is different to the last version in
-	 * mxSettings.parse, then the settings are reset.
-	 */
-	Editor.configVersion = null;
-
-	Editor.prototype.timeout = 25000;
+	Editor.parseDiagramNode = function(diagramNode)
+	{
+		var text = mxUtils.trim(mxUtils.getTextContent(diagramNode));
+		var node = null;
+		
+		if (text.length > 0)
+		{
+			var tmp = Graph.decompress(text);
+			
+			if (tmp != null && tmp.length > 0)
+			{
+				node = mxUtils.parseXml(tmp).documentElement;
+			}
+		}
+		else
+		{
+			var temp = mxUtils.getChildNodes(diagramNode);
+			
+			if (temp.length > 0)
+			{
+				// Creates new document for unique IDs within mxGraphModel
+				var doc = mxUtils.createXmlDocument();
+				doc.appendChild(doc.importNode(temp[0], true));
+				node = doc.documentElement;
+			}
+		}
+		
+		return node;
+	};
 	
+	/**
+	 * Extracts the XML from the compressed or non-compressed text chunk.
+	 */
+	Editor.getDiagramNodeXml = function(diagramNode)
+	{
+		var text = mxUtils.getTextContent(diagramNode);
+		var xml = null;
+		
+		if (text.length > 0)
+		{
+			xml = Graph.decompress(text);
+		}
+		else if (diagramNode.firstChild != null)
+		{
+			xml = mxUtils.getXml(diagramNode.firstChild);
+		}
+		
+		return xml;
+	};
+	
+	/**
+	 * Extracts the XML from the compressed or non-compressed text chunk.
+	 */
+	Editor.extractGraphModelFromPng = function(data)
+	{
+		var result = null;
+		
+		try
+		{
+			var base64 = data.substring(data.indexOf(',') + 1);
+
+			// Workaround for invalid character error in Safari
+			var binary = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
+			
+			EditorUi.parsePng(binary, mxUtils.bind(this, function(pos, type, length)
+			{
+				var value = binary.substring(pos + 8, pos + 8 + length);
+				
+				if (type == 'zTXt')
+				{
+					var idx = value.indexOf(String.fromCharCode(0));
+					
+					if (value.substring(0, idx) == 'mxGraphModel')
+					{
+						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
+						var xmlData = pako.inflateRaw(value.substring(idx + 2),
+							{to: 'string'}).replace(/\+/g,' ');
+						
+						if (xmlData != null && xmlData.length > 0)
+						{
+							result = xmlData;
+						}
+					}
+				}
+				// Uncompressed section is normally not used
+				else if (type == 'tEXt')
+				{
+					var vals = value.split(String.fromCharCode(0));
+					
+					if (vals.length > 1 && (vals[0] == 'mxGraphModel' ||
+						vals[0] == 'mxfile'))
+					{
+						result = vals[1];
+					}
+				}
+				
+				if (result != null || type == 'IDAT')
+				{
+					// Stops processing the file as our text chunks
+					// are always placed before the data section
+					return true;
+				}
+			}));
+		}
+		catch (e)
+		{
+			// ignores decoding errors
+		}
+		
+		if (result != null && result.charAt(0) == '%')
+		{
+			result = decodeURIComponent(result);
+		}
+		
+		// Workaround for double encoded content
+		if (result != null && result.charAt(0) == '%')
+		{
+			result = decodeURIComponent(result);
+		}
+		
+		return result;
+	};
+
+	/**
+	 * Extracts any parsers errors in the given XML.
+	 */
+	Editor.extractParserError = function(node, defaultCause)
+	{
+		var cause = null;
+		var errors = (node != null) ? node.getElementsByTagName('parsererror') : null;
+		
+		if (errors != null && errors.length > 0)
+		{
+			cause = defaultCause || mxResources.get('invalidChars');
+			var divs = errors[0].getElementsByTagName('div');
+			
+			if (divs.length > 0)
+			{
+				cause = mxUtils.getTextContent(divs[0]);
+			}
+		}
+		
+		return cause;
+	};
+
 	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
@@ -484,6 +680,16 @@
 			if (config.templateFile != null)
 			{
 				EditorUi.templateFile = config.templateFile;
+			}
+			
+			if (config.globalVars != null)
+			{
+				Editor.globalVars = config.globalVars;
+			}
+
+			if (config.compressXml != null)
+			{
+				Editor.compressXml = config.compressXml;
 			}
 			
 			if (config.customFonts)
@@ -594,6 +800,20 @@
 			  	Editor.prototype.fontCss = config.fontCss;
 			}
 			
+			if (config.autosaveDelay != null)
+			{
+				var val = parseInt(config.autosaveDelay);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					DrawioFile.prototype.autosaveDelay = val;
+				}
+				else
+				{
+					EditorUi.debug('Invalid autosaveDelay: ' + config.autosaveDelay);
+				}
+			}
+			
 			if (config.plugins != null && !untrusted)
 			{
 				// Required for callback
@@ -607,6 +827,8 @@
 		}
 	};
 
+	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
+	
 	/**
 	 * Generates a unique ID of the given length
 	 */
@@ -632,6 +854,11 @@
 
 		return rtn.join('');
 	};
+
+	/**
+	 * General timeout is 25 seconds.
+	 */
+	Editor.prototype.timeout = 25000;
 	
 	/**
 	 * This should not be enabled if reflows are required for math rendering.
@@ -722,6 +949,29 @@
 				this.graph.updateCssTransform();
 
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
+				
+				var extFonts = node.getAttribute('extFonts');
+				
+				if (extFonts)
+				{
+					try
+					{
+						extFonts = extFonts.split('|').map(function(ef)
+						{
+							var parts = ef.split('^');
+							return {name: parts[0], url: parts[1]};
+						});
+						
+						for (var i = 0; i < extFonts.length; i++)
+						{
+							this.graph.addExtFont(extFonts[i].name, extFonts[i].url);
+						}
+					}
+					catch(e)
+					{
+						console.log('ExtFonts format error: ' + e.message);
+					}
+				}
 			}
 	
 			// Calls updateGraphComponents
@@ -759,6 +1009,16 @@
 		
 		node.setAttribute('math', (this.graph.mathEnabled) ? '1' : '0');
 		node.setAttribute('shadow', (this.graph.shadowVisible) ? '1' : '0');
+		
+		if (this.graph.extFonts != null && this.graph.extFonts.length > 0)
+		{
+			var strExtFonts = this.graph.extFonts.map(function(ef)
+			{
+				return ef.name + '^' + ef.url;
+			});
+			
+			node.setAttribute('extFonts', strExtFonts.join('|'));
+		}
 		
 		return node;
 	};
@@ -979,6 +1239,13 @@
 	 */
 	Editor.prototype.isCorsEnabledForUrl = function(url)
 	{
+		//Disable proxy for electron since it doesn't exist (it is served locally) and it works with most of the sites
+		//The same with Chrome App, never use proxy
+		if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+		{
+			return true;
+		}
+		
 		if (urlParams['cors'] != null && this.corsRegExp == null)
 		{
 			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
@@ -993,7 +1260,7 @@
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
-
+	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
@@ -1022,7 +1289,7 @@
 				{
 					src = PROXY_URL + '?url=' + encodeURIComponent(src);
 				}
-				else if (src.substring(0, 19) != 'chrome-extension://')
+				else if (src.substring(0, 19) != 'chrome-extension://' && !mxClient.IS_CHROMEAPP)
 				{
 					src = convert.apply(this, arguments);
 				}
@@ -1466,7 +1733,7 @@
 	 */
 	Editor.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || (!this.graph.mathEnabled && this.useCanvasForExport);
+		return mxClient.IS_CHROMEAPP || ((this.graph.extFonts == null || this.graph.extFonts.length == 0) && this.useCanvasForExport);
 	};
 
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
@@ -1589,10 +1856,12 @@
 						defs[0].appendChild(st);
 					}
 					
-					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					if (graph.mathEnabled)
 					{
-						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-					}));
+						this.addMathCss(svgRoot);
+					}
+					
+					img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 				});
 				
 				this.loadFonts(done);
@@ -3035,7 +3304,7 @@
 				
 				if (typeof(prop.isVisible) == 'function')
 				{
-					if (!prop.isVisible(state)) continue;
+					if (!prop.isVisible(state, this)) continue;
 				}
 				
 				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') : prop.defVal; //or undefined if defVal is undefined
@@ -3217,12 +3486,12 @@
 						else if (colorset['fill'] == '')
 						{
 							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
 							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						
 						if (colorset['stroke'] == mxConstants.NONE)
@@ -3232,12 +3501,12 @@
 						else if (colorset['stroke'] == '')
 						{
 							btn.style.border = '1px solid ' + mxUtils.getValue(graph.defaultVertexStyle, 
-								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff');
+								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
 							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
-									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff'));
+									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff'));
 						}
 					}
 					else
@@ -3450,10 +3719,17 @@
 	 * Adds rack child layout style.
 	 */
 	var graphInit = Graph.prototype.init;
+	
 	Graph.prototype.init = function()
 	{
 		graphInit.apply(this, arguments);
 
+		//TODO initialize Freehand in the correct location!
+		if (window.mxFreehand)
+		{
+			this.freehand = new mxFreehand(this);
+		}
+		
 		// Override insert location for current mouse point
 		var mouseEvent = null;
 		
@@ -3529,8 +3805,18 @@
 				{
 					var rackLayout = new mxStackLayout(this.graph, false);
 					
+					var unitSize = 20;
+					
+					if (style['rackUnitSize'] != null)
+					{
+						rackLayout.gridSize = parseFloat(style['rackUnitSize']);
+					}
+					else
+					{
+						rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : unitSize;
+					}
+					
 					rackLayout.fill = true;
-					rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : 20;
 					rackLayout.marginLeft = style['marginLeft'] || 0;
 					rackLayout.marginRight = style['marginRight'] || 0;
 					rackLayout.marginTop = style['marginTop'] || 0;
@@ -3566,6 +3852,66 @@
 			
 			return layoutManagerGetLayout.apply(this, arguments);
 		}
+		
+		this.updateGlobalUrlVariables();
+	};
+	
+	/**
+	 * Updates the global variables from the vars URL parameter.
+	 */
+	Graph.prototype.updateGlobalUrlVariables = function()
+	{
+		this.globalVars = Editor.globalVars;
+		
+		if (urlParams['vars'] != null)
+		{
+			try
+			{
+				this.globalVars = (this.globalVars != null) ? mxUtils.clone(this.globalVars) : {};
+				var vars = JSON.parse(decodeURIComponent(urlParams['vars']));
+				
+				if (vars != null)
+				{
+					for (var key in vars)
+					{
+						this.globalVars[key] = vars[key];
+					}
+				}
+			}
+			catch (e)
+			{
+				if (window.console != null)
+				{
+					console.log('Error in vars URL parameter: ' + e);
+				}
+			}
+		}
+	};
+
+	/**
+	 * Returns all global variables used for export. This function never returns null.
+	 * This can be overridden by plugins to return global variables for export.
+	 */
+	Graph.prototype.getExportVariables = function()
+	{
+		return (this.globalVars != null) ? mxUtils.clone(this.globalVars) : {};
+	};
+	
+	/**
+	 * Adds support for vars URL parameter.
+	 */
+	var graphGetGlobalVariable = Graph.prototype.getGlobalVariable;
+	
+	Graph.prototype.getGlobalVariable = function(name)
+	{
+		var val = graphGetGlobalVariable.apply(this, arguments);
+		
+		if (val == null && this.globalVars != null)
+		{
+			val = this.globalVars[name];
+		}
+		
+		return val;
 	};
 
 	/**
@@ -3584,11 +3930,20 @@
 	};
 	
 	/**
+	 * Overiddes function to use url parameter
+	 */
+	Graph.prototype.isViewer = function()
+	{
+		return urlParams['viewer'];
+	};
+
+	/**
 	 * Temporarily overrides stylesheet during image export in dark mode.
 	 */
 	var graphGetSvg = Graph.prototype.getSvg;
 	
-	Graph.prototype.getSvg = function()
+	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
+			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts)
 	{
 		var temp = null;
 		
@@ -3601,6 +3956,37 @@
 		
 		var result = graphGetSvg.apply(this, arguments);
 		
+		// Adds extrnal fonts
+		if (incExtFonts && this.extFonts != null && this.extFonts.length > 0)
+		{
+			var svgDoc = result.ownerDocument;
+			var style = (svgDoc.createElementNS != null) ?
+		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') : style.setAttribute('type', 'text/css');
+			
+			var styleCnt = '';
+			    	
+			for (var i = 0; i < this.extFonts.length; i++)
+			{
+				var fontName = this.extFonts[i].name, fontUrl = this.extFonts[i].url;
+				
+				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				{
+					styleCnt += '@import url(' + fontUrl + ');';
+				}
+				else
+				{
+					styleCnt += '@font-face {' +
+			            'font-family: "'+ fontName +'";' + 
+			            'src: url("'+ fontUrl +'");' + 
+			            '}';
+				}				
+			}
+			
+			style.appendChild(svgDoc.createTextNode(styleCnt));
+			result.getElementsByTagName('defs')[0].appendChild(style);
+		}
+		
 		if (temp != null)
 		{
 			this.stylesheet = temp;
@@ -3609,7 +3995,108 @@
 		
 		return result;
 	};
+	
+	/**
+	 * Overridden to support client-side math typesetting.
+	 */
+	var graphCreateSvgImageExport = Graph.prototype.createSvgImageExport;
+	
+	Graph.prototype.createSvgImageExport = function()
+	{
+		var imgExport = graphCreateSvgImageExport.apply(this, arguments);
+		
+		if (this.mathEnabled)
+		{
+			var graph = this;
+			var origin = graph.container.getBoundingClientRect();
+			var y0 = graph.container.scrollTop - origin.y;
+			var x0 = graph.container.scrollLeft - origin.x;
+			var drawText = imgExport.drawText;
 
+			imgExport.drawText = function(state, canvas)
+			{
+				if (state.text != null && state.text.node != null &&
+					state.text.node.ownerSVGElement == null)
+				{
+					// Copies text into DOM using untransformed bounding box
+					var tr = state.text.node.style.transform;
+					state.text.node.style.transform = '';
+					var rect = state.text.node.getBoundingClientRect();
+					var clone = state.text.node.cloneNode(true);
+					state.text.node.style.transform = tr;
+
+					// Removes unused style
+					clone.style.transformOrigin = '';
+
+					// Removes all math elements
+					var ele = clone.getElementsByTagName('math');
+					
+					while (ele.length > 0)
+					{
+						ele[0].parentNode.removeChild(ele[0]);
+					}
+					
+					// Sets position on foreignObject
+					var s = canvas.state.scale * state.text.scale;
+					var x = (rect.x + x0) / state.text.scale + canvas.state.dx;
+					var y = (rect.y + y0) / state.text.scale + canvas.state.dy;
+					var w = rect.width;
+					var h = rect.height;
+					
+					var fo = canvas.root.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
+					fo.setAttribute('x', x * s);
+					fo.setAttribute('y', y * s);
+					fo.setAttribute('width', w);
+					fo.setAttribute('height', h);
+					
+					// Resets position on inner DIV
+					clone.style.top = '0px';
+					clone.style.left = '0px';
+					
+					// Applies transform on foreignObject
+					var theta = state.text.getTextRotation();
+					var dx = state.text.margin.x;
+					var dy = state.text.margin.y;
+					var tx = (2 * w * dx - w * s * dx) / s;
+					var ty = (2 * h * dy - h * s * dy) / s;
+					
+					// FIXME: Center/right aligned text with rotation and export zoom
+					if (s != 1 && theta != 0)
+					{
+//						var rad = theta * (Math.PI / 180);
+//						var pt = mxUtils.getRotatedPoint(new mxPoint(dx, dy), Math.cos(rad), Math.sin(rad));
+//						tx -= 2 * pt.x * w * s + 2 * pt.y * h * s;
+//						ty -= 2 * pt.y * h * s + 2 * pt.x * w * s;
+//						console.log('s', s, theta, dx, w, pt);
+					}
+					
+					var tr = 'translate(' +
+						canvas.format(tx) + ',' +
+						canvas.format(ty) + ')';
+					
+					if (theta != 0)
+					{
+						tr += ' rotate(' + theta + ')';
+					}
+					
+					fo.setAttribute('transform-origin',
+						canvas.format((x - dx * w) * s) + ' ' +
+						canvas.format((y - dy * h) * s));
+					fo.setAttribute('transform', tr +
+						' scale(' + s + ')');
+					fo.appendChild(clone);
+					canvas.root.ownerSVGElement.appendChild(fo);
+				}
+				else
+				{
+					drawText.apply(this, arguments);
+				}
+			};
+		}
+		
+		return imgExport;
+	};
+	
 	/**
 	 * Safari has problems with math typesetting inside foreignObjects.
 	 */
@@ -3619,41 +4106,6 @@
 	{
 		// FIXME: Safari only disabled due to mathjax rendering errors
 		return graphIsCssTransformsSupported.apply(this, arguments) && !mxClient.IS_SF;
-	};
-
-	/**
-	 * Adds support for vars URL parameter.
-	 */
-	var graphGetGlobalVariable = Graph.prototype.getGlobalVariable;
-	
-	Graph.prototype.getGlobalVariable = function(name)
-	{
-		var val = graphGetGlobalVariable.apply(this, arguments);
-		
-		if (val == null)
-		{
-			if (this.globalUrlVars == null && urlParams['vars'] != null)
-			{
-				try
-				{
-					this.globalUrlVars = JSON.parse(decodeURIComponent(urlParams['vars']));
-				}
-				catch (e)
-				{
-					if (window.console != null)
-					{
-						console.log('Error in vars URL parameter: ' + e);
-					}
-				}
-			}
-			
-			if (this.globalUrlVars != null)
-			{
-				val = this.globalUrlVars[name];
-			}
-		}
-		
-		return val;
 	};
 
 	/**
@@ -3700,6 +4152,7 @@
 	 * Sets default style (used in editor.get/setGraphXml below)
 	 */
 	var graphLoadStylesheet = Graph.prototype.loadStylesheet;
+	
 	Graph.prototype.loadStylesheet = function()
 	{
 		graphLoadStylesheet.apply(this, arguments);
@@ -3735,6 +4188,8 @@
 			// Some actions are stateless and must be handled before the transaction
 			var link = JSON.parse(href.substring(17));
 
+			// When adding new actions that reference cell IDs support for updating
+			// those cell IDs must be handled in Graph.updateCustomLinkActions
 			if (link.actions != null)
 			{
 				// Executes open actions before starting transaction
@@ -3819,7 +4274,126 @@
 			}
 		}
 	};
+	
+	/**
+	 * Updates cell IDs in custom links on the given cell and its label.
+	 */
+	Graph.prototype.updateCustomLinksForCell = function(mapping, cell)
+	{
+		var href = this.getLinkForCell(cell);
+		
+		if (href != null && href.substring(0, 17) == 'data:action/json,')
+		{
+			this.setLinkForCell(cell, this.updateCustomLink(mapping, href));
+		}
+		
+		if (this.isHtmlLabel(cell))
+		{
+			var temp = document.createElement('div');
+			temp.innerHTML = this.getLabel(cell);
+			var links = temp.getElementsByTagName('a');
+			var changed = false;
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				href = links[i].getAttribute('href');
+				
+				if (href != null && href.substring(0, 17) == 'data:action/json,')
+				{
+					links[i].setAttribute('href', this.updateCustomLink(mapping, href));
+					changed = true;
+				}
+			}
+			
+			if (changed)
+			{
+				this.labelChanged(cell, temp.innerHTML);
+			}
+		}
+	};
+	
+	/**
+	 * Updates cell IDs in the given custom link and returns the updated link.
+	 */
+	Graph.prototype.updateCustomLink = function(mapping, href)
+	{
+		if (href.substring(0, 17) == 'data:action/json,')
+		{
+			try
+			{
+				// Some actions are stateless and must be handled before the transaction
+				var link = JSON.parse(href.substring(17));
 
+				if (link.actions != null)
+				{
+					this.updateCustomLinkActions(mapping, link.actions);
+					href = 'data:action/json,' + JSON.stringify(link);
+				}
+			}
+			catch (e)
+			{
+				// Ignore
+			}
+		}
+		
+		return href;
+	};
+
+	/**
+	 * Updates cell IDs in the given custom link actions.
+	 */
+	Graph.prototype.updateCustomLinkActions = function(mapping, actions)
+	{
+		for (var i = 0; i < actions.length; i++)
+		{
+			var action = actions[i];
+			
+			this.updateCustomLinkAction(mapping, action.toggle);
+			this.updateCustomLinkAction(mapping, action.show);
+			this.updateCustomLinkAction(mapping, action.hide);
+			this.updateCustomLinkAction(mapping, action.select);
+			this.updateCustomLinkAction(mapping, action.highlight);
+			this.updateCustomLinkAction(mapping, action.scroll);
+		}
+	};
+	
+	/**
+	 * Updates cell IDs in the given custom link action.
+	 */
+	Graph.prototype.updateCustomLinkAction = function(mapping, action)
+	{
+		if (action != null && action.cells != null)
+		{
+			var result = [];
+			
+			for (var i = 0; i < action.cells.length; i++)
+			{
+				if (action.cells[i] == '*')
+				{
+					result.push(action.cells[i]);
+				}
+				else
+				{
+					var temp = mapping[action.cells[i]];
+					
+					if (temp != null)
+					{
+						if (temp != '')
+						{
+							result.push(temp);
+						}
+					}
+					else
+					{
+						result.push(action.cells[i]);
+					}
+				}
+			}
+			
+			action.cells = result;
+		}
+	};
+	
 	/**
 	 * Handles each action in the action array of a custom link. This code
 	 * handles toggle actions for cell IDs.
@@ -4199,6 +4773,7 @@
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
 	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
+	mxStencilRegistry.libraries['kubernetes'] = [SHAPES_PATH + '/mxKubernetes.js', STENCIL_PATH + '/kubernetes.xml'];
 	mxStencilRegistry.libraries['flowchart'] = [SHAPES_PATH + '/mxFlowchart.js', STENCIL_PATH + '/flowchart.xml'];
 	mxStencilRegistry.libraries['ios'] = [SHAPES_PATH + '/mockup/mxMockupiOS.js'];
 	mxStencilRegistry.libraries['rackGeneral'] = [SHAPES_PATH + '/rack/mxRack.js', STENCIL_PATH + '/rack/general.xml'];
@@ -4544,6 +5119,23 @@
 			
 			function printGraph(thisGraph, pv, forcePageBreaks)
 			{
+				// Workaround for CSS transforms affecting the print output
+				// is to disable during print output and restore after
+				var prev = thisGraph.useCssTransforms;
+				var prevTranslate = thisGraph.currentTranslate;
+				var prevScale = thisGraph.currentScale;
+				var prevViewTranslate = thisGraph.view.translate;
+				var prevViewScale = thisGraph.view.scale;
+
+				if (thisGraph.useCssTransforms)
+				{
+					thisGraph.useCssTransforms = false;
+					thisGraph.currentTranslate = new mxPoint(0,0);
+					thisGraph.currentScale = 1;
+					thisGraph.view.translate = new mxPoint(0,0);
+					thisGraph.view.scale = 1;
+				}
+
 				// Negative coordinates are cropped or shifted if page visible
 				var gb = thisGraph.getGraphBounds();
 				var border = 0;
@@ -4590,7 +5182,7 @@
 				{
 					autoOrigin = true;
 				}
-
+				
 				if (pv == null)
 				{
 					pv = PrintDialog.createPrintPreview(thisGraph, scale, pf, border, x0, y0, autoOrigin);
@@ -4647,7 +5239,25 @@
 						};
 					}
 					
+					// Switches stylesheet for print output in dark mode
+					var temp = null;
+					
+					if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
+					{
+						temp = graph.stylesheet;
+						graph.stylesheet = graph.getDefaultStylesheet()
+						graph.refresh();
+					}
+					
+					// Generates the print output
 					pv.open(null, null, forcePageBreaks, true);
+					
+					// Restores the stylesheet
+					if (temp != null)
+					{
+						graph.stylesheet = temp;
+						graph.refresh();
+					}
 				}
 				else
 				{				
@@ -4661,6 +5271,16 @@
 					pv.backgroundColor = bg;
 					pv.autoOrigin = autoOrigin;
 					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true);
+				}
+				
+				// Restores state if css transforms are used
+				if (prev)
+				{
+					thisGraph.useCssTransforms = prev;
+					thisGraph.currentTranslate = prevTranslate;
+					thisGraph.currentScale = prevScale;
+					thisGraph.view.translate = prevViewTranslate;
+					thisGraph.view.scale = prevViewScale;
 				}
 				
 				return pv;
@@ -4691,7 +5311,7 @@
 				{
 					var page = editorUi.pages[i];
 					var tempGraph = (page == editorUi.currentPage) ? graph : null;
-					
+
 					if (tempGraph == null)
 					{
 						tempGraph = editorUi.createTemporaryGraph(graph.getStylesheet());
@@ -4739,6 +5359,10 @@
 							{
 								return i + 1;
 							}
+							else if (name == 'pagecount')
+							{
+								return (editorUi.pages != null) ? editorUi.pages.length : 1;
+							}
 							
 							return graphGetGlobalVariable.apply(this, arguments);
 						};
@@ -4747,7 +5371,7 @@
 						editorUi.updatePageRoot(page);
 						tempGraph.model.setRoot(page.root);
 					}
-
+					
 					pv = printGraph(tempGraph, pv, i != imax);
 
 					if (tempGraph != graph)

@@ -837,7 +837,38 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
  */
 DrawioFile.prototype.updateFileData = function()
 {
-	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this));
+	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, !this.isCompressed()));
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DrawioFile.prototype.isCompressedStorage = function()
+{
+	return true;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DrawioFile.prototype.isCompressed = function()
+{
+	var compressed = (this.ui.fileNode != null) ? this.ui.fileNode.getAttribute('compressed') : null;
+	
+	if (compressed != null)
+	{
+		return compressed != 'false';
+	}
+	else
+	{
+		return this.isCompressedStorage() && Editor.compressXml;
+	}
 };
 
 /**
@@ -940,6 +971,17 @@ DrawioFile.prototype.rename = function(title, success, error) { };
  * @param {number} dy Y-coordinate of the translation.
  */
 DrawioFile.prototype.isMovable = function()
+{
+	return false;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DrawioFile.prototype.isTrashed = function()
 {
 	return false;
 };
@@ -1161,6 +1203,22 @@ DrawioFile.prototype.getLastModifiedDate = function()
 };
 
 /**
+ * Sets the current revision ID.
+ */
+DrawioFile.prototype.setCurrentRevisionId = function(id)
+{
+	this.setDescriptorRevisionId(this.getDescriptor(), id);
+};
+
+/**
+ * Returns the current revision ID.
+ */
+DrawioFile.prototype.getCurrentRevisionId = function()
+{
+	return this.getDescriptorRevisionId(this.getDescriptor());
+};
+
+/**
  * Sets the current etag.
  */
 DrawioFile.prototype.setCurrentEtag = function(etag)
@@ -1188,6 +1246,22 @@ DrawioFile.prototype.getDescriptor = function()
  * Sets the descriptor for this file.
  */
 DrawioFile.prototype.setDescriptor = function() { };
+
+/**
+ * Updates the revision ID on the given descriptor.
+ */
+DrawioFile.prototype.setDescriptorRevisionId = function(desc, id)
+{
+	this.setDescriptorEtag(desc, id);
+};
+
+/**
+ * Returns the revision ID from the given descriptor.
+ */
+DrawioFile.prototype.getDescriptorRevisionId = function(desc)
+{
+	return this.getDescriptorEtag(desc);
+};
 
 /**
  * Updates the etag on the given descriptor.
@@ -1474,7 +1548,7 @@ DrawioFile.prototype.showConflictDialog = function(overwrite, synchronize)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-DrawioFile.prototype.redirectToNewApp = function(error)
+DrawioFile.prototype.redirectToNewApp = function(error, details)
 {
 	this.ui.spinner.stop();
 	
@@ -1484,6 +1558,12 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		
 		var url = window.location.protocol + '//' + window.location.host + '/' + this.ui.getSearch(
 			['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']) + '#' + this.getHash();
+		var msg = mxResources.get('redirectToNewApp');
+		
+		if (details != null)
+		{
+			msg += ' (' + details + ')';
+		}
 		
 		var redirect = mxUtils.bind(this, function()
 		{
@@ -1518,7 +1598,7 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		{
 			if (this.isModified())
 			{
-				this.ui.confirm(mxResources.get('redirectToNewApp'), mxUtils.bind(this, function()
+				this.ui.confirm(msg, mxUtils.bind(this, function()
 				{
 					this.redirectDialogShowing = false;
 					error();
@@ -1526,7 +1606,7 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 			}
 			else
 			{
-				this.ui.confirm(mxResources.get('redirectToNewApp'), redirect, mxUtils.bind(this, function()
+				this.ui.confirm(msg, redirect, mxUtils.bind(this, function()
 				{
 					this.redirectDialogShowing = false;
 					error();
@@ -1555,7 +1635,15 @@ DrawioFile.prototype.handleFileSuccess = function(saved)
 		}
 		else if (saved)
 		{
-			this.addAllSavedStatus();
+			if (this.isTrashed())
+			{
+				this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey)) + ' (' +
+					mxUtils.htmlEntities(mxResources.get('fileMovedToTrash')) + ')');
+			}
+			else
+			{
+				this.addAllSavedStatus();
+			}
 
 			if (this.sync != null)
 			{
@@ -1674,8 +1762,9 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 		if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
 		{
 			this.ui.editor.setStatus('');
-			this.save(true, success, error, null, true, (this.constructor ==
-				GitHubFile && err != null) ? err.commitMessage : null)
+			var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
+			this.save(true, success, error, null, true, (isRepoFile &&
+				err != null) ? err.commitMessage : null);
 		}
 	});
 
@@ -1689,8 +1778,9 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 				
 				if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
 				{
-					this.save(true, success, error, null, null, (this.constructor ==
-						GitHubFile && err != null) ? err.commitMessage : null)
+					var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
+					this.save(true, success, error, null, null, (isRepoFile &&
+						err != null) ? err.commitMessage : null);
 				}
 			}), error);
 		}

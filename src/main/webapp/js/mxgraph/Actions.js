@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2006-2012, JGraph Ltd
- */
-/**
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
+ *
  * Constructs the actions object for the given UI.
  */
 function Actions(editorUi)
@@ -65,7 +65,7 @@ Actions.prototype.init = function()
 	}).isEnabled = isGraphEnabled;
 	this.addAction('save', function() { ui.saveFile(false); }, null, null, Editor.ctrlKey + '+S').isEnabled = isGraphEnabled;
 	this.addAction('saveAs...', function() { ui.saveFile(true); }, null, null, Editor.ctrlKey + '+Shift+S').isEnabled = isGraphEnabled;
-	this.addAction('export...', function() { ui.showDialog(new ExportDialog(ui).container, 300, 230, true, true); });
+	this.addAction('export...', function() { ui.showDialog(new ExportDialog(ui).container, 300, 296, true, true); });
 	this.addAction('editDiagram...', function()
 	{
 		var dlg = new EditDiagramDialog(ui);
@@ -153,7 +153,7 @@ Actions.prototype.init = function()
 				ui.copiedSize = new mxRectangle(geo.x, geo.y, geo.width, geo.height);
 			}
 		}
-	}, null, null, 'Alt+Shit+X');
+	}, null, null, 'Alt+Shift+X');
 
 	this.addAction('pasteSize', function(evt)
 	{
@@ -187,7 +187,7 @@ Actions.prototype.init = function()
 				graph.getModel().endUpdate();
 			}
 		}
-	}, null, null, 'Alt+Shit+V');
+	}, null, null, 'Alt+Shift+V');
 	
 	function deleteCells(includeEdges)
 	{
@@ -521,54 +521,65 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+Shift+Y');
 	this.addAction('formattedText', function()
 	{
-    	var state = graph.getView().getState(graph.getSelectionCell());
+    	var refState = graph.getView().getState(graph.getSelectionCell());
     	
-    	if (state != null)
+    	if (refState != null)
     	{
-	    	var value = '1';
 	    	graph.stopEditing();
+    		var value = (refState.style['html'] == '1') ? null : '1';
 			
 			graph.getModel().beginUpdate();
 			try
 			{
-		    	if (state.style['html'] == '1')
-		    	{
-		    		value = null;
-		    		var label = graph.convertValueToString(state.cell);
-		    		
-		    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
+				var cells = graph.getSelectionCells();
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					state = graph.getView().getState(cells[i]);
+					
+					if (state != null)
 					{
-						// Removes newlines from HTML and converts breaks to newlines
-						// to match the HTML output in plain text
-						label = label.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
+						var html = mxUtils.getValue(state.style, 'html', '0');
+						
+						if (html == '1' && value == null)
+				    	{
+				    		var label = graph.convertValueToString(state.cell);
+				    		
+				    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
+							{
+								// Removes newlines from HTML and converts breaks to newlines
+								// to match the HTML output in plain text
+								label = label.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
+							}
+				    		
+				    		// Removes HTML tags
+			    			var temp = document.createElement('div');
+			    			temp.innerHTML = label;
+			    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
+			    			
+							graph.cellLabelChanged(state.cell, label);
+							graph.setCellStyles('html', value, [cells[i]]);
+				    	}
+						else if (html == '0' && value == '1')
+				    	{
+				    		// Converts HTML tags to text
+				    		var label = mxUtils.htmlEntities(graph.convertValueToString(state.cell), false);
+				    		
+				    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
+							{
+								// Converts newlines in plain text to breaks in HTML
+								// to match the plain text output
+				    			label = label.replace(/\n/g, '<br/>');
+							}
+				    		
+				    		graph.cellLabelChanged(state.cell, graph.sanitizeHtml(label));
+				    		graph.setCellStyles('html', value, [cells[i]]);
+				    	}
 					}
-		    		
-		    		// Removes HTML tags
-	    			var temp = document.createElement('div');
-	    			temp.innerHTML = label;
-	    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
-	    			
-					graph.cellLabelChanged(state.cell, label);
-		    	}
-		    	else
-		    	{
-		    		// Converts HTML tags to text
-		    		var label = mxUtils.htmlEntities(graph.convertValueToString(state.cell), false);
-		    		
-		    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
-					{
-						// Converts newlines in plain text to breaks in HTML
-						// to match the plain text output
-		    			label = label.replace(/\n/g, '<br/>');
-					}
-		    		
-		    		graph.cellLabelChanged(state.cell, graph.sanitizeHtml(label));
-		    	}
-		
-		       	graph.setCellStyles('html', value);
+				}
+
 				ui.fireEvent(new mxEventObject('styleChanged', 'keys', ['html'],
-						'values', [(value != null) ? value : '0'], 'cells',
-						graph.getSelectionCells()));
+					'values', [(value != null) ? value : '0'], 'cells', cells));
 			}
 			finally
 			{
@@ -619,7 +630,29 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+H');
 	this.addAction('zoomIn', function(evt) { graph.zoomIn(); }, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
 	this.addAction('zoomOut', function(evt) { graph.zoomOut(); }, null, null, Editor.ctrlKey + ' - (Numpad) / Alt+Mousewheel');
-	this.addAction('fitWindow', function() { graph.fit(); }, null, null, Editor.ctrlKey + '+Shift+H');
+	this.addAction('fitWindow', function()
+	{
+		var bounds = (graph.isSelectionEmpty()) ? graph.getGraphBounds() : graph.getBoundingBox(graph.getSelectionCells());
+		var t = graph.view.translate;
+		var s = graph.view.scale;
+		bounds.width /= s;
+		bounds.height /= s;
+		bounds.x = bounds.x / s - t.x;
+		bounds.y = bounds.y / s - t.y;
+		
+		var cw = graph.container.clientWidth - 10;
+		var ch = graph.container.clientHeight - 10;
+		var scale = Math.floor(20 * Math.min(cw / bounds.width, ch / bounds.height)) / 20;
+		graph.zoomTo(scale);
+
+		if (mxUtils.hasScrollbars(graph.container))
+		{
+			graph.container.scrollTop = (bounds.y + t.y) * scale -
+				Math.max((ch - bounds.height * scale) / 2 + 5, 0);
+			graph.container.scrollLeft = (bounds.x + t.x) * scale -
+				Math.max((cw - bounds.width * scale) / 2 + 5, 0);
+		}
+	}, null, null, Editor.ctrlKey + '+Shift+H');
 	this.addAction('fitPage', mxUtils.bind(this, function()
 	{
 		if (!graph.pageVisible)

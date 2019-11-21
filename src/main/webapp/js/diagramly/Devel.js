@@ -62,6 +62,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-IBM.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Infographic.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Ios.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Ios7.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Kubernetes.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-LeanMapping.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Mockup.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-MSCAE.js');
@@ -116,6 +117,9 @@ mxscript(drawDevUrl + 'js/diagramly/OneDriveClient.js');
 mxscript(drawDevUrl + 'js/diagramly/TrelloFile.js');
 mxscript(drawDevUrl + 'js/diagramly/TrelloLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/TrelloClient.js');
+mxscript(drawDevUrl + 'js/diagramly/GitLabFile.js');
+mxscript(drawDevUrl + 'js/diagramly/GitLabLibrary.js');
+mxscript(drawDevUrl + 'js/diagramly/GitLabClient.js');
 
 mxscript(drawDevUrl + 'js/diagramly/App.js');
 mxscript(drawDevUrl + 'js/diagramly/Menus.js');
@@ -123,6 +127,8 @@ mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/Trees.js');
 mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
 mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
+mxscript(drawDevUrl + 'js/diagramly/mxRuler.js');
+mxscript(drawDevUrl + 'js/diagramly/mxFreehand.js');
 mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
 
 // Vsdx/vssx support
@@ -131,9 +137,6 @@ mxscript(drawDevUrl + 'js/diagramly/vsdx/mxVsdxCanvas2D.js');
 mxscript(drawDevUrl + 'js/diagramly/vsdx/bmpDecoder.js');
 mxscript(drawDevUrl + 'js/diagramly/vsdx/importer.js');
 mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
-
-// mxRuler
-mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
 
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');

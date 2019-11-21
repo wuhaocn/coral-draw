@@ -1,5 +1,329 @@
+21-NOV-2019: 12.2.8
+
+- Removes state URL parameter
+
+19-NOV-2019: 12.2.7
+
+- Adds #_CONFIG_ hash property for configuration via URL
+- Fixes for external font support
+- Adds Extras, draw.io Configuration menu
+- Adds Link item in page context menu
+
+13-NOV-2019: 12.2.6
+
+- Reverts Google auth change in 12.2.5
+
+13-NOV-2019: 12.2.5
+
+- Add external font support
+- Adds configuration option in local storage
+
+12-NOV-2019: 12.2.4
+
+- Updates IBM stencils
+- Fixes Lucidchart import NPE
+- Adds pools and lanes in BPMN General library
+- Adds client-side SVG and PNG export for math
+
+08-NOV-2019: 12.2.3
+
+- Improves stencils in dark mode
+- Removes electron useragent check
+- Fixes shifted text labels in PDF with math
+- Adds clipping for print output
+- Uses mxGraph 4.0.6 beta 5
+
+06-NOV-2019: 12.2.2
+
+- Fixes NPE in pasteCells
+
+06-NOV-2019: 12.2.1
+
+- Fixes slow paste from clipboard in modern browsers
+- Improves handling of timeouts in Google Drive
+- Fixes event handling on iOS
+- Uses mxGraph 4.0.6 beta 4
+
+04-NOV-2019: 12.2.0
+
+- Fixes Google auth after hibernate on Windows
+- Fixes print in lightbox for some file types
+- Fixes extension for command line export
+- Open file asks for new or same window
+- Handles trashed state in Google Drive
+- Fixes links in labels for SVG export
+- Appends tab name for image export
+
+30-OCT-2019: 12.1.9
+
+- Fixes anchor points for certain shape styles
+- Adds connection points for document shape
+- Fixes handling of SVG with relative size
+- Adds custom data import for Lucidchart
+- Fixes timing issue in tooltips plugin
+- Uses mxGraph 4.0.6 beta 3
+
+28-OCT-2019: 12.1.8
+
+- Fixes ignored height in viewer
+
+25-OCT-2019: 12.1.7
+
+- Minor fix for graph viewer
+
+25-OCT-2019: 12.1.6
+
+- Fixes missing center guides for certain cases
+- Fixes lightbox in Trello
+- Adds moveCells style
+- Uses mxGraph 4.0.6 beta 2
+
+24-OCT-2019: 12.1.5
+
+- Fixes scopes for Google Drive Connector for Confluence Cloud
+- Fixes opening libraries from GitLab
+
+23-OCT-2019: 12.1.4
+
+- Fixes scrollbars in Confluence Diagram Viewer
+- Fixes embed dialog for Google Shared Drives
+- Fixes snap to grid while panning
+- Adds paging for GitLab picker
+- Uses mxGraph 4.0.6 beta 1
+
+17-OCT-2019: 12.1.3
+
+- Fixes Google Drive auth in Office plugin
+- Uses mxGraph 4.0.5
+
+16-OCT-2019: 12.1.2
+
+- Fixes scrollbars in Confluence Cloud and Jira Cloud
+- Fixes export of uncompressed XML files to PDF
+- Uses mxGraph 4.0.3 beta 7
+
+14-OCT-2019: 12.1.1
+
+- Uses uncompressed XML files in GitLab and GitHub
+- Fixes background color for cropped PDF export
+- Improves logic for hiding cell moving guides
+- Fixes token override in Google Drive viewer
+- Adds roundtrip editing for PlantUML images
+- Uses mxGraph 4.0.3 beta 6
+
+09-OCT-2019: 12.1.0
+
+- Escape no longer starts editing in Safari and IE 11
+- Uses revision IDs for realtime in Google Drive
+- Fixes ignored alignment for autosize cells
+- Switches to manual sync on cache timeout
+- Disables resize live preview for groups
+- Fixes test URL parameter for logging
+- Adds live preview for moving cells
+- Uses mxGraph 4.0.3 beta 5
+- Uses quirks mode in IE 9
+
+08-OCT-2019: 12.0.3
+
+- Fixes vertical label position of Data shape
+- Handles changed etag in Google Drive after save
+- Fixes page reorder for Chrome on Windows 10 in embed mode
+
+02-OCT-2019: 12.0.2
+
+- Updates pako to 1.0.10
+- Fixes VSS naming problem
+- Restores folder support to Confluence Cloud diagram viewer
+
+01-OCT-2019: 12.0.1
+
+- Adds testing for new pako version
+
+27-SEP-2019: 12.0.0
+
+- Fixes Google auth for multiple users
+- Fixes default grid color in dark mode
+
+26-SEP-2019: 11.3.2
+
+- Updates Dell rack server stencils
+- Docker image build process improvements
+
+24-SEP-2019: 11.3.1
+
+- Fixes uncompressed XML in SVG
+- Fixes offset for ruler
+
+20-SEP-2019: 11.3.0
+
+- Updates Google Cloud Platform stencils
+- Gliffy import improvements
+- Uses uncompressed XML to fix search in Confluence Cloud
+- Adds global compressXml switch
+- Fixes print output in dark mode
+
+18-SEP-2019: 11.2.9
+
+- Adds pre and post config JS files
+- Fixes page numbers in PDF export
+- Adds globalVars to configuration
+- Adds DRAWIO_CONFIG variable
+
+08-SEP-2019: 11.2.8
+
+- Fixes bugs in PlantUML for Confluence Cloud
+
+07-SEP-2019: 11.2.7
+
+- Fixes minor bugs
+
+06-SEP-2019: 11.2.6
+
+- Enables ruler by default
+- Fixes clipart export in Chrome app
+- Adds File, Embed, Google Sheets
+- Updated CSS styles
+
+03-SEP-2019: 11.2.5
+
+- Updates MSCAE stencils
+
+29-AUG-2019: 11.2.4
+
+- Fixes segment connector rounding issue
+- Updates AWS icons
+- Fixes partial concentric ellipse
+- Fixes search for custom libraries
+- Adds pagecount placeholder
+
+26-AUG-2019: 11.2.3
+
+- Fit window zoom no longer ignores selection
+- Updates page IDs in custom links on import
+- Updates link hint after selection change
+- Updates cell IDs in custom links
+
+23-AUG-2019: 11.2.2
+
+- Add support for loading zipped draw.io and Gliffy formats
+
+20-AUG-2019: 11.2.1
+
+- Fixes possible NPEs
+
+20-AUG-2019: 11.2.0
+
+- Adds ruler and units
+
+19-AUG-2019: 11.1.5
+
+- Fixes ignored background for multipage PDF export
+- Adds Lollipop Notation shape in UML section
+- Fixes export for global placeholders
+- Adds XML declaration for SVG export
+- Enables block alignment for text
+- Adds allowArrows style
+
+08-AUG-2019: 11.1.4
+
+- Fixes grid NPE in export dialog
+
+08-AUG-2019: 11.1.3
+
+- Adds export option to include grid
+- Fixes last Gitlab project used in group
+- Adds custom Gitlab parameters
+- Fixes compressed XML export option
+
+05-AUG-2019: 11.1.2
+
+- Fixes encoding of embedded PNG data
+- Adds custom Gitlab URL option
+
+02-AUG-2019: 11.1.1
+
+- Forces in-place electron users to upgrade page
+
+02-AUG-2019: 11.1.0
+
+- Fixes for Electron 6
+- Uses dark theme on desktop by default in dark mode
+- Changes Conf Cloud to leave draft attachments empty
+
+01-AUG-2019: 11.0.9
+
+- Fixes window.app undefined check
+- Adds desktop command line vsdx export
+- Fixes Confluence Cloud custom content direct edit macro replacment
+
+30-JUL-2019: 11.0.8
+
+- Fixes for dialogs when no services available
+- Fixes comment window refresh error
+
+26-JUL-2019: 11.0.7
+
+- Fixes for MS Office Add-in
+
+26-JUL-2019: 11.0.6
+
+- Improves error handling for exportToCanvas
+
+24-JUL-2019: 11.0.5
+
+- Adds timeout for Office Add-in server fallback
+- Fixes incorrect zTXt header for PNG+XML files
+- Fixes rounding of ellipse positions in SVG
+- Fixes rounding for fixed connection points
+- Uses mxGraph 4.0.3 beta 4
+
+23-JUL-2019: 11.0.4
+
+- Adds timeout handler for Google Drive thumb generation
+
+23-JUL-2019: 11.0.3
+
+- Fixes handling of repository paths in GitLab
+- Ignores hidden cells for selectAll
+- Uses mxGraph 4.0.3 beta 3
+
+22-JUL-2019: 11.0.2
+
+- Replaces alt+click with shift+click in ChromeOS
+- Uses draw.io Viewer app for lightbox mode
+- Uses mxGraph 4.0.3 beta 2
+
+20-JUL-2019: 11.0.1
+
+- Fixes math typesetting in legacy embed script
+- Fixes encoding issues for GitHub and GitLab
+- Fixes file handling issues for GitLab
+
+19-JUL-2019: 11.0.0
+
+- Adds Show more option in splash screen
+- Adds uncompressed XML support (beta)
+- Adds support for GitLab (beta)
+- Uses mxGraph 4.0.3 beta 1
+
+16-JUL-2019: 10.9.8
+
+- Adds Extras, Insert, Freehand
+- Moves create shape to insert menu
+- Adds named labels for CSV import
+
+15-JUL-2019: 10.9.7
+
+- Adds validation for label border and background colors
+- Uses mxGraph 4.0.2
+
+12-JUL-2019: 10.9.6
+
+- Adds local files, Google Drive in Office Add-in
+
 11-JUL-2019: 10.9.5
 
+- Improves error handling for saving files
 - Fixes desktop startup
 
 11-JUL-2019: 10.9.4

@@ -23,7 +23,7 @@ EditorUi.initMinimalTheme = function()
        	   'table.mxWindow * { font-size:13px; }' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
            'html body button.geBtn:active { opacity: 0.6; }' +
-           'html body a.geMenuItem { opacity: 0.75; }' +
+           'html body a.geMenuItem { opacity: 0.75; cursor: pointer; user-select:none; }' +
            'html body a.geMenuItem[disabled] { opacity: 0.2; }' +
            'html body a.geMenuItem[disabled]:active { opacity: 0.2; }' +
            'html body div.geActivePage { opacity: 0.7; }' +
@@ -34,7 +34,7 @@ EditorUi.initMinimalTheme = function()
            'html table.mxPopupMenu tr.mxPopupMenuItemHover:active { opacity:0.7; }' +
            'html body .geDialog input, html body .geToolbarContainer input, html body .mxWindow input {padding:2px;display:inline-block; }' +
            'div.geDialog { border-radius: 5px; }' +
-           'html body div.geDialog button.geBigButton { color: #fff !important; }' +
+           'html body div.geDialog button.geBigButton { color: #fff !important; border: none !important; }' +
            '.mxWindow button, .geDialog select, .mxWindow select { display:inline-block; }' +
            'html body .mxWindow .geColorBtn, html body .geDialog .geColorBtn { background: none; }' +
            'html body div.diagramContainer button, html body .mxWindow button, html body .geDialog button { min-width: 0px; border-radius: 5px; color: #353535 !important; border-style: solid; border-width: 1px; border-color: rgb(216, 216, 216); }' +
@@ -45,7 +45,7 @@ EditorUi.initMinimalTheme = function()
            'html body .gePrimaryBtn:hover { background: #29b6f2; border: none; box-shadow: inherit; }' +
            'html body button.gePrimaryBtn:hover { background: #29b6f2; border: none; }' +
            '.geBtn button { min-width:72px !important; }' +
-           'div.geToolbarContainer a.geButton { margin:2px; padding: 0 2px 4px 2px; } ' +
+           'div.geToolbarContainer a.geButton { margin:0px; padding: 0 2px 4px 2px; } ' +
            '.geDialog, .mxWindow td.mxWindowPane *, div.geSprite, td.mxWindowTitle, .geDiagramContainer { box-sizing:content-box; }' +
            '.mxWindow div button.geStyleButton { box-sizing: border-box; }' +
            'table.mxWindow td.mxWindowPane button.geColorBtn { padding:0px; box-sizing: border-box; }' +
@@ -54,8 +54,7 @@ EditorUi.initMinimalTheme = function()
            // Styling for Minimal
            '.geToolbarContainer { background:#fff !important; }' +
            'div.geSidebarContainer { background-color: #ffffff; }' +
-           'div.geSidebar { border-bottom: none; }' +
-           'div.geSidebarContainer .geTitle { background-color:#ffffff; border-bottom: none; }' +
+           'div.geSidebarContainer .geTitle { background-color:#fdfdfd; }' +
            'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
            'td.mxWindowTitle { height: 22px !important; background: none !important; font-size: 13px !important; text-align:center !important; border-bottom:1px solid lightgray; }' +
            'div.mxWindow, div.mxWindowTitle { background-image: none !important; background-color:#fff !important; }' +
@@ -63,9 +62,9 @@ EditorUi.initMinimalTheme = function()
            'div.mxWindow * { font-family: inherit !important; }' +
            // Minimal Style UI
            'html div.geVerticalHandle { position:absolute;bottom:0px;left:50%;cursor:row-resize;width:11px;height:11px;background:white;margin-bottom:-6px; margin-left:-6px; border: none; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
-           'html div.geInactivePage { background: rgb(249, 249, 249) !important; color:lightgray !important; } ' +
+           'html div.geInactivePage { background: rgb(249, 249, 249) !important; color: #A0A0A0 !important; } ' +
            'html div.geActivePage { background: white !important;color: #353535 !important; } ' +
-           'html div.mxRubberband { border:1px solid; border-color: #29b6f2 !important; background:rgba(41,182,242,0.5) !important; } ' +
+           'html div.mxRubberband { border:1px solid; border-color: #29b6f2 !important; background:rgba(41,182,242,0.4) !important; } ' +
            'html body div.mxPopupMenu { border-radius:5px; border:1px solid #c0c0c0; padding:5px 0 5px 0; box-shadow: 0px 4px 17px -4px rgba(96,96,96,1); } ' +
            'html table.mxPopupMenu td.mxPopupMenuItem { color: #353535; font-size: 14px; padding-top: 4px; padding-bottom: 4px; }' +
            'html table.mxPopupMenu tr.mxPopupMenuItemHover { background-color: #29b6f2; }' +
@@ -246,10 +245,18 @@ EditorUi.initMinimalTheme = function()
 					else
 					{
 						var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
+						elt.style.boxSizing = 'border-box';
+						elt.style.paddingRight = '6px';
+						elt.style.paddingLeft = '6px';
+						elt.style.height = '32px';
 			            elt.style.left = '0';
 			            
 			            var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
 			            elt.style.borderLeft = '1px solid lightgray';
+						elt.style.boxSizing = 'border-box';
+						elt.style.paddingRight = '6px';
+						elt.style.paddingLeft = '6px';
+						elt.style.height = '32px';
 			            elt.style.left = '50%';
 					}
 	            }
@@ -440,35 +447,18 @@ EditorUi.initMinimalTheme = function()
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'relative';
-			div.style.marginTop = '2px';
+			div.style.marginTop = '8px';
+			div.style.marginRight = '4px';
 			
-			var button = document.createElement('button');
-			mxUtils.write(button, mxResources.get('save'));
-			button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
-			button.className = (urlParams['saveAndExit'] == '1') ? 'geMenuItem' : 'geMenuItem gePrimaryBtn';
-			button.style.fontSize = '14px';
-			button.style.padding = '6px';
-			button.style.borderRadius = '3px';
+			var button = document.createElement('a');
+			button.className = 'geMenuItem gePrimaryBtn';
 			button.style.marginLeft = '8px';
-			button.style.cursor = 'pointer';
+			button.style.padding = '6px';
 			
-			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+			if (urlParams['noSaveBtn'] == '1')
 			{
-				this.actions.get('save').funct();
-			}));
-			
-			div.appendChild(button);
-			
-			if (urlParams['saveAndExit'] == '1')
-			{
-				button = document.createElement('a');
 				mxUtils.write(button, mxResources.get('saveAndExit'));
 				button.setAttribute('title', mxResources.get('saveAndExit'));
-				button.className = 'geMenuItem gePrimaryBtn';
-				button.style.fontSize = '14px';
-				button.style.marginLeft = '6px';
-				button.style.padding = '6px';
-				button.style.cursor = 'pointer';
 				
 				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 				{
@@ -477,15 +467,42 @@ EditorUi.initMinimalTheme = function()
 				
 				div.appendChild(button);
 			}
+			else
+			{
+				mxUtils.write(button, mxResources.get('save'));
+				button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
+				
+				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('save').funct();
+				}));
+				
+				div.appendChild(button);
+				
+				if (urlParams['saveAndExit'] == '1')
+				{
+					button = document.createElement('a');
+					mxUtils.write(button, mxResources.get('saveAndExit'));
+					button.setAttribute('title', mxResources.get('saveAndExit'));
+					button.className = 'geMenuItem';
+					button.style.marginLeft = '6px';
+					button.style.padding = '6px';
+					
+					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('saveAndExit').funct();
+					}));
+					
+					div.appendChild(button);
+				}
+			}
 
 			button = document.createElement('a');
 			mxUtils.write(button, mxResources.get('exit'));
 			button.setAttribute('title', mxResources.get('exit'));
 			button.className = 'geMenuItem';
-			button.style.fontSize = '14px';
 			button.style.marginLeft = '6px';
 			button.style.padding = '6px';
-			button.style.cursor = 'pointer';
 			
 			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 			{
@@ -847,8 +864,9 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addSubmenu('language', menu, parent);
 			}
 			
+			ui.menus.addSubmenu('units', menu, parent);
 			menu.addSeparator(parent);
-			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips'], parent);
+			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler'], parent);
             
 			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
@@ -857,9 +875,11 @@ EditorUi.initMinimalTheme = function()
 
 			if (!ui.isOfflineApp() && isLocalStorage)
 			{
-				menu.addSeparator(parent);
 	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
+
+			menu.addSeparator(parent);
+        	ui.menus.addMenuItem(menu, 'drawConfig', parent);
 			
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);
@@ -869,9 +889,6 @@ EditorUi.initMinimalTheme = function()
         {
             ui.menus.addMenuItems(menu, ['importText', 'plantUml', '-', 'formatSql', 'importCsv', '-', 'createShape', 'editDiagram'], parent);
         })));
-        
-        mxResources.parse('insertLayout=' + mxResources.get('layout'));
-        mxResources.parse('insertAdvanced=' + mxResources.get('advanced'));
         
         this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
         {
@@ -884,8 +901,9 @@ EditorUi.initMinimalTheme = function()
 			}
             
             menu.addSeparator(parent);
-            ui.menus.addSubmenu('insertLayout', menu, parent);
-            ui.menus.addSubmenu('insertAdvanced', menu, parent);
+            this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
+			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
+			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
             menu.addSeparator(parent);
             
             if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
@@ -930,7 +948,7 @@ EditorUi.initMinimalTheme = function()
         // Overrides view for plugins but label it options
         this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-            ui.menus.addMenuItems(menu, ['grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-'], parent);
+            ui.menus.addMenuItems(menu, ['grid', 'guides', 'ruler', '-', 'connectionArrows', 'connectionPoints', '-'], parent);
             
 			if (typeof(MathJax) !== 'undefined')
 			{
@@ -1160,6 +1178,10 @@ EditorUi.initMinimalTheme = function()
 				{
 					mode = 'gitHub';
 				}
+				else if (mode == 'gitlab')
+				{
+					mode = 'gitLab';
+				}
 				else if (mode == 'onedrive')
 				{
 					mode = 'oneDrive';
@@ -1379,7 +1401,7 @@ EditorUi.initMinimalTheme = function()
 					elt.style.zIndex = '1';
 					elt.style.right = '8px';
 					elt.style.cursor = 'pointer';
-					elt.style.top = (urlParams['embed'] == '1') ? '13px' : '11px';
+					elt.style.top = (urlParams['embed'] == '1') ? '12px' : '11px';
 					menubar.appendChild(elt);
 					langMenuElt = elt;
 				}

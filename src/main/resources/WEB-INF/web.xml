@@ -119,6 +119,40 @@
     <servlet-name>MSGraphAuthServlet</servlet-name>
     <url-pattern>/microsoft</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>GoogleAuthServlet</display-name>
+    <servlet-name>GoogleAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.GoogleAuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>GoogleAuthServlet</servlet-name>
+    <url-pattern>/google</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>ConverterServlet</display-name>
+    <servlet-name>ConverterServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ConverterServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ConverterServlet</servlet-name>
+    <url-pattern>/convert</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>ExportProxyServlet</display-name>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ExportProxyServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <url-pattern>/export</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <url-pattern>/service/*</url-pattern>
+  </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
     <mime-type>text/css</mime-type>

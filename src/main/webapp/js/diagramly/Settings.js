@@ -41,13 +41,20 @@ var mxSettings =
 	{
 		mxSettings.settings.showStartScreen = showStartScreen;
 	},
-	getGridColor: function()
+	getGridColor: function(darkMode)
 	{
-		return mxSettings.settings.gridColor;
+		return (darkMode) ? mxSettings.settings.darkGridColor : mxSettings.settings.gridColor;
 	},
-	setGridColor: function(gridColor)
+	setGridColor: function(gridColor, darkMode)
 	{
-		mxSettings.settings.gridColor = gridColor;
+		if (darkMode)
+		{
+			mxSettings.settings.darkGridColor = gridColor;
+		}
+		else
+		{
+			mxSettings.settings.gridColor = gridColor;
+		}
 	},
 	getAutosave: function()
 	{
@@ -77,9 +84,20 @@ var mxSettings =
 	{
 		mxSettings.settings.customFonts = fonts;
 	},
-	getCustomFonts: function(fonts)
+	getCustomFonts: function()
 	{
-		return mxSettings.settings.customFonts;
+		//Convert from old format to the new one
+		var custFonts = mxSettings.settings.customFonts || [];
+		
+		for (var i = 0 ; i < custFonts.length; i++)
+		{
+			if (typeof custFonts[i] === 'string')
+			{
+				custFonts[i] = {name: custFonts[i], url: null};
+			}
+		}
+		
+		return custFonts;
 	},
 	getLibraries: function()
 	{
@@ -160,6 +178,22 @@ var mxSettings =
 	{
 		mxSettings.settings.pageFormat = value;
 	},
+	getUnit: function()
+	{
+		return mxSettings.settings.unit || mxConstants.POINTS;
+	},
+	setUnit: function(value)
+	{
+		mxSettings.settings.unit = value;
+	},
+	isRulerOn: function()
+	{
+		return mxSettings.settings.isRulerOn;
+	},
+	setRulerOn: function(value)
+	{
+		mxSettings.settings.isRulerOn = value;
+	},
 	init: function()
 	{
 		mxSettings.settings = 
@@ -176,13 +210,16 @@ var mxSettings =
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
 			showStartScreen: true,
-			gridColor: mxGraphView.prototype.gridColor,
+			gridColor: mxGraphView.prototype.defaultGridColor,
+			darkGridColor: mxGraphView.prototype.defaultDarkGridColor,
 			autosave: true,
 			resizeImages: null,
 			openCounter: 0,
 			version: mxSettings.currentVersion,
 			// Only defined and true for new settings which haven't been saved
-			isNew: true
+			isNew: true,
+			unit: mxConstants.POINTS,
+			isRulerOn: false
 		};
 	},
 	save: function()
@@ -219,8 +256,13 @@ var mxSettings =
 		{
 			var temp = JSON.parse(value);
 			
-			if ((Editor.config != null && Editor.config.override) ||
-				temp.configVersion != Editor.configVersion)
+			if (Editor.config != null && (Editor.config.override ||
+					temp.configVersion != Editor.configVersion))
+				{
+					mxSettings.settings = null;
+				}
+			
+			if (temp == null || (Editor.config != null && Editor.config.override))
 			{
 				mxSettings.settings = null;
 			}
@@ -243,7 +285,12 @@ var mxSettings =
 					mxSettings.settings.customFonts = [];
 				}
 				
-				if (mxSettings.settings.libraries == null)
+				// Newer configuration versions overwrite the default libraries
+				if (Editor.config != null && temp.configVersion != Editor.configVersion)
+				{
+					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
+				}
+				else if (mxSettings.settings.libraries == null)
 				{
 					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
 				}
@@ -290,7 +337,12 @@ var mxSettings =
 				
 				if (mxSettings.settings.gridColor == null)
 				{
-					mxSettings.settings.gridColor = mxGraphView.prototype.gridColor;
+					mxSettings.settings.gridColor = mxGraphView.prototype.defaultGridColor;
+				}
+
+				if (mxSettings.settings.darkGridColor == null)
+				{
+					mxSettings.settings.darkGridColor = mxGraphView.prototype.defaultDarkGridColor;
 				}
 				
 				if (mxSettings.settings.autosave == null)

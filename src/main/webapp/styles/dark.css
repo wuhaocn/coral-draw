@@ -16,11 +16,11 @@ html body .geTabContainer {
 html body .geMenubarContainer .geItem:active {
 	opacity: 0.7;
 }
-html body .geFooterContainer, html body #geFooterItem1, html body textarea, html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter, select {
+html body, html body .geFooterContainer, html body #geFooterItem1, html body textarea, html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter, select {
 	background:#2a2a2a;
 	color:#cccccc;
 }
-html body .geFooterContainer a {
+html body a {
 	color:#337ab7;
 }
 html body div.mxRubberband {

@@ -13,6 +13,12 @@ DriveFile = function(ui, data, desc)
 mxUtils.extend(DriveFile, DrawioFile);
 
 /**
+ * Workaround for changing etag after save is higher autosave delay to allow
+ * for preflight etag update and decrease possible conflicts on file save.
+ */
+DriveFile.prototype.autosaveDelay = 2500;
+
+/**
  * Delay for last save in ms.
  */
 DriveFile.prototype.saveDelay = 0;
@@ -71,10 +77,10 @@ DriveFile.prototype.getMode = function()
  */
 DriveFile.prototype.getPublicUrl = function(fn)
 {
-	gapi.client.drive.permissions.list(
-	{
-		'fileId': this.desc.id
-	}).execute(mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest({
+		url: '/files/' + this.desc.id + '/permissions?supportsTeamDrives=true'
+	}, 
+	mxUtils.bind(this, function(resp)
 	{
 		if (resp != null && resp.items != null)
 		{
@@ -91,6 +97,9 @@ DriveFile.prototype.getPublicUrl = function(fn)
 		}
 		
 		fn(null);
+	}), mxUtils.bind(this, function()
+	{
+		fn(null)
 	}));
 };
 
@@ -123,6 +132,17 @@ DriveFile.prototype.isRenamable = function()
 DriveFile.prototype.isMovable = function()
 {
 	return this.isEditable();
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DriveFile.prototype.isTrashed = function()
+{
+	return this.desc.labels.trashed;
 };
 
 /**
@@ -520,8 +540,11 @@ DriveFile.prototype.isRevisionHistorySupported = function()
  */
 DriveFile.prototype.getRevisions = function(success, error)
 {
-	this.ui.drive.executeRequest(gapi.client.drive.revisions.list({'fileId': this.getId()}),
-		mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest(
+	{
+		url: '/files/' + this.getId() + '/revisions'
+	},
+	mxUtils.bind(this, function(resp)
 	{
 		for (var i = 0; i < resp.items.length; i++)
 		{
@@ -616,6 +639,22 @@ DriveFile.prototype.getDescriptorSecret = function(desc)
 };
 
 /**
+ * Updates the revision ID on the given descriptor.
+ */
+DriveFile.prototype.setDescriptorRevisionId = function(desc, id)
+{
+	desc.headRevisionId = id;
+};
+
+/**
+ * Returns the revision ID from the given descriptor.
+ */
+DriveFile.prototype.getDescriptorRevisionId = function(desc)
+{
+	return desc.headRevisionId;
+};
+
+/**
  * Adds all listeners.
  */
 DriveFile.prototype.getDescriptorEtag = function(desc)
@@ -636,9 +675,11 @@ DriveFile.prototype.setDescriptorEtag = function(desc, etag)
  */
 DriveFile.prototype.loadPatchDescriptor = function(success, error)
 {
-	this.ui.drive.executeRequest(gapi.client.drive.files.get({'fileId': this.getId(),
-		'fields': this.ui.drive.catchupFields, 'supportsTeamDrives': true}),
-		mxUtils.bind(this, function(desc)
+	this.ui.drive.executeRequest(
+	{	
+		url: '/files/' + this.getId() + '?supportsTeamDrives=true&fields=' + this.ui.drive.catchupFields
+	},
+	mxUtils.bind(this, function(desc)
 	{
 		success(desc);
 	}), error);
@@ -696,8 +737,11 @@ DriveFile.prototype.getComments = function(success, error)
 		return comment;
 	};
 	
-	this.ui.drive.executeRequest(gapi.client.drive.comments.list({'fileId': this.getId()}),
-		mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest(
+	{
+		url: '/files/' + this.getId() + '/comments'
+	},
+	mxUtils.bind(this, function(resp)
 	{
 		var comments = [];
 		
@@ -719,8 +763,13 @@ DriveFile.prototype.addComment = function(comment, success, error)
 {
 	var body = {'content': comment.content};
 	
-	this.ui.drive.executeRequest(gapi.client.drive.comments.insert({'fileId': this.getId(), 'resource': body}),
-		mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest(
+	{
+		url: '/files/' + this.getId() + '/comments',
+		method: 'POST',
+		params: body
+	},
+	mxUtils.bind(this, function(resp)
 	{
 		success(resp.commentId); //pass comment id
 	}), error);

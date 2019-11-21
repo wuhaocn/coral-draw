@@ -27,8 +27,8 @@ mxUtils.extend(OneDriveClient, DrawioClient);
  * LATER: If thumbnails are disabled, make sure to replace the
  * existing thumbnail with the placeholder only once.
  */
-OneDriveClient.prototype.clientId = (window.location.hostname == 'test.draw.io') ?
-	'2e598409-107f-4b59-89ca-d7723c8e00a4' : '45c10911-200f-4e27-a666-9e9fca147395';
+OneDriveClient.prototype.clientId = window.DRAWIO_MSGRAPH_CLIENT_ID || ((window.location.hostname == 'test.draw.io') ?
+	'2e598409-107f-4b59-89ca-d7723c8e00a4' : '45c10911-200f-4e27-a666-9e9fca147395');
 
 /**
  * OAuth 2.0 scopes for installing Drive Apps.
@@ -38,8 +38,8 @@ OneDriveClient.prototype.scopes = 'user.read files.readwrite.all offline_access'
 /**
  * OAuth 2.0 scopes for installing Drive Apps.
  */
-OneDriveClient.prototype.redirectUri = 'https://' + window.location.hostname + '/microsoft';
-OneDriveClient.prototype.pickerRedirectUri = 'https://' + window.location.hostname + '/onedrive3.html';
+OneDriveClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/microsoft';
+OneDriveClient.prototype.pickerRedirectUri = window.location.protocol + '//' + window.location.host + '/onedrive3.html';
 
 /**
  * This is the default endpoint for personal accounts
@@ -895,6 +895,15 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 	{
 		if (url != null && data != null)
 		{
+			//OneDrive has a limit on PUT API of 4MB, larger files needs to use the upload session method
+			if (data.length >= 4000000 /*4MB*/)
+			{
+				error({message: mxResources.get('drawingTooLarge') + ' (' +
+					this.ui.formatFileSize(data.length) + ' / 4 MB)'});
+				
+				return;
+			}
+			
 			var doExecute = mxUtils.bind(this, function(failOnAuth)
 			{
 				try

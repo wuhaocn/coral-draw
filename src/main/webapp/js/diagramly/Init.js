@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
+ */
+
 // urlParams is null when used for embedding
 window.urlParams = window.urlParams || {};
 
@@ -16,6 +21,8 @@ window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml4';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://www.draw.io/math';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
 window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "https://convert.draw.io/emf2png/convertEMF";
+window.DRAWIO_GITLAB_URL = window.DRAWIO_GITLAB_URL || "https://gitlab.com";
+window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '5cdc018a32acddf6eba37592d9374945241e644b8368af847422d74c8709bc44';
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
@@ -36,6 +43,9 @@ window.PLUGINS_BASE_PATH = window.PLUGINS_BASE_PATH || '';
 // Directory for i18 files and basename for main i18n file
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
 window.RESOURCE_BASE = window.RESOURCE_BASE || RESOURCES_PATH + '/dia';
+
+// Specifies global configuration via variable
+window.DRAWIO_CONFIG = window.DRAWIO_CONFIG || null;
 
 // Sets the base path, the UI language via URL param and configures the
 // supported languages to avoid 404s. The loading of all core language
@@ -252,6 +262,28 @@ function setCurrentXml(data, filename)
 		EXPORT_URL = ex;
 	}
 
+	// Customizes gitlab URL
+	var glUrl = urlParams['gitlab'];
+
+	if (glUrl != null)
+	{
+		glUrl = decodeURIComponent(glUrl);
+		
+		if (glUrl.substring(0, 7) != 'http://' &&  glUrl.substring(0, 8) != 'https://')
+		{
+			glUrl = 'http://' + glUrl;
+		}
+		
+		DRAWIO_GITLAB_URL = glUrl;
+	}
+	
+	var glId = urlParams['gitlab-id'];
+
+	if (glId != null)
+	{
+		DRAWIO_GITLAB_ID = glId;
+	}
+
 	// URL for logging
 	window.DRAWIO_LOG_URL = window.DRAWIO_LOG_URL || '';
 
@@ -279,6 +311,7 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealt
 	urlParams['db'] = '0';
 	urlParams['od'] = '0';
 	urlParams['gh'] = '0';
+	urlParams['gl'] = '0';
 	urlParams['tr'] = '0';
 }
 

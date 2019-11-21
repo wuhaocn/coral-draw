@@ -13,11 +13,15 @@
 /**
  * Global types
  */
-function DiagramPage(node)
+function DiagramPage(node, id)
 {
 	this.node = node;
-	
-	if (this.getId() == null)
+
+	if (id != null)
+	{
+		this.node.setAttribute('id', id);
+	}
+	else if (this.getId() == null)
 	{
 		this.node.setAttribute('id', Editor.guid());
 	}
@@ -315,137 +319,140 @@ EditorUi.prototype.getPageById = function(id)
  */
 EditorUi.prototype.initPages = function()
 {
-	this.actions.addAction('previousPage', mxUtils.bind(this, function()
+	if (!this.editor.graph.standalone)
 	{
-		this.selectNextPage(false);
-	}));
-	
-	this.actions.addAction('nextPage', mxUtils.bind(this, function()
-	{
-		this.selectNextPage(true);
-	}));
-	
-	this.keyHandler.bindAction(33, true, 'previousPage', true); // Ctrl+Shift+PageUp
-	this.keyHandler.bindAction(34, true, 'nextPage', true); // Ctrl+Shift+PageDown
-	
-	// Updates the tabs after loading the diagram
-	var graph = this.editor.graph;
-	var graphViewValidateBackground = graph.view.validateBackground; 
-	
-	graph.view.validateBackground = mxUtils.bind(this, function()
-	{
-		if (this.tabContainer != null)
+		this.actions.addAction('previousPage', mxUtils.bind(this, function()
 		{
-			var prevHeight = this.tabContainer.style.height;
-			
-			if (this.fileNode == null || this.pages == null ||
-				(this.pages.length == 1 && urlParams['pages'] == '0'))
-			{
-				this.tabContainer.style.height = '0px';
-			}
-			else
-			{
-				this.tabContainer.style.height = this.tabContainerHeight + 'px';
-			}
-			
-			if (prevHeight != this.tabContainer.style.height)
-			{
-				this.refresh(false);
-			}
-		}
+			this.selectNextPage(false);
+		}));
 		
-		graphViewValidateBackground.apply(graph.view, arguments);
-	});
-
-	var lastPage = null;
-	
-	var updateTabs = mxUtils.bind(this, function()
-	{
-		this.updateTabContainer();
-		
-		// Updates scrollbar positions and backgrounds after validation	
-		var p = this.currentPage;
-		
-		if (p != null && p != lastPage)
+		this.actions.addAction('nextPage', mxUtils.bind(this, function()
 		{
-			if (p.viewState == null || p.viewState.scrollLeft == null)
+			this.selectNextPage(true);
+		}));
+		
+		this.keyHandler.bindAction(33, true, 'previousPage', true); // Ctrl+Shift+PageUp
+		this.keyHandler.bindAction(34, true, 'nextPage', true); // Ctrl+Shift+PageDown
+		
+		// Updates the tabs after loading the diagram
+		var graph = this.editor.graph;
+		var graphViewValidateBackground = graph.view.validateBackground; 
+		
+		graph.view.validateBackground = mxUtils.bind(this, function()
+		{
+			if (this.tabContainer != null)
 			{
-				this.resetScrollbars();
-
-				if (graph.isLightboxView())
+				var prevHeight = this.tabContainer.style.height;
+				
+				if (this.fileNode == null || this.pages == null ||
+					(this.pages.length == 1 && urlParams['pages'] == '0'))
 				{
-					this.lightboxFit();
+					this.tabContainer.style.height = '0px';
+				}
+				else
+				{
+					this.tabContainer.style.height = this.tabContainerHeight + 'px';
 				}
 				
-				if (this.chromelessResize != null)
+				if (prevHeight != this.tabContainer.style.height)
 				{
-					graph.container.scrollLeft = 0;
-					graph.container.scrollTop = 0;
-					this.chromelessResize();
+					this.refresh(false);
 				}
 			}
-			else
+			
+			graphViewValidateBackground.apply(graph.view, arguments);
+		});
+	
+		var lastPage = null;
+		
+		var updateTabs = mxUtils.bind(this, function()
+		{
+			this.updateTabContainer();
+			
+			// Updates scrollbar positions and backgrounds after validation	
+			var p = this.currentPage;
+			
+			if (p != null && p != lastPage)
 			{
-				graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + p.viewState.scrollLeft;
-				graph.container.scrollTop = graph.view.translate.y * graph.view.scale + p.viewState.scrollTop;
+				if (p.viewState == null || p.viewState.scrollLeft == null)
+				{
+					this.resetScrollbars();
+	
+					if (graph.isLightboxView())
+					{
+						this.lightboxFit();
+					}
+					
+					if (this.chromelessResize != null)
+					{
+						graph.container.scrollLeft = 0;
+						graph.container.scrollTop = 0;
+						this.chromelessResize();
+					}
+				}
+				else
+				{
+					graph.container.scrollLeft = graph.view.translate.x * graph.view.scale + p.viewState.scrollLeft;
+					graph.container.scrollTop = graph.view.translate.y * graph.view.scale + p.viewState.scrollTop;
+				}
+				
+				lastPage = p;
 			}
 			
-			lastPage = p;
-		}
-		
-		// Updates layers window
-		if (this.actions.layersWindow != null)
-		{
-			this.actions.layersWindow.refreshLayers();
-		}
-		
-		// Workaround for math if tab is switched before typesetting has stopped
-		if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
-		{
-			// Pending math should not be rendered if the graph has no math enabled
-			if (MathJax.Hub.queue.pending == 1 && this.editor != null && !this.editor.graph.mathEnabled)
+			// Updates layers window
+			if (this.actions.layersWindow != null)
 			{
-				// Since there is no way to stop/undo mathjax or
-				// clear the queue we have to refresh after typeset
-				MathJax.Hub.Queue(mxUtils.bind(this, function()
+				this.actions.layersWindow.refreshLayers();
+			}
+			
+			// Workaround for math if tab is switched before typesetting has stopped
+			if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+			{
+				// Pending math should not be rendered if the graph has no math enabled
+				if (MathJax.Hub.queue.pending == 1 && this.editor != null && !this.editor.graph.mathEnabled)
 				{
-					if (this.editor != null)
+					// Since there is no way to stop/undo mathjax or
+					// clear the queue we have to refresh after typeset
+					MathJax.Hub.Queue(mxUtils.bind(this, function()
 					{
-						this.editor.graph.refresh();
-					}
-				}));
+						if (this.editor != null)
+						{
+							this.editor.graph.refresh();
+						}
+					}));
+				}
 			}
-		}
-		else if (typeof(Editor.MathJaxClear) !== 'undefined' && (this.editor == null || !this.editor.graph.mathEnabled))
-		{
-			// Clears our own queue for async loading
-			Editor.MathJaxClear();
-		}
-	});
-	
-	// Adds a graph model listener to update the view
-	this.editor.graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
-	{
-		var edit = evt.getProperty('edit');
-		var changes = edit.changes;
-		
-		for (var i = 0; i < changes.length; i++)
-		{
-			if (changes[i] instanceof SelectPage ||
-				changes[i] instanceof RenamePage ||
-				changes[i] instanceof MovePage ||
-				changes[i] instanceof mxRootChange)
+			else if (typeof(Editor.MathJaxClear) !== 'undefined' && (this.editor == null || !this.editor.graph.mathEnabled))
 			{
-				updateTabs();
-				break;	
+				// Clears our own queue for async loading
+				Editor.MathJaxClear();
 			}
+		});
+		
+		// Adds a graph model listener to update the view
+		this.editor.graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
+		{
+			var edit = evt.getProperty('edit');
+			var changes = edit.changes;
+			
+			for (var i = 0; i < changes.length; i++)
+			{
+				if (changes[i] instanceof SelectPage ||
+					changes[i] instanceof RenamePage ||
+					changes[i] instanceof MovePage ||
+					changes[i] instanceof mxRootChange)
+				{
+					updateTabs();
+					break;	
+				}
+			}
+		}));
+		
+		// Updates zoom in toolbar
+		if (this.toolbar != null)
+		{
+			this.editor.addListener('pageSelected', this.toolbar.updateZoom);
 		}
-	}));
-	
-	// Updates zoom in toolbar
-	if (this.toolbar != null)
-	{
-		this.editor.addListener('pageSelected', this.toolbar.updateZoom);
 	}
 };
 
@@ -490,10 +497,27 @@ Graph.prototype.createViewState = function(node)
 	var bg = node.getAttribute('background');
 	var temp = node.getAttribute('backgroundImage');
 	var bgImg = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
+	var extFonts = node.getAttribute('extFonts');
+	
+	if (extFonts)
+	{
+		try
+		{
+			extFonts = extFonts.split('|').map(function(ef)
+				{
+					var parts = ef.split('^');
+					return {name: parts[0], url: parts[1]};
+				});
+		}
+		catch(e)
+		{
+			console.log('ExtFonts format error: ' + e.message);
+		}
+	}
 	
 	return {
 		gridEnabled: node.getAttribute('grid') != '0',
-		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(),
+		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(uiTheme == 'dark'),
 		gridSize: parseFloat(node.getAttribute('gridSize')) || mxGraph.prototype.gridSize,
 		guidesEnabled: node.getAttribute('guides') != '0',
 		foldingEnabled: node.getAttribute('fold') != '0',
@@ -502,7 +526,7 @@ Graph.prototype.createViewState = function(node)
 		background: (bg != null && bg.length > 0) ? bg : null,
 		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
 		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
-		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : mxSettings.getPageFormat(),
+		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat()),
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
 		arrows: node.getAttribute('arrows') != '0',
@@ -510,7 +534,8 @@ Graph.prototype.createViewState = function(node)
 		selectionCells: null,
 		defaultParent: null,
 		scrollbars: this.defaultScrollbars,
-		scale: 1
+		scale: 1,
+		extFonts: extFonts || []
 	};
 };
 
@@ -536,7 +561,7 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 
 	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 	
-	var pf = (vs != null) ? vs.pageFormat : mxSettings.getPageFormat();
+	var pf = (vs != null) ? vs.pageFormat : (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat());
 	
 	if (pf != null)
 	{
@@ -556,6 +581,14 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 
 	node.setAttribute('math', (vs != null && vs.mathEnabled) ? '1' : '0');
 	node.setAttribute('shadow', (vs != null && vs.shadowVisible) ? '1' : '0');
+	
+	if (vs.extFonts != null && vs.extFonts.length > 0)
+	{
+		node.setAttribute('extFonts', vs.extFonts.map(function(ef)
+		{
+			return ef.name + '^' + ef.url;
+		}).join('|'));
+	}
 };
 
 /**
@@ -587,7 +620,8 @@ Graph.prototype.getViewState = function()
 		translate: this.view.translate.clone(),
 		lastPasteXml: this.lastPasteXml,
 		pasteCounter: this.pasteCounter,
-		mathEnabled: this.mathEnabled
+		mathEnabled: this.mathEnabled,
+		extFonts: this.extFonts
 	};
 };
 
@@ -608,7 +642,7 @@ Graph.prototype.setViewState = function(state)
 		this.foldingEnabled = state.foldingEnabled;
 		this.setShadowVisible(state.shadowVisible, false);
 		this.scrollbars = state.scrollbars;
-		this.pageVisible = state.pageVisible;
+		this.pageVisible = !this.isViewer() && state.pageVisible;
 		this.background = state.background;
 		this.backgroundImage = state.backgroundImage;
 		this.pageScale = state.pageScale;
@@ -618,7 +652,28 @@ Graph.prototype.setViewState = function(state)
 		this.connectionArrowsEnabled = state.arrows;
 		this.setTooltips(state.tooltips);
 		this.setConnectable(state.connect);
+		
+		var oldExtFonts = this.extFonts;
+		this.extFonts = state.extFonts || [];
 
+		if (oldExtFonts != null)
+		{
+			for (var i = 0; i < oldExtFonts.length; i++)
+			{
+				var fontElem = document.getElementById('extFont_' + oldExtFonts[i].name);
+				
+				if (fontElem != null)
+				{
+					fontElem.parentNode.removeChild(fontElem);
+				}
+			}
+		}
+		
+		for (var i = 0; i < this.extFonts.length; i++)
+		{
+			this.addExtFont(this.extFonts[i].name, this.extFonts[i].url, true);
+		}
+		
 		if (state.scale != null)
 		{
 			this.view.scale = state.scale;
@@ -654,7 +709,7 @@ Graph.prototype.setViewState = function(state)
 		this.gridEnabled = true;
 		this.gridSize = mxGraph.prototype.gridSize;
 		this.pageScale = mxGraph.prototype.pageScale;
-		this.pageFormat = mxSettings.getPageFormat();
+		this.pageFormat = (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat());
 		this.pageVisible = this.defaultPageVisible;
 		this.background = null;
 		this.backgroundImage = null;
@@ -669,12 +724,67 @@ Graph.prototype.setViewState = function(state)
 		this.pasteCounter = 0;
 		this.mathEnabled = false;
 		this.connectionArrowsEnabled = true;
+		this.extFonts = [];
 	}
 	
 	// Implicit settings
 	this.pageBreaksVisible = this.pageVisible; 
 	this.preferPageSize = this.pageVisible;
 	this.fireEvent(new mxEventObject('viewStateChanged', 'state', state));
+};
+
+//TODO How to make this function secure with no injection??
+Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
+{
+	if (fontName && fontUrl)
+	{
+		var fontId = 'extFont_' + fontName;
+
+		if (document.getElementById(fontId) == null)
+		{
+			if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+			{
+				mxClient.link('stylesheet', fontUrl, null, fontId);
+			}
+			else
+			{
+				var style = document.createElement('style');
+				
+				style.appendChild(document.createTextNode('@font-face {\n' +
+			            '\tfont-family: "'+ fontName +'";\n' + 
+			            '\tsrc: url("'+ fontUrl +'");\n' + 
+			            '}'));
+				
+				style.setAttribute('id', fontId);				
+				var head = document.getElementsByTagName('head')[0];
+		   		head.appendChild(style);
+			}
+		}
+		
+		if (!dontRemember)
+		{
+			if (this.extFonts == null) 
+			{
+				this.extFonts = [];
+			}
+			
+			var extFonts = this.extFonts, notFound = true;
+			
+			for (var i = 0; i < extFonts.length; i++)
+			{
+				if (extFonts[i].name == fontName)
+				{
+					notFound = false;
+					break;
+				}
+			}
+			
+			if (notFound)
+			{
+				this.extFonts.push({name: fontName, url: fontUrl});
+			}
+		}
+	}
 };
 
 /**
@@ -685,8 +795,13 @@ EditorUi.prototype.updatePageRoot = function(page)
 	if (page.root == null)
 	{
 		var node = this.editor.extractGraphModel(page.node);
+		var cause = Editor.extractParserError(node);
 		
-		if (node != null)
+		if (cause)
+		{
+			throw new Error(cause);
+		}
+		else if (node != null)
 		{
 			page.graphModelNode = node;
 			
@@ -707,7 +822,13 @@ EditorUi.prototype.updatePageRoot = function(page)
 		{
 			var node = this.editor.extractGraphModel(page.node);
 			
-			if (node != null)
+			var cause = Editor.extractParserError(node);
+			
+			if (cause)
+			{
+				throw new Error(cause);
+			}
+			else if (node != null)
 			{
 				page.graphModelNode = node;
 			}
@@ -729,30 +850,33 @@ EditorUi.prototype.selectPage = function(page, quiet, viewState)
 {
 	try
 	{
-		if (this.editor.graph.isEditing())
+		if (page != this.currentPage)
 		{
-			this.editor.graph.stopEditing(false);
-		}
+			if (this.editor.graph.isEditing())
+			{
+				this.editor.graph.stopEditing(false);
+			}
+			
+			quiet = (quiet != null) ? quiet : false;
+			this.editor.graph.isMouseDown = false;
+			this.editor.graph.reset();
+			
+			var edit = this.editor.graph.model.createUndoableEdit();
+			
+			// Special flag to bypass autosave for this edit
+			edit.ignoreEdit = true;
 		
-		quiet = (quiet != null) ? quiet : false;
-		this.editor.graph.isMouseDown = false;
-		this.editor.graph.reset();
-		
-		var edit = this.editor.graph.model.createUndoableEdit();
-		
-		// Special flag to bypass autosave for this edit
-		edit.ignoreEdit = true;
-	
-		var change = new SelectPage(this, page, viewState);
-		change.execute();
-		edit.add(change);
-		edit.notify();
-		
-		this.editor.graph.tooltipHandler.hide();
-		
-		if (!quiet)
-		{
-			this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+			var change = new SelectPage(this, page, viewState);
+			change.execute();
+			edit.add(change);
+			edit.notify();
+			
+			this.editor.graph.tooltipHandler.hide();
+			
+			if (!quiet)
+			{
+				this.editor.graph.model.fireEvent(new mxEventObject(mxEvent.UNDO, 'edit', edit));
+			}
 		}
 	}
 	catch (e)
@@ -795,7 +919,7 @@ EditorUi.prototype.insertPage = function(page, index)
 			this.editor.graph.stopEditing(false);
 		}
 		
-		page = (page != null) ? page : this.createPage();
+		page = (page != null) ? page : this.createPage(null, this.createPageId());
 		index = (index != null) ? index : this.pages.length;
 		
 		// Uses model to fire event and trigger autosave
@@ -807,18 +931,33 @@ EditorUi.prototype.insertPage = function(page, index)
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Returns a unique page ID.
  */
-EditorUi.prototype.createPage = function(name)
+EditorUi.prototype.createPageId = function()
 {
-	var page = new DiagramPage(this.fileNode.ownerDocument.createElement('diagram'));
+	var id = null;
+	
+	do
+	{
+		id = Editor.guid();
+	} while (this.getPageById(id) != null)
+	
+	return id;
+};
+
+/**
+ * Returns a new DiagramPage instance.
+ */
+EditorUi.prototype.createPage = function(name, id)
+{
+	var page = new DiagramPage(this.fileNode.ownerDocument.createElement('diagram'), id);
 	page.setName((name != null) ? name : this.createPageName());
 	
 	return page;
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Returns a page name.
  */
 EditorUi.prototype.createPageName = function()
 {
@@ -849,7 +988,7 @@ EditorUi.prototype.createPageName = function()
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Removes the given page.
  */
 EditorUi.prototype.removePage = function(page)
 {
@@ -910,7 +1049,7 @@ EditorUi.prototype.removePage = function(page)
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Duplicates the given page.
  */
 EditorUi.prototype.duplicatePage = function(page, name)
 {
@@ -955,7 +1094,7 @@ EditorUi.prototype.duplicatePage = function(page, name)
 };
 
 /**
- * Returns true if the given string contains an mxfile.
+ * Renames the given page using a dialog.
  */
 EditorUi.prototype.renamePage = function(page)
 {
@@ -1085,7 +1224,7 @@ EditorUi.prototype.updateTabContainer = function()
 				{
 					if (startIndex != null && index != startIndex)
 					{
-						// TODO: Shift drag for insert/merge?
+						// LATER: Shift+drag for merge, ctrl+drag for clone 
 						this.movePage(startIndex, index);
 					}
 
@@ -1293,7 +1432,7 @@ EditorUi.prototype.createPageMenuTab = function()
 					{
 						this.renamePage(page, page.getName());
 					}), parent);
-					
+
 					menu.addSeparator(parent);
 					
 					menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
@@ -1461,6 +1600,23 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		{
 			this.renamePage(page, label);
 		}), parent);
+
+		var file = this.getCurrentFile();
+		
+		if (file != null && file.constructor != LocalFile)
+		{
+			menu.addSeparator(parent);
+			
+			menu.addItem(mxResources.get('link'), null, mxUtils.bind(this, function()
+			{
+				var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']);
+				search += ((search.length == 0) ? '?' : '&') + 'page-id=' + page.getId();
+				var url = window.location.protocol + '//' + window.location.host + '/' + search + '#' + file.getHash();
+				var dlg = new EmbedDialog(this, url);
+				this.showDialog(dlg.container, 440, 240, true, true);
+				dlg.init();
+			}), parent);
+		}
 		
 		menu.addSeparator(parent);
 		
