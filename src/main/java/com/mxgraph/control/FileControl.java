@@ -3,24 +3,23 @@ package com.mxgraph.control;
 import com.alibaba.fastjson.JSONObject;
 import com.mxgraph.bean.DrawData;
 import com.mxgraph.bean.PageData;
+import com.mxgraph.bean.PageVo;
+import com.mxgraph.bean.SearchVo;
 import com.mxgraph.config.CoralConfig;
 import com.mxgraph.service.DrawDataService;
 import com.mxgraph.utils.HttpUtil;
+import com.mxgraph.utils.PageUtil;
 import com.mxgraph.utils.SessionUtils;
 import com.mysql.jdbc.StringUtils;
-
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -111,12 +110,16 @@ public class FileControl {
 
     @GetMapping("/list")
     @ResponseBody
-    public PageData get(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<DrawData> dataList = dataService.findByOwnerId(SessionUtils.getCurUid(request));
-        if (dataList == null){
-            dataList = new ArrayList<>();
-        }
-        PageData pageData = new PageData(dataList.size(), 0, dataList);
+    public PageData get(HttpServletRequest request) throws IOException {
+        String page = request.getParameter("page");
+        String limit = request.getParameter("limit");
+        String ownerId = SessionUtils.getCurUid(request);
+        PageVo pageVo  = new PageVo();
+        SearchVo searchVo = new SearchVo();
+        pageVo.setPageNumber(Integer.parseInt(page) - 1);
+        pageVo.setPageSize(Integer.parseInt(limit));
+        Page<DrawData> dataList = dataService.findByConfition(ownerId, null, searchVo, PageUtil.initPage(pageVo));
+        PageData pageData = new PageData(dataList.getTotalPages(), 0, dataList.getContent());
         return pageData;
     }
 

@@ -6,16 +6,9 @@ server:
     uri-encoding: UTF-8
 
 spring:
-#  thymeleaf:
-#    prefix: classpath:/webapp/
-#    suffix: .html
-#    mode: HTML5
-#    encoding: UTF-8
-#    #热部署文件，页面不产生缓存，及时更新
-#    cache: false
   # 数据源
   datasource:
-    url: jdbc:mysql://124.42.103.164:5260/CoralDrawDB?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://10.10.208.193:3306/DrawDB?useUnicode=true&characterEncoding=utf-8
     username: root
     password: urcs@2018
     driverClassName: com.mysql.jdbc.Driver
@@ -27,7 +20,6 @@ spring:
       ddl-auto: none
 # Mybatis-plus
 mybatis-plus:
-  # 放在resource目录 classpath:/mapper/*Mapper.xml
   mapper-locations: classpath:/mapper/*Mapper.xml
   global-config:
     # 主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";

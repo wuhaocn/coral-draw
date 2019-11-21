@@ -45,12 +45,12 @@
 
         table.render({
             elem: '#table_drawlist'
-            , height: 600
+            , height: 500
             , url: '/file/list' //数据接口
             , page: true //开启分页
             , cols: [[ //表头
                 {field: 'name', title: '名称', width: 150 }
-                , {field: 'uuid', title: '唯一ID', width: 300, align: 'center' }
+                //, {field: 'uuid', title: '唯一ID', width: 300, align: 'center' }
                 , {field: 'createTime', title: '更新时间', width: 200, sort: true,}
                 , {field: 'updateTime', title: '更新时间', width: 200, sort: true,}
                 , {field: 'uuid', title: '操作', fixed: 'right', align: 'center', toolbar: '#optTool'}
