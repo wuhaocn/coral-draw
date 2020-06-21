@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="50px" height="50px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="50px" height="50px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
 <path fill="#A0A1A2" d="M35.723,0H2.066C0.923,0,0.001,1.021,0.001,2.162v23.439c0,1.134,0.922,2.144,2.066,2.144h33.656
 	c1.141,0,2.297-1.01,2.297-2.144V2.162C38.02,1.018,36.864,0,35.723,0"/>
 <path opacity="0.2" fill="#FFFFFF" d="M35.746,0.002c-0.008,0-0.016-0.002-0.024-0.002H2.066C0.922,0.001,0,1.021,0,2.163v23.438

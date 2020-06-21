@@ -1,12 +1,14 @@
 <?xml version="1.0" standalone="no"?>
-<svg contentScriptType="text/ecmascript" zoomAndPan="magnify" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svg="http://www.w3.org/2000/svg" baseProfile="full"
-    contentStyleType="text/css" id="svg903" sodipodi:docname="ACLRules.svg" style=
-    "font-size:12px;overflow:visible;color-interpolation-filters:sRGB;fill:none;fill-rule:evenodd;stroke-linecap:square;stroke-miterlimit:3"
-    version="1.1" width="1.0416666in" xml:space="preserve" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-    xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:cc="http://creativecommons.org/ns#"
-    preserveAspectRatio="xMidYMid meet" inkscape:version="0.92.3 (2405546, 2018-03-11)" viewBox="0 0 74.99995 74.999941"
-    height="1.0416666in" class="st2" xmlns="http://www.w3.org/2000/svg">     
+<svg contentScriptType="text/ecmascript" zoomAndPan="magnify"
+     baseProfile="full"
+     contentStyleType="text/css" id="svg903" sodipodi:docname="ACLRules.svg" style=
+             "font-size:12px;overflow:visible;color-interpolation-filters:sRGB;fill:none;fill-rule:evenodd;stroke-linecap:square;stroke-miterlimit:3"
+     version="1.1" width="1.0416666in" xml:space="preserve"
+     xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+     preserveAspectRatio="xMidYMid meet" inkscape:version="0.92.3 (2405546, 2018-03-11)"
+     viewBox="0 0 74.99995 74.999941"
+     height="1.0416666in" class="st2" xmlns="http://www.w3.org/2000/svg">
     <circle fill="#e2002f" r="37.499973" cx="37.499973" cy="37.499973"/>               
     <path fill="#ffffff" d="m 27.682102,43.556497 c -2.793488,0 -5.161955,1.962769 -5.806637,4.570309 h -6.146479 v 
         2.833006 h 6.146479 c 0.645366,2.607012 3.013828,4.570309 5.806637,4.570309 2.79276,0 5.162265,-1.963365 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="24px" height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="24px" height="24px" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
 <polygon fill="#3C9BE4" points="16.5,9 9,17.804 16.5,24 24,17.804 16.5,9 "/>
 <polygon opacity="0.2" fill="#FFFFFF" enable-background="new    " points="16.5,9 16.5,9 9,17.804 16.5,24 "/>
 <path opacity="0.5" fill="#FFFFFF" enable-background="new    " d="M14.748,16.669l1.308-1.743

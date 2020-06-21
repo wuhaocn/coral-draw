@@ -10,7 +10,7 @@
     <description/>
     <display-name>SaveServlet</display-name>
     <servlet-name>SaveServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.SaveServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.SaveServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>SaveServlet</servlet-name>
@@ -24,7 +24,7 @@
     <description/>
     <display-name>OpenServlet</display-name>
     <servlet-name>OpenServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.OpenServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.OpenServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>OpenServlet</servlet-name>
@@ -34,7 +34,7 @@
     <description/>
     <display-name>ProxyServlet</display-name>
     <servlet-name>ProxyServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.ProxyServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.ProxyServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ProxyServlet</servlet-name>
@@ -44,7 +44,7 @@
     <description/>
     <display-name>EmbedServlet</display-name>
     <servlet-name>EmbedServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.EmbedServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.EmbedServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>EmbedServlet</servlet-name>
@@ -64,7 +64,7 @@
     <description/>
     <display-name>GoogleGadgetServlet</display-name>
     <servlet-name>GoogleGadgetServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.GoogleGadgetServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.GoogleGadgetServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>GoogleGadgetServlet</servlet-name>
@@ -74,7 +74,7 @@
     <description/>
     <display-name>ImgurRedirect</display-name>
     <servlet-name>ImgurRedirect</servlet-name>
-    <servlet-class>com.mxgraph.online.ImgurRedirectServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.ImgurRedirectServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ImgurRedirect</servlet-name>
@@ -84,7 +84,7 @@
     <description/>
     <display-name>GitHubServlet</display-name>
     <servlet-name>GitHubServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.GitHubServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.GitHubServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>GitHubServlet</servlet-name>
@@ -94,7 +94,7 @@
     <description/>
     <display-name>AppShortcutServlet</display-name>
     <servlet-name>AppShortcutServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.AppShortcutServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.AppShortcutServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>AppShortcutServlet</servlet-name>
@@ -103,7 +103,7 @@
   <servlet>
     <display-name>LogServlet</display-name>
     <servlet-name>LogServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.LogServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.LogServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>LogServlet</servlet-name>
@@ -113,7 +113,7 @@
     <description/>
     <display-name>MSGraphAuthServlet</display-name>
     <servlet-name>MSGraphAuthServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.MSGraphAuthServlet</servlet-class>
+    <servlet-class>com.mxgraph.server.online.MSGraphAuthServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>MSGraphAuthServlet</servlet-name>

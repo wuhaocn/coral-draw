@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="50px" height="50px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+     width="50px" height="50px" viewBox="0 0 50 50" enable-background="new 0 0 50 50" xml:space="preserve">
 <polygon fill="#0072C6" points="39,22 39,20 24.004,20 23.996,19.996 16.991,27 11.82,27 23.82,15 32,15 32,13 23,13 23,13.005 
 	22.992,13 8.991,27 7,27 7,29 13,29 20,35.999 20,35.999 20,36 37,36 37,34 20.828,34 15.829,29 28,29 28,27 19.82,27 24.82,22 "/>
 <circle fill="#59B4D9" cx="30" cy="28" r="2.9"/>
