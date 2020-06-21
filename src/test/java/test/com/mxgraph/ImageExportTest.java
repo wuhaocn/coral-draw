@@ -8,6 +8,7 @@ import com.mxgraph.tool.view.mxGraph;
 import org.w3c.dom.Document;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -21,13 +22,13 @@ public class ImageExportTest
 				"    <mxCell id=\"0\"/>\n" +
 				"    <mxCell id=\"1\" parent=\"0\"/>\n" +
 				"    <mxCell id=\"9GduNLHQVJNXabTG7y4u-1\" value=\"\" style=\"rounded=0;whiteSpace=wrap;html=1;\" parent=\"1\" vertex=\"1\">\n" +
-				"      <mxGeometry x=\"450\" y=\"170\" width=\"120\" height=\"60\" as=\"geometry\"/>\n" +
+				"      <mxGeometry x=\"460\" y=\"220\" width=\"120\" height=\"60\" as=\"geometry\"/>\n" +
 				"    </mxCell>\n" +
 				"    <mxCell id=\"9GduNLHQVJNXabTG7y4u-2\" value=\"\" style=\"rounded=0;whiteSpace=wrap;html=1;\" parent=\"1\" vertex=\"1\">\n" +
-				"      <mxGeometry x=\"90\" y=\"170\" width=\"120\" height=\"60\" as=\"geometry\"/>\n" +
+				"      <mxGeometry x=\"150\" y=\"190\" width=\"120\" height=\"60\" as=\"geometry\"/>\n" +
 				"    </mxCell>\n" +
 				"    <mxCell id=\"9GduNLHQVJNXabTG7y4u-3\" value=\"\" style=\"rounded=0;whiteSpace=wrap;html=1;\" parent=\"1\" vertex=\"1\">\n" +
-				"      <mxGeometry x=\"250\" y=\"180\" width=\"120\" height=\"60\" as=\"geometry\"/>\n" +
+				"      <mxGeometry x=\"180\" y=\"360\" width=\"120\" height=\"60\" as=\"geometry\"/>\n" +
 				"    </mxCell>\n" +
 				"  </root>\n" +
 				"</mxGraphModel>\n";
@@ -37,7 +38,7 @@ public class ImageExportTest
 		mxCodec codec = new mxCodec(doc);
 		codec.decode(doc.getDocumentElement(), graph.getModel());
 
-		ImageIO.write(mxCellRenderer.createBufferedImage(graph, null, 1, null, true, null), "png", new File("111.png"));
+		ImageIO.write(mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null), "png", new File("file.png"));
 		
 		System.out.println("Writing oldimageexport.png");
 	}
