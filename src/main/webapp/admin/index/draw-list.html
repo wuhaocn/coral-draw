@@ -15,12 +15,9 @@
 <body>
 <div class="wrap-container clearfix">
 
-    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-        <legend>绘图</legend>
-    </fieldset>
 
     <div style="padding: 20px; background-color: #F2F2F2;">
-        <div class="layui-row layui-col-space15">
+        <div id="drawTable" class="layui-row layui-col-space15">
 
 
             <div class="layui-col-md2">
@@ -30,166 +27,29 @@
                         <img width="80px" height="60px"
                              src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
                     </div>
-                    <div style="text-align: center">
+                    <div id="ldtbdw" onmouseleave="setBlock('ldtbdr', 'ldtbdw')"
+                         style="text-align: center; display: none">
                         <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
                             <i class="layui-icon layui-icon-share"></i>
                         </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                        <button type="button" class="layui-btn layui-btn-normal layui-btn-sm">
                             <i class="layui-icon layui-icon-edit"></i>
                         </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm">
                             <i class="layui-icon layui-icon-vercode"></i>
                         </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                        <button type="button" class="layui-btn layui-btn-danger layui-btn-sm">
                             <i class="layui-icon layui-icon-delete"></i>
+                        </button>
+                    </div>
+                    <div id="ldtbdr" onclick="setEdit('ldtbdr', 'ldtbdw')" style="text-align: center">
+                        <button type="button" class="layui-btn layui-btn-edit layui-btn-radius layui-btn-sm">
+                            <i class="layui-icon  layui-icon-edit"></i>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="layui-col-md2">
-                <div class="layui-card">
-                    <div class="layui-card-header" style="text-align: center">用例图</div>
-                    <div class="layui-card-body" style="text-align: center">
-                        <img width="80px" height="60px"
-                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
-                    </div>
-                    <div style="text-align: center">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-share"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-edit"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-vercode"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-delete"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layui-col-md2">
-                <div class="layui-card">
-                    <div class="layui-card-header" style="text-align: center">用例图</div>
-                    <div class="layui-card-body" style="text-align: center">
-                        <img width="80px" height="60px"
-                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
-                    </div>
-                    <div style="text-align: center">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-share"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-edit"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-vercode"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-delete"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layui-col-md2">
-                <div class="layui-card">
-                    <div class="layui-card-header" style="text-align: center">用例图</div>
-                    <div class="layui-card-body" style="text-align: center">
-                        <img width="80px" height="60px"
-                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
-                    </div>
-                    <div style="text-align: center">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-share"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-edit"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-vercode"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-delete"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layui-col-md2">
-                <div class="layui-card">
-                    <div class="layui-card-header" style="text-align: center">用例图</div>
-                    <div class="layui-card-body" style="text-align: center">
-                        <img width="80px" height="60px"
-                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
-                    </div>
-                    <div style="text-align: center">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-share"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-edit"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-vercode"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-delete"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layui-col-md2">
-                <div class="layui-card">
-                    <div class="layui-card-header" style="text-align: center">用例图</div>
-                    <div class="layui-card-body" style="text-align: center">
-                        <img width="80px" height="60px"
-                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
-                    </div>
-                    <div style="text-align: center">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-share"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-edit"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-vercode"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-delete"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="layui-col-md2">
-                <div class="layui-card">
-                    <div class="layui-card-header" style="text-align: center">用例图</div>
-                    <div class="layui-card-body" style="text-align: center">
-                        <img width="80px" height="60px"
-                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
-                    </div>
-                    <div style="text-align: center">
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-share"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-edit"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-vercode"></i>
-                        </button>
-                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
-                            <i class="layui-icon layui-icon-delete"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
 
         </div>
     </div>
@@ -219,46 +79,46 @@
 </script>
 
 <script>
-    layui.use('table', function () {
-        var table = layui.table;
-
-        table.render({
-            elem: '#table_drawlist'
-            , height: 600
-            , url: '/file/list' //数据接口
-            , page: true //开启分页
-            , cols: [[ //表头
-                {field: 'name', title: '名称', width: 150}
-                // , {field: 'uuid', title: '唯一ID', width: 300, align: 'center' }
-                , {field: 'createTime', title: '更新时间', width: 200, sort: true,}
-                , {field: 'updateTime', title: '更新时间', width: 200, sort: true,}
-                , {field: 'uuid', title: '操作', fixed: 'right', align: 'center', toolbar: '#optTool'}
-            ]]
-        });
-
-        //监听操作
-        table.on('tool(tableOpt)', function (obj) {
-            var uuid = obj.data.uuid;
-            var ownerId = obj.data.ownerId;
-            //obj.event删除
-            var layEvent = obj.event;
-            if (layEvent === 'share') {
-                shareDraw(uuid, ownerId);
-            } else if (layEvent === 'view') {
-                var urlOPen = "/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=" + uuid;
-                window.open(urlOPen);
-            } else if (layEvent === 'edit') {
-                var urlOPen = "/index.html?uuid=" + uuid + "&ownerId=" + ownerId;
-                window.open(urlOPen);
-
-            } else if (layEvent === 'delete') {
-                layer.confirm('删除绘图', function (index) {
-                    //向服务端发送删除指令
-                    deleteDraw(uuid, ownerId);
-                });
-            }
-        });
-    });
+    // layui.use('table', function () {
+    //     var table = layui.table;
+    //
+    //     table.render({
+    //         elem: '#table_drawlist'
+    //         , height: 600
+    //         , url: '/file/list' //数据接口
+    //         , page: true //开启分页
+    //         , cols: [[ //表头
+    //             {field: 'name', title: '名称', width: 150}
+    //             // , {field: 'uuid', title: '唯一ID', width: 300, align: 'center' }
+    //             , {field: 'createTime', title: '更新时间', width: 200, sort: true,}
+    //             , {field: 'updateTime', title: '更新时间', width: 200, sort: true,}
+    //             , {field: 'uuid', title: '操作', fixed: 'right', align: 'center', toolbar: '#optTool'}
+    //         ]]
+    //     });
+    //
+    //     //监听操作
+    //     table.on('tool(tableOpt)', function (obj) {
+    //         var uuid = obj.data.uuid;
+    //         var ownerId = obj.data.ownerId;
+    //         //obj.event删除
+    //         var layEvent = obj.event;
+    //         if (layEvent === 'share') {
+    //             shareDraw(uuid, ownerId);
+    //         } else if (layEvent === 'view') {
+    //             var urlOPen = "/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=" + uuid;
+    //             window.open(urlOPen);
+    //         } else if (layEvent === 'edit') {
+    //             var urlOPen = "/index.html?uuid=" + uuid + "&ownerId=" + ownerId;
+    //             window.open(urlOPen);
+    //
+    //         } else if (layEvent === 'delete') {
+    //             layer.confirm('删除绘图', function (index) {
+    //                 //向服务端发送删除指令
+    //                 deleteDraw(uuid, ownerId);
+    //             });
+    //         }
+    //     });
+    // });
 
     function shareDraw(uuid, ownerId) {
         var hContent = '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
@@ -294,6 +154,65 @@
                 location.reload();
             }
         };
+    }
+
+    loadDrawData();
+
+    function loadDrawData() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var jsonStr = xmlhttp.responseText;//获取到服务端返回的数据
+                drawJson = JSON.parse(jsonStr)
+                var tableData = "";
+                for (drawIndex in drawJson.data) {
+                    var wdiv = "ldtbdw" + drawIndex;
+                    var rdiv = "ldtbdr" + drawIndex;
+                    tableData += "            <div class=\"layui-col-md2\">\n" +
+                        "                <div class=\"layui-card\">\n" +
+                        "                    <div class=\"layui-card-header\" style=\"text-align: center\"><b>" +
+                        drawJson.data[drawIndex].name + "</b></div>\n" +
+                        "                    <div class=\"layui-card-body\" style=\"text-align: center\">\n" +
+                        "                        <img width=\"70px\" height=\"70px\"\n" +
+                        "                             src=\"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4270862646,3361109482&fm=26&gp=0.jpg\">\n" +
+                        "                    </div>\n" +
+                        "                    <div id=\"" + wdiv + "\" onmouseleave=\"setBlock('" + rdiv + "', '" + wdiv + "')\" style=\"text-align: center; display: none\">\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-primary layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-share\"></i>\n" +
+                        "                        </button>\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-normal layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-edit\"></i>\n" +
+                        "                        </button>\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-warm layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-vercode\"></i>\n" +
+                        "                        </button>\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-danger layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-delete\"></i>\n" +
+                        "                        </button>\n" +
+                        "                    </div>\n" +
+                        "                    <div id=\"" + rdiv + "\" onclick=\"setEdit('" + rdiv + "', '" + wdiv + "')\" style=\"text-align: center\">\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-edit layui-btn-radius layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon  layui-icon-edit\"></i>\n" +
+                        "                        </button>\n" +
+                        "                    </div>\n" +
+                        "                </div>\n" +
+                        "            </div>"
+                }
+                document.getElementById("drawTable").innerHTML = tableData;
+            }
+        }
+        xmlhttp.open("GET", "/file/list?page=1&limit=10", true);
+        xmlhttp.send();
+    }
+
+    function setEdit(rid, wid) {
+        document.getElementById(rid).style.display = "none";
+        document.getElementById(wid).style.display = "";
+    }
+
+    function setBlock(rid, wid) {
+        document.getElementById(rid).style.display = "";
+        document.getElementById(wid).style.display = "none";
     }
 
 </script>

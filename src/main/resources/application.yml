@@ -45,3 +45,8 @@ mybatis-plus:
     cache-enabled: false
     # 配置JdbcTypeForNull, oracle数据库必须配置
     jdbc-type-for-null: 'null'
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path=/api-docs:

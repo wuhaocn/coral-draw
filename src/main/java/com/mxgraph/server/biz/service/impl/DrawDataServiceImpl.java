@@ -30,7 +30,11 @@ public class DrawDataServiceImpl implements DrawDataService {
 
     @Override
     public List<DrawData> findByOwnerId(String ownerId) {
-        return drawDataDao.findByOwnerId(ownerId);
+        List<DrawData> drawDataList =  drawDataDao.findByOwnerId(ownerId);
+        for (DrawData drawData :drawDataList) {
+            drawData.setBody(null);
+        }
+        return drawDataList;
     }
 
     @Override
