@@ -1,67 +1,52 @@
-<!DOCTYPE html>
-<html>
-
+<!doctype html>
+<html  class="x-admin-sm">
 <head>
 	<meta charset="UTF-8">
-	<title>后台登录</title>
-	<link rel="stylesheet" type="text/css" href="../static/admin/layui/css/layui.css" />
-	<link rel="stylesheet" type="text/css" href="../static/admin/css/login.css" />
+	<title>登录</title>
+	<meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" href="./css/font.css">
+    <link rel="stylesheet" href="./css/login.css">
+	  <link rel="stylesheet" href="./css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="./lib/layui/layui.js" charset="utf-8"></script>
 </head>
+<body class="login-bg">
+    
+    <div class="login layui-anim layui-anim-up">
+        <div class="message">绘图管理登录</div>
+        <div id="darkbannerwrap"></div>
+        
+        <form method="post" class="layui-form" action="/user/check">
+            <input name="user" placeholder="用户名"  type="text" lay-verify="required" class="layui-input" >
+            <hr class="hr15">
+            <input name="pass" lay-verify="required" placeholder="密码"  type="password" class="layui-input">
+            <hr class="hr15">
+            <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
+            <hr class="hr20" >
+        </form>
+    </div>
 
-<body>
-<div class="m-login-bg">
-	<div class="m-login">
-
-		<div style="text-align: center">
-			<h3>账号登录</h3>
-		</div>
-		<div class="m-login-warp">
-			<form class="layui-form" method='post' action="/user/check">
-				<div class="layui-form-item">
-					<input type="text" name="user" required lay-verify="required" placeholder="用户名" autocomplete="off" class="layui-input" value="public">
-				</div>
-				<div class="layui-form-item">
-					<input type="password"  name="pass" required lay-verify="required" placeholder="密码" autocomplete="off" class="layui-input" value="public">
-				</div>
-				<div class="layui-form-item m-login-btn" style="text-align: center">
-
-					<div class="layui-inline">
-						<button class="layui-btn layui-btn-normal" lay-submit lay-filter="register">登录</button>
-					</div>
-
-				</div>
-				<div class="layui-form-item m-login-btn" style="text-align: center; text">
-					没有账号，请前去
-					<a href="register.html">注册</a>
-
-				</div>
-				<div class="layui-form-item m-login-btn" style="text-align: center; text">
-					共用账户
-					账号:public
-					密码:public
-				</div>
-
-			</form>
-		</div>
-		<p class="copyright">Copyright 2015-2019 coral-draw</p>
-	</div>
-</div>
-<script src="../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
-<script>
-	layui.use(['form', 'layedit', 'laydate'], function() {
-		var form = layui.form(),
-		layer = layui.layer;
-
-		//监听提交
-		form.on('submit(check)', function(data) {
-			layer.alert(JSON.stringify(data.field), {
-				title: '最终的提交信息'
-			})
-			return true;
-		});
-
-	});
-</script>
+    <script>
+        $(function  () {
+            layui.use('form', function(){
+              var form = layui.form;
+              // layer.msg('玩命卖萌中', function(){
+              //   //关闭后的操作
+              //   });
+              //监听提交
+              form.on('submit(login)', function(data){
+                // alert(888)
+                layer.msg(JSON.stringify(data.field),function(){
+                    location.href='index.html'
+                });
+                return true;
+              });
+            });
+        })
+    </script>
+    <!-- 底部结束 -->
 </body>
-
 </html>
