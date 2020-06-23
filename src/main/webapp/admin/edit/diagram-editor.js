@@ -374,6 +374,8 @@ DiagramEditor.prototype.save = function(data, draft, elt)
 	{
 		this.setElementData(elt, data);
 		this.done(data, draft, elt);
+		console.log(this)
+		console.log(this.getElementData(this.startElement))
 	}
 };
 
