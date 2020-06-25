@@ -81,6 +81,7 @@ public class FileControl {
             String ownerId = drawJson.getString("ownerId");
             String title = drawJson.getString("title");
             String data = drawJson.getString("data");
+            String svgData = drawJson.getString("svgData");
             DrawData drawData = dataService.findByUuid(id);
             if (drawData == null){
                 drawData = new DrawData();
@@ -89,6 +90,7 @@ public class FileControl {
             drawData.setOwnerId(ownerId);
             drawData.setName(title);
             drawData.setBody(data.getBytes());
+            drawData.setSvgData(svgData.getBytes());
             if(StringUtils.isNullOrEmpty(ownerId)  || StringUtils.isNullOrEmpty(data) ||
                     StringUtils.isNullOrEmpty(title) || !ownerId.equals(drawData.getOwnerId())){
                 response.setStatus(403);

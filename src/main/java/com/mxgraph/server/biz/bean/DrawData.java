@@ -28,6 +28,11 @@ public class DrawData extends DrawBaseEntity {
     @Column(name=" body", columnDefinition="longblob", nullable=true)
     private byte[] body;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name=" svgData", columnDefinition="longblob", nullable=true)
+    private byte[] svgData;
+
 
     private String attachment;
 
@@ -98,5 +103,13 @@ public class DrawData extends DrawBaseEntity {
 
     public void setAttribute(String attribute) {
         this.attribute = attribute;
+    }
+
+    public byte[] getSvgData() {
+        return svgData;
+    }
+
+    public void setSvgData(byte[] svgData) {
+        this.svgData = svgData;
     }
 }
