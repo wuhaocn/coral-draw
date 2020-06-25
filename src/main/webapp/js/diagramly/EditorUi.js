@@ -4193,8 +4193,7 @@
 	EditorUi.prototype.saveData = function(filename, format, data, mime, base64Encoded)
 	{
 
-		console.log("EditorUi saveData:", filename, data); //返回一个对象
-
+		//console.log("EditorUi saveData:", filename, data); //返回一个对象
 		if (this.isLocalFileSave())
 		{
 			this.saveLocalFile(data, filename, mime, base64Encoded, format);

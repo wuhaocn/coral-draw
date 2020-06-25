@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="iframe-h">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title>绘图管理</title>
+    <link rel="stylesheet" type="text/css" href="../static/admin/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/admin/css/admin.css"/>
+</head>
+
+<body>
+<div class="wrap-container clearfix">
+
+
+    <div style="padding: 20px; background-color: #F2F2F2;">
+        <div id="drawTable" class="layui-row layui-col-space15">
+
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHkAAAA9CAYAAACJM8YzAAACfXpUWHRteEdyYXBoTW9kZWwAAE1T2bKiMBD9GqpmHoaCREAe2RcRRbluL7cCBIysQlzw6ydcnaqpIk36nM4hvcBBo37mpMIcEOo2IznBGQdNDgAgAOGPIP8Bs1iccVAT5sxIKi/O4YnRLP7cDvQdW7Upqn7cHwIVuPkwy/ZFqgpxwJZ4gVG/liglDW2HMwd15nsNxRV7M5jZ1ZaZA1ui8C1K39JvttW6rsJ7nCwInVSgwkN5Elq48TLggMH2FSmn+zs4LdvpiHHu25oh9hzyAj8TBciLwnRoi3LUk/9kpttiiopPytusDTOk7+whicbQX/hZ8I65434gbfMOEwVe5aU3QccOv9Gkbx8D7icYWhw0MoKKHtUshnwq6qK7FErhS0n0RPpGdne/fCrZoPqjwlkKpxnTw4rAFmepnCZyuvTWvZyCIG6jh+2h/Hw9+JXRt7vzswld60Kg3TjNtYyj3v4q4lreQlBZQ10q5w7cWNLplLjsnejusVw8Nol0NcnNy9wxkO3l4Rl8wWx1dDeFcrOwraExFlGxG7GGrRXaphLVqXtV9uNAGyOiqWi7iVmbjgyVTkXJnoJe2waljpfuzo8lP5nhSm0MZW4E3lcb+77bj9VxsE4+KO2Z0uVecl0jBwn0Lu3NTd1uk1tBZqpyrxeZ8wojMDXQoosyCpOXozw5oOdsZGxKXtfswrwDMPcH+Sg3epGEaBVFzuUm9WblbSw1sA5CGeDBWYzqTQnczQp81Rcnc7TBtHPFX6+FpKbaDpihbD8enuWoqWN5z8M0NqPF1I2u9qr8eJ6+tFpXjVtunjsxYsNq66m6ZuirP6Gj0sx11m2G/mv4T/eZ//mvoPUX91jT9QAAAnJJREFUeF7tnbFr4mAYxr8v2BCKgpJBvKF0a2+pf4JDV8Ehc8Hbzsng0MnR6QaJk90qdM4guHbwT7DL9bbS4cQhKChtsGKOL7RipeXaqeR7HscgmN/zy/MFl/eV4u3PkWEYZ7lczpnP54fL5dJ653u8/MUJmKYZZjKZu+l06q/X6yshxJ/dW5K7F9Lp9MVqtfpRq9VkpVLZKxaLIpvNfjEKf/69BGazmRiNRqLf7z91u90olUpdLhaLn9vf35b8zbbt63K5fOB53j7FJu/BUsJd130YDAb3QRCcCiH+KoqNZNu2f7uue9xsNpNHxzt+lUCr1RKe590GQfB9I1kd0Y7jnPV6vX3mpUcC1Wr1wff9K3V0qyYfWZZ1Mx6PTR7ReghWFOroLhQKyzAMT6RhGK16vX7ebrf39EEkiUqg0Wg8dTqdX1K9i33fPy6VSkxGswSGw6FwHOdWmqb5OJlMLB7Vmhl+PrLz+Xyo3slRFEX6EZIoTkBKGf+FomSNHwhK1ljuCxolUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgMgmUzJAAgCIbDIlAyQAgBg3mbM19TWtxiHHszU5JVdfyZspuZx3ra/kzbxrTq7XU/KryfUKkTso9BO9u4MiJuQ2GX1Ev7lN5hmPe6ES7vm/e6Fe+LjhLVmmP7vhbZuOuxoT4vojuxr/AbCNj7YytqAOAAAAAElFTkSuQmCC" style="cursor:pointer;max-width:100%;" onclick="(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1&edit=_blank');}})(this);"/>
+            <div class="layui-col-md2">
+                <div class="layui-card">
+                    <div class="layui-card-header" style="text-align: center">用例图</div>
+                    <div class="layui-card-body" style="text-align: center">
+                        <img width="80px" height="60px"
+                             src="http://img2.imgtn.bdimg.com/it/u=4163895634,35001694&fm=26&gp=0.jpg">
+                    </div>
+                    <div id="ldtbdw" onmouseleave="setBlock('ldtbdr', 'ldtbdw')"
+                         style="text-align: center; display: none">
+                        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                            <i class="layui-icon layui-icon-share"></i>
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-normal layui-btn-sm">
+                            <i class="layui-icon layui-icon-edit"></i>
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-warm layui-btn-sm">
+                            <i class="layui-icon layui-icon-vercode"></i>
+                        </button>
+                        <button type="button" class="layui-btn layui-btn-danger layui-btn-sm">
+                            <i class="layui-icon layui-icon-delete"></i>
+                        </button>
+                    </div>
+                    <div id="ldtbdr" onclick="setEdit('ldtbdr', 'ldtbdw')" style="text-align: center">
+                        <button type="button" class="layui-btn layui-btn-edit layui-btn-radius layui-btn-sm">
+                            <i class="layui-icon  layui-icon-edit"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="column-content-detail">
+        <!--<form class="layui-form" action="">-->
+        <!--<div class="layui-form-item">-->
+        <!--<button class="layui-btn layui-btn-small layui-btn-normal addBtn" onclick="createDraw()">-->
+        <!--<i class="layui-icon">&#xe654;</i>-->
+        <!--</button>-->
+
+        <!--</div>-->
+        <!--</form>-->
+
+        <div class="layui-form" id="table-list">
+            <table class="layui-hide" id="table_drawlist" lay-filter="tableOpt"></table>
+        </div>
+    </div>
+</div>
+<script src="../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/html" id="optTool">
+    <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="share" lay-filter="share">分享</a>
+    <a class="layui-btn layui-btn-sm " lay-event="view" lay-filter="view">预览</a>
+    <a class="layui-btn layui-btn-sm layui-btn-xs" lay-event="edit" lay-filter="edit">编辑</a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="delete" lay-filter="delete">删除</a>
+</script>
+
+<script>
+    // layui.use('table', function () {
+    //     var table = layui.table;
+    //
+    //     table.render({
+    //         elem: '#table_drawlist'
+    //         , height: 600
+    //         , url: '/file/list' //数据接口
+    //         , page: true //开启分页
+    //         , cols: [[ //表头
+    //             {field: 'name', title: '名称', width: 150}
+    //             // , {field: 'uuid', title: '唯一ID', width: 300, align: 'center' }
+    //             , {field: 'createTime', title: '更新时间', width: 200, sort: true,}
+    //             , {field: 'updateTime', title: '更新时间', width: 200, sort: true,}
+    //             , {field: 'uuid', title: '操作', fixed: 'right', align: 'center', toolbar: '#optTool'}
+    //         ]]
+    //     });
+    //
+    //     //监听操作
+    //     table.on('tool(tableOpt)', function (obj) {
+    //         var uuid = obj.data.uuid;
+    //         var ownerId = obj.data.ownerId;
+    //         //obj.event删除
+    //         var layEvent = obj.event;
+    //         if (layEvent === 'share') {
+    //             shareDraw(uuid, ownerId);
+    //         } else if (layEvent === 'view') {
+    //             var urlOPen = "/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=" + uuid;
+    //             window.open(urlOPen);
+    //         } else if (layEvent === 'edit') {
+    //             var urlOPen = "/index.html?uuid=" + uuid + "&ownerId=" + ownerId;
+    //             window.open(urlOPen);
+    //
+    //         } else if (layEvent === 'delete') {
+    //             layer.confirm('删除绘图', function (index) {
+    //                 //向服务端发送删除指令
+    //                 deleteDraw(uuid, ownerId);
+    //             });
+    //         }
+    //     });
+    // });
+
+    function shareDraw(uuid, ownerId) {
+        var hContent = '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
+            '预览链接:<br> http://urcs.feinno.com:8081/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=' + uuid +
+            '<br><br> 编辑链接:<br> http://urcs.feinno.com:8081/index.html?ownerId=' + ownerId + "&uuid=" + uuid +
+            '</div>';
+
+        //分享
+        layer.open({
+            type: 1
+            , title: '分享' //不显示标题栏
+            , area: ['666px', '399px']
+            , shade: 0.8
+            , id: 'share_draw' //设定一个id，防止重复弹出
+            , btn: ['关闭']
+            , moveType: 1 //拖拽模式，0或者1
+            , content: hContent
+        });
+    }
+
+    function deleteDraw(uuid, ownerId) {
+        var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+        httpRequest.open('POST', '/file/del/' + uuid, true); //第二步：打开连接
+        httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头
+        httpRequest.send('{key:delete}');//发送请求 将情头体写在send中
+        /**
+         * 获取数据后的处理程序
+         */
+        httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+            if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                var json = httpRequest.responseText;//获取到服务端返回的数据
+                console.log(json);
+                location.reload();
+            }
+        };
+    }
+
+    loadDrawData();
+
+    function loadDrawData() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var jsonStr = xmlhttp.responseText;//获取到服务端返回的数据
+                drawJson = JSON.parse(jsonStr)
+                var tableData = "";
+                for (drawIndex in drawJson.data) {
+                    var wdiv = "ldtbdw" + drawIndex;
+                    var rdiv = "ldtbdr" + drawIndex;
+                    tableData += "            <div class=\"layui-col-md2\">\n" +
+                        "                <div class=\"layui-card\">\n" +
+                        "                    <div class=\"layui-card-header\" style=\"text-align: center\"><b>" +
+                        drawJson.data[drawIndex].name + "</b></div>\n" +
+                        "                    <div class=\"layui-card-body\" style=\"text-align: center\">\n" +
+                        "                        <img width=\"70px\" height=\"70px\"\n" +
+                        "                             src=\"https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4270862646,3361109482&fm=26&gp=0.jpg\">\n" +
+                        "                    </div>\n" +
+                        "                    <div id=\"" + wdiv + "\" onmouseleave=\"setBlock('" + rdiv + "', '" + wdiv + "')\" style=\"text-align: center; display: none\">\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-primary layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-share\"></i>\n" +
+                        "                        </button>\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-normal layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-edit\"></i>\n" +
+                        "                        </button>\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-warm layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-vercode\"></i>\n" +
+                        "                        </button>\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-danger layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon layui-icon-delete\"></i>\n" +
+                        "                        </button>\n" +
+                        "                    </div>\n" +
+                        "                    <div id=\"" + rdiv + "\" onclick=\"setEdit('" + rdiv + "', '" + wdiv + "')\" style=\"text-align: center\">\n" +
+                        "                        <button type=\"button\" class=\"layui-btn layui-btn-edit layui-btn-radius layui-btn-sm\">\n" +
+                        "                            <i class=\"layui-icon  layui-icon-edit\"></i>\n" +
+                        "                        </button>\n" +
+                        "                    </div>\n" +
+                        "                </div>\n" +
+                        "            </div>"
+                }
+                document.getElementById("drawTable").innerHTML = tableData;
+            }
+        }
+        xmlhttp.open("GET", "/file/list?page=1&limit=10", true);
+        xmlhttp.send();
+    }
+
+    function setEdit(rid, wid) {
+        document.getElementById(rid).style.display = "none";
+        document.getElementById(wid).style.display = "";
+    }
+
+    function setBlock(rid, wid) {
+        document.getElementById(rid).style.display = "";
+        document.getElementById(wid).style.display = "none";
+    }
+
+</script>
+
+
+</body>
+
+</html>

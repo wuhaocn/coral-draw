@@ -13,8 +13,8 @@
 StorageFile = function(ui, data, title)
 {
 	DrawioFile.call(this, ui, data);
-	
 	this.title = title;
+	this.ui = ui;
 };
 
 //Extends mxEventSource
@@ -138,26 +138,35 @@ function getUrlParam(paramName) {
 	return paramValue == "" && (paramValue = null), paramValue
 }
 
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
+
+StorageFile.prototype.getSvgData = function(){
+	var graph = this.ui.editor.graph;
+	var bounds = graph.getGraphBounds();
+	var bg = graph.background;
+	if (bg == null){
+		bg = '#ffffff';
+	}
+	var svgRoot = graph.getSvg();
+	var svgData = this.ui.createSvgDataUri(mxUtils.getXml(svgRoot));
+	console.log("getSvgData", svgData)
+
+}
 StorageFile.prototype.saveFile = function(title, revision, success, error)
 {
 	var synData = this.getData();
 	var synTitle = title;
 	var synId = getUrlParam("uuid");
 	var ownerId = getUrlParam("ownerId");
+	var svgData = this.getSvgData();
 
 	var drawData = {
 	    title: synTitle,
 	    id: synId,
 	    ownerId: ownerId,
-	    data: synData
+	    data: synData,
+		svgData:  svgData
 	 };
-	console.log("storageFile drawData:" , drawData); //返回一个对象
+	console.log(" drawData:" , drawData); //返回一个对象
 	saveToServer(drawData);
 
 	if (!this.isEditable())
@@ -285,7 +294,7 @@ StorageFile.prototype.getLatestVersion = function(success, error)
 {
 	this.ui.getLocalData(this.title, mxUtils.bind(this, function(data)
 	{
-		success(new StorageFile(this.ui, data, this.title));
+		success(new StorageFile(this.ui, data, this.title, this.editorUi));
 	}));
 };
 

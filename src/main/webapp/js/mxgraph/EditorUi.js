@@ -3136,7 +3136,7 @@ EditorUi.prototype.createUi = function()
 		// Connects the status bar to the editor status
 		this.editor.addListener('statusChanged', mxUtils.bind(this, function()
 		{
-	        console.log("title statusChanged:"); //返回一个对象
+	        //console.log("createUi getGraphXml:", this.editor.getGraphXml()); //返回一个对象
 			this.setStatusText(this.editor.getStatus());
 		}));
 	
