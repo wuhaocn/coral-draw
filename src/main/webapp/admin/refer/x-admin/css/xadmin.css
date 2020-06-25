@@ -255,7 +255,7 @@ body{
     right: 0;
     /*bottom: 42px;*/
     bottom: 0px;
-    left: 20px;
+    left: 220px;
     overflow: hidden;
     z-index: 1;
 }
@@ -431,7 +431,7 @@ table th, table td {
         display: none;
     }
     .page-content{
-        left: 20px;
+        left: 60px;
     }
     .page-content .layui-tab-content .layui-tab-item{
         -webkit-overflow-scrolling: touch; 
