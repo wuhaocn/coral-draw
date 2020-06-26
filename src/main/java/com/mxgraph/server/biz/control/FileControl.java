@@ -100,6 +100,7 @@ public class FileControl {
 
         }
         LOGGER.info("get Img:{}-{}", JSONObject.toJSONString(drawData));
+        response.setContentType("image/svg+xml");
         if (drawData.getSvgData() != null){
             String svg = new String(drawData.getSvgData());
             svg = svg.replace("data:image/svg+xml;base64,", "");
@@ -107,7 +108,6 @@ public class FileControl {
         } else {
             response.getOutputStream().write(SVG_IMG.getBytes());
         }
-        response.setContentType("image/svg+xml");
         response.setStatus(200);
 
     }
