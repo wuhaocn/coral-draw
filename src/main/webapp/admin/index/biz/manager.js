@@ -99,7 +99,7 @@ function drawHubList(xmlhttp) {
             "                    <div class=\"layui-card-header\" style=\"text-align: center\"><b>" +
             drawJson.data[drawIndex].name + "</b></div>\n" +
             "                    <div class=\"layui-card-body\" style=\"text-align: center\">\n" +
-            "                        <img width=\"70px\" height=\"70px\"\n" +
+            "                        <img width=\"200px\" height=\"120px\"\n" +
             "                             src=\"" + imgUrl + "\">\n" +
             "                    </div>\n" +
             "                    <div id=\"" + wdiv + "\" onmouseleave=\"setBlock('" + rdiv + "', '" + wdiv + "')\" style=\"text-align: center; display: none\">\n" +
