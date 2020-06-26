@@ -9,11 +9,19 @@ function setBlock(rid, wid) {
 }
 
 function shareDraw(uuid, ownerId) {
-    var hContent = '<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">' +
-        '预览链接:<br> http://urcs.feinno.com:8081/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=' + uuid +
-        '<br><br> 编辑链接:<br> http://urcs.feinno.com:8081/index.html?ownerId=' + ownerId + "&uuid=" + uuid +
-        '</div>';
+    var basePath = window.location.host;
+    var hContent = '<div style="padding: 50px; line-height: 22px; font-weight: 300;">' +
+        '预览链接:<br> http://' + basePath + '/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=' + uuid;
 
+    var editAble = window.parent.document.getElementById("editAble").value;
+
+    if (editAble) {
+        hContent += '<br><br> 编辑链接:<br> http://' + basePath + '/index.html?ownerId=' + ownerId + "&uuid=" + uuid;
+    }
+    hContent += '<br><br> 图片引用:<br> http://' + basePath + '/file/get/img/' + uuid+ '<br>';
+    hContent += '</div>';
+
+    console.log()
     //分享
     layer.open({
         type: 1
@@ -28,28 +36,35 @@ function shareDraw(uuid, ownerId) {
 }
 
 function deleteDraw(uuid, ownerId) {
-    layer.msg('确认删除', {
-        err: function () {
-
-        },
-        success: function () {
+    layer.open({
+        type: 1 //此处以iframe举例
+        ,title: '删除'
+        ,shade: 0
+        ,content: '<div  style="text-align:center">删除提示</div>'
+        ,btn: ['是', '否'] //只是为了演示
+        ,yes: function(){
+            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+            httpRequest.open('POST', '/file/del/' + uuid, true); //第二步：打开连接
+            httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头
+            httpRequest.send('{key:delete}');//发送请求 将情头体写在send中
+            /**
+             * 获取数据后的处理程序
+             */
+            httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
+                    location.reload();
+                }
+            };
         }
-
+        ,btn2: function(){
+            layer.closeAll();
+        }
+        ,zIndex: layer.zIndex //重点1
+        ,success: function(layero){
+            layer.setTop(layero); //重点2
+        }
     });
-    var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
-    httpRequest.open('POST', '/file/del/' + uuid, true); //第二步：打开连接
-    httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头
-    httpRequest.send('{key:delete}');//发送请求 将情头体写在send中
-    /**
-     * 获取数据后的处理程序
-     */
-    httpRequest.onreadystatechange = function () {//请求后的回调接口，可将请求成功后要执行的程序写在其中
-        if (httpRequest.readyState == 4 && httpRequest.status == 200) {//验证请求是否发送成功
-            var json = httpRequest.responseText;//获取到服务端返回的数据
-            console.log(json);
-            location.reload();
-        }
-    };
+
 }
 
 function editDraw(uuid, ownerId) {

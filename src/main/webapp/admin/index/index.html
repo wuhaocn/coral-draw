@@ -47,12 +47,12 @@
             <div id="editAble" style="display: none">false</div>
             <dl class="layui-nav-child">
                 <!-- 二级菜单 -->
+<!--                <dd>-->
+<!--                    <a href="about.html" target="contentid">关于</a></dd>-->
+<!--                <dd>-->
+<!--                    <a onclick="xadmin.open('切换帐号','login.html')">切换帐号</a></dd>-->
                 <dd>
-                    <a href="about.html" target="contentid">关于</a></dd>
-                <dd>
-                    <a onclick="xadmin.open('切换帐号','login.html')">切换帐号</a></dd>
-                <dd>
-                    <a href="login.html">退出</a></dd>
+                    <a onclick="logout()">退出</a></dd>
             </dl>
         </li>
     </ul>
@@ -96,25 +96,33 @@
             var jsonStr = xmlhttp.responseText;//获取到服务端返回的数据
             console.log("jsonStr", jsonStr)
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-
-                var userJson = JSON.parse(jsonStr)
-                if (userJson.code == 0) {
-                    document.getElementById("userInfo").innerHTML = userJson.data.user;
-                    document.getElementById("editAble").value = true;
-                    document.getElementById("createDraw").style.display = "";
-                } else if (userJson.code == 404) {
-                    document.getElementById("userInfo").innerHTML = "<a href='login.html'>登录</a>";
-                    document.getElementById("editAble").value = false;
-                    document.getElementById("createDraw").style.display = "none";
-                }
-
+                drawUser(jsonStr)
             }
         }
         xmlhttp.open("GET", "/user/get", true);
         xmlhttp.send();
     }
+    function drawUser(jsonStr) {
+        var userJson = JSON.parse(jsonStr)
+        if (userJson.code == 0) {
+            document.getElementById("userInfo").innerHTML = userJson.data.user;
+            document.getElementById("editAble").value = true;
+            document.getElementById("createDraw").style.display = "";
+        } else if (userJson.code == 404) {
+            document.getElementById("userInfo").innerHTML = "<a href='login.html'>登录</a>";
+            document.getElementById("editAble").value = false;
+            document.getElementById("createDraw").style.display = "none";
+        }
+    }
 
     function logout() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            var jsonStr = xmlhttp.responseText;//获取到服务端返回的数据
+            console.log("jsonStr", jsonStr)
+        }
+        xmlhttp.open("GET", "/user/unregister", true);
+        xmlhttp.send();
         window.location.href = "login.html";
     }
 </script>

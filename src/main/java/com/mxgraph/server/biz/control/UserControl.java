@@ -72,6 +72,13 @@ public class UserControl {
         response.setHeader("Location", "/admin/index/index.html");
     }
 
+    @GetMapping("/unregister")
+    public void unregister(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setStatus(302);
+        request.getSession().removeAttribute(CoralConfig.SESSION_KEY);
+        response.setHeader("Location", "/admin/index/login.html");
+    }
+
 
     @GetMapping("/get")
     @ResponseBody
