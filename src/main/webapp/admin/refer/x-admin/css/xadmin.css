@@ -1,40 +1,47 @@
 @charset "utf-8";
 @import url(../lib/layui/css/layui.css);
-*{
+
+* {
     margin: 0px;
     padding: 0px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-a{
+
+a {
     text-decoration: none;
 }
-html{
+
+html {
     width: 100%;
     height: 100%;
-    overflow-x:hidden; 
-    overflow-y:auto;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
-body{
+
+body {
     width: 100%;
     min-height: 100%;
     background: #f1f1f1;
     /*background: #fff;*/
 }
-.x-red{
+
+.x-red {
     color: red;
 }
 
-.layui-form-switch{
+.layui-form-switch {
     margin-top: 0px;
 }
+
 .layui-input:focus, .layui-textarea:focus {
-    border-color: #189f92!important;
+    border-color: #189f92 !important;
 }
 
-.layui-fluid{
-    padding:15px;
+.layui-fluid {
+    padding: 15px;
 }
-.x-nav{
+
+.x-nav {
     padding: 0 20px;
     position: relative;
     z-index: 99;
@@ -44,11 +51,13 @@ body{
     overflow: hidden;
     background: #fff;
 }
-.page{
+
+.page {
     text-align: center;
 
 }
-.page a{
+
+.page a {
     display: inline-block;
     background: #fff;
     color: #888;
@@ -57,13 +66,15 @@ body{
     border: 1px solid #E2E2E2;
 
 }
-.page span{
+
+.page span {
     display: inline-block;
     padding: 5px;
     min-width: 15px;
     border: 1px solid #E2E2E2;
 }
-.page span.current{
+
+.page span.current {
     display: inline-block;
     background: #009688;
     color: #fff;
@@ -71,12 +82,14 @@ body{
     min-width: 15px;
     border: 1px solid #009688;
 }
-.page .pagination li{
+
+.page .pagination li {
     display: inline-block;
     margin-right: 5px;
     text-align: center;
 }
-.page .pagination li.active span{
+
+.page .pagination li.active span {
     background: #009688;
     color: #fff;
     border: 1px solid #009688;
@@ -85,37 +98,43 @@ body{
 
 /*登录样式*/
 /*头部*/
-.container{
+.container {
     width: 100%;
     height: 45px;
     background-color: #222;
 }
-.container a,.layui-nav .layui-nav-item a{
+
+.container a, .layui-nav .layui-nav-item a {
     color: #fff;
 }
-.container .logo a{
-    background-color: rgba(0,0,0,0);
+
+.container .logo a {
+    background-color: rgba(0, 0, 0, 0);
 }
-.container .logo a{
+
+.container .logo a {
     float: left;
     font-size: 18px;
     padding-left: 20px;
     line-height: 45px;
     width: 200px;
 }
-.container .right{
-    background-color:rgba(0,0,0,0);
+
+.container .right {
+    background-color: rgba(0, 0, 0, 0);
     float: right;
 
 }
-.container .left_open{
+
+.container .left_open {
     height: 45px;
     float: left;
     margin-left: 10px;
 }
-.container .left_open i{
+
+.container .left_open i {
     display: block;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     width: 32px;
     height: 32px;
     line-height: 32px;
@@ -124,35 +143,43 @@ body{
     margin-top: 7px;
     cursor: pointer;
 }
-.container .left_open i:hover{
-    background: rgba(255,255,255,0.3);
+
+.container .left_open i:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
-.container .left{
-    background-color:rgba(0,0,0,0);
+.container .left {
+    background-color: rgba(0, 0, 0, 0);
     float: left;
 
 }
-.container .layui-nav-item{
+
+.container .layui-nav-item {
     line-height: 45px;
 }
-.container .layui-nav-more{
+
+.container .layui-nav-more {
     top: 20px;
 }
-.container .layui-nav-child{
+
+.container .layui-nav-child {
     top: 50px;
 }
-.container .layui-nav-child i{
+
+.container .layui-nav-child i {
     margin-right: 10px;
 }
-.layui-nav .layui-nav-item a{
+
+.layui-nav .layui-nav-item a {
     cursor: pointer;
 }
-.layui-nav .layui-nav-child a{
+
+.layui-nav .layui-nav-child a {
     color: #333;
     cursor: pointer;
 }
-.left-nav{
+
+.left-nav {
     position: absolute;
     top: 45px;
     bottom: 0px;
@@ -164,22 +191,25 @@ body{
     width: 220px;
     max-width: 220px;
     overflow: auto;
-    overflow-x:hidden;
+    overflow-x: hidden;
     overflow: hidden;
 
     /*width: 0px;*/
 }
-#side-nav{
+
+#side-nav {
     width: 220px;
 }
 
-.left-nav #nav li:hover > a{
+.left-nav #nav li:hover > a {
     /*color: blue;*/
 }
-.left-nav #nav .current{
+
+.left-nav #nav .current {
     background-color: rgba(0, 0, 0, 0.3);
 }
-.left-nav #nav li a{
+
+.left-nav #nav li a {
     font-size: 14px;
     padding: 10px 15px 10px 15px;
     display: block;
@@ -187,58 +217,71 @@ body{
     border-left: 4px solid transparent;
     transition: all 0.3s;
 }
-.left-nav a:hover{
+
+.left-nav a:hover {
     background: #009688 !important;
     color: #fff;
-    border-color:  #04564e !important;
+    border-color: #04564e !important;
 }
-.left-nav a.active{
+
+.left-nav a.active {
     background: #009688 !important;
     color: #fff;
-    border-color:  #04564e !important;
+    border-color: #04564e !important;
 }
-.left-nav #nav li a cite{
+
+.left-nav #nav li a cite {
     font-size: 14px;
 }
 
-.left-nav #nav li .sub-menu{
+.left-nav #nav li .sub-menu {
     display: none;
 }
-.left-nav #nav li .opened{
+
+.left-nav #nav li .opened {
     display: block;
 }
-.left-nav #nav li .opened:hover{
+
+.left-nav #nav li .opened:hover {
     /*background: #fff ;*/
 }
-.left-nav #nav li .opened .current{
-    
+
+.left-nav #nav li .opened .current {
+
 }
-.left-nav #nav li .sub-menu li:hover{
+
+.left-nav #nav li .sub-menu li:hover {
     /*color: blue;*/
-     /*background: #fff ;*/
+    /*background: #fff ;*/
 }
-.left-nav #nav li .sub-menu li a{
+
+.left-nav #nav li .sub-menu li a {
     padding: 12px 15px 12px 30px;
     font-size: 14px;
     cursor: pointer;
 }
-.left-nav #nav li .sub-menu li .sub-menu li a{
+
+.left-nav #nav li .sub-menu li .sub-menu li a {
     padding-left: 45px;
 }
+
 /*.left-nav #nav li .sub-menu li a:hover{
     color: #148cf1;
 }*/
-.left-nav #nav li .sub-menu li a i{
+.left-nav #nav li .sub-menu li a i {
     font-size: 12px;
 }
-.left-nav #nav li a i{
+
+.left-nav #nav li a i {
     padding-right: 10px;
     line-height: 14px;
 }
-.left-nav #nav li .nav_right{
+
+.left-nav #nav li .nav_right {
     float: right;
     font-size: 16px;
 }
+
 .x-slide_left {
     width: 17px;
     height: 61px;
@@ -249,7 +292,8 @@ body{
     cursor: pointer;
     z-index: 3;
 }
-.page-content{
+
+.page-content {
     position: absolute;
     top: 45px;
     right: 0;
@@ -259,55 +303,65 @@ body{
     overflow: hidden;
     z-index: 1;
 }
-.page-content-bg{
+
+.page-content-bg {
     position: absolute;
     top: 45px;
     right: 0;
     /*bottom: 42px;*/
     bottom: 0px;
     left: 220px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     overflow: hidden;
     z-index: 100;
     display: none;
 }
 
-.page-content .tab{
+.page-content .tab {
     height: 100%;
     width: 100%;
     /*background: #EFEEF0;*/
     margin: 0px;
 }
-.page-content .layui-tab-title{
+
+.page-content .layui-tab-title {
     /*padding-top: 5px;*/
     height: 35px;
-    background: #EFEEF0 ;
+    background: #EFEEF0;
     position: relative;
     z-index: 100;
 }
-.page-content .layui-tab-title li.home i{
+
+.page-content .layui-tab-title li.home i {
     padding-right: 5px;
 }
-.page-content .layui-tab-title li.home .layui-tab-close{
+
+.page-content .layui-tab-title li.home .layui-tab-close {
     display: none;
 }
-.page-content .layui-tab-title li{
+
+.page-content .layui-tab-title li {
     line-height: 35px;
 }
-.page-content .layui-tab-title .layui-this:after{
+
+.page-content .layui-tab-title .layui-this:after {
     height: 36px;
 }
-.page-content .layui-tab-title li .layui-tab-close{
+
+.page-content .layui-tab-title li .layui-tab-close {
     border-radius: 50%;
 }
-.page-content .layui-tab-title .layui-this{
-    background: #fff ;
+
+.page-content .layui-tab-title .layui-this {
+    background: #fff;
 }
-.page-content .layui-tab-bar{
-    height:34px;
+
+.page-content .layui-tab-bar {
+    height: 34px;
     line-height: 35px;
 }
-.page-content .layui-tab-content{
+
+.page-content .layui-tab-content {
     position: absolute;
     top: 36px;
     bottom: 0px;
@@ -315,45 +369,51 @@ body{
     padding: 0px;
     overflow: hidden;
 }
-.page-content .layui-tab-content .layui-tab-item{
-    width: 100%;
-    height: 100%;
-    
-}
-.page-content .layui-tab-content .layui-tab-item iframe{
+
+.page-content .layui-tab-content .layui-tab-item {
     width: 100%;
     height: 100%;
 
 }
-.x-admin-carousel,.layui-carousel,.x-admin-carousel>[carousel-item]>* {
-    background-color:#fff
+
+.page-content .layui-tab-content .layui-tab-item iframe {
+    width: 100%;
+    height: 100%;
+
+}
+
+.x-admin-carousel, .layui-carousel, .x-admin-carousel > [carousel-item] > * {
+    background-color: #fff
 }
 
 .x-admin-backlog .x-admin-backlog-body {
-    display:block;
-    padding:10px 15px;
-    background-color:#f8f8f8;
-    color:#999;
-    border-radius:2px;
-    transition:all .3s;
-    -webkit-transition:all .3s
-}
-.x-admin-backlog-body h3 {
-    padding-bottom:10px;
-    font-size:12px
-}
-.x-admin-backlog-body p cite {
-    font-style:normal;
-    font-size:30px;
-    font-weight:300;
-    color:#009688
-}
-.x-admin-backlog-body:hover {
-    background-color:#CFCFCF;
-    color:#888
+    display: block;
+    padding: 10px 15px;
+    background-color: #f8f8f8;
+    color: #999;
+    border-radius: 2px;
+    transition: all .3s;
+    -webkit-transition: all .3s
 }
 
-.layui-table td, .layui-table th{
+.x-admin-backlog-body h3 {
+    padding-bottom: 10px;
+    font-size: 12px
+}
+
+.x-admin-backlog-body p cite {
+    font-style: normal;
+    font-size: 30px;
+    font-weight: 300;
+    color: #009688
+}
+
+.x-admin-backlog-body:hover {
+    background-color: #CFCFCF;
+    color: #888
+}
+
+.layui-table td, .layui-table th {
     min-width: 80px;
 }
 
@@ -366,19 +426,22 @@ table th, table td {
     margin-bottom: 15px;
     border-radius: 2px;
     /*background-color: #fff;*/
-    box-shadow: 0 1px 2px 0 rgba(0,0,0,.05);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .05);
 }
+
 .fly-none {
     min-height: 600px;
     text-align: center;
     padding-top: 50px;
     color: #999;
 }
+
 .fly-none .layui-icon {
     line-height: 300px;
     font-size: 300px;
     color: #393D49;
 }
+
 .fly-none p {
     margin-top: 50px;
     padding: 0 15px;
@@ -386,58 +449,70 @@ table th, table td {
     color: #999;
     font-weight: 300;
 }
-#tab_right{
+
+#tab_right {
     display: none;
     width: 80px;
     position: absolute;
     top: 35px;
     left: 0px;
 }
-#tab_right dl{
+
+#tab_right dl {
     top: 0px;
 }
-#tab_show{
+
+#tab_show {
     position: absolute;
     top: 36px;
     bottom: 0px;
     width: 100%;
-    background:rgb(255, 255, 255,0);
+    background: rgb(255, 255, 255, 0);
     padding: 0px;
     overflow: hidden;
     display: none;
 }
 
 
-@media screen and (max-width: 768px){
-    .fast-add{
+@media screen and (max-width: 768px) {
+    .fast-add {
         display: none;
     }
-    .layui-nav .to-index{
+
+    .layui-nav .to-index {
         display: none;
     }
-    .container .logo a{
+
+    .container .logo a {
         width: 140px;
     }
+
     .container .left_open {
         /*float: right;*/
     }
-    .left-nav{
+
+    .left-nav {
         width: 60px;
     }
-    .left-nav #nav li a i{
+
+    .left-nav #nav li a i {
         font-size: 18px;
     }
-    .left-nav cite,.left-nav .nav_right{
+
+    .left-nav cite, .left-nav .nav_right {
         display: none;
     }
-    .page-content{
+
+    .page-content {
         left: 60px;
     }
-    .page-content .layui-tab-content .layui-tab-item{
-        -webkit-overflow-scrolling: touch; 
-        overflow-y: scroll; 
+
+    .page-content .layui-tab-content .layui-tab-item {
+        -webkit-overflow-scrolling: touch;
+        overflow-y: scroll;
     }
-    .x-so input.layui-input{
+
+    .x-so input.layui-input {
         width: 100%;
         margin: 10px;
     }
@@ -445,87 +520,104 @@ table th, table td {
 
 /*精细版样式*/
 
-.x-admin-sm{
+.x-admin-sm {
     font-size: 12px;
 }
-.x-admin-sm body{
+
+.x-admin-sm body {
     font-size: 12px;
 }
+
 /*登录页面样式*/
-.x-admin-sm .login input[type=submit],.x-admin-sm .login input[type=button]{
+.x-admin-sm .login input[type=submit], .x-admin-sm .login input[type=button] {
     font-size: 14px;
 }
+
 .x-admin-sm .login input[type=text],
 .x-admin-sm .login input[type=file],
 .x-admin-sm .login input[type=password],
 .x-admin-sm .login input[type=email], .x-admin-sm select {
     font-size: 12px;
 }
-.x-admin-sm .login .message{
+
+.x-admin-sm .login .message {
     font-size: 14px;
 }
 
-.x-admin-sm .layui-table td, .x-admin-sm .layui-table th{
+.x-admin-sm .layui-table td, .x-admin-sm .layui-table th {
     font-size: 12px;
 }
-.x-admin-sm .layui-elem-field legend{
+
+.x-admin-sm .layui-elem-field legend {
     font-size: 18px;
 }
 
-.x-admin-sm .x-admin-backlog-body p cite{
+.x-admin-sm .x-admin-backlog-body p cite {
     font-size: 24px;
 }
-.x-admin-sm .left-nav #nav li a cite{
-    font-size: 12px;
-}
-.x-admin-sm .iconfont{
-    font-size: 14px;
-}
-.x-admin-sm .layui-tab-title li{
-    font-size: 12px;
-}
-.x-admin-sm .layui-icon{
-    font-size: 14px;
-}
-.x-admin-sm .layui-nav *{
-    font-size: 12px;
-}
-.x-admin-sm  .layui-breadcrumb>*{
-   font-size: 12px; 
-}
-.x-admin-sm  .layui-btn,.x-admin-sm .layui-btn-xs,.x-admin-sm .layui-btn-sm{
+
+.x-admin-sm .left-nav #nav li a cite {
     font-size: 12px;
 }
 
-.x-admin-sm .layui-laydate{
+.x-admin-sm .iconfont {
+    font-size: 14px;
+}
+
+.x-admin-sm .layui-tab-title li {
     font-size: 12px;
 }
-.x-admin-sm  .layui-btn{
+
+.x-admin-sm .layui-icon {
+    font-size: 14px;
+}
+
+.x-admin-sm .layui-nav * {
+    font-size: 12px;
+}
+
+.x-admin-sm .layui-breadcrumb > * {
+    font-size: 12px;
+}
+
+.x-admin-sm .layui-btn, .x-admin-sm .layui-btn-xs, .x-admin-sm .layui-btn-sm {
+    font-size: 12px;
+}
+
+.x-admin-sm .layui-laydate {
+    font-size: 12px;
+}
+
+.x-admin-sm .layui-btn {
     height: 30px;
     line-height: 30px;
     padding: 0 10px;
 }
 
-.x-admin-sm .layui-btn-lg{
+.x-admin-sm .layui-btn-lg {
     height: 38px;
     line-height: 38px;
     padding: 0 18px;
     font-size: 14px;
 }
-.x-admin-sm .layui-layer-title,.x-admin-sm .layui-layer-dialog .layui-layer-content{
+
+.x-admin-sm .layui-layer-title, .x-admin-sm .layui-layer-dialog .layui-layer-content {
     font-size: 12px;
 }
-.x-admin-sm .layui-input,.x-admin-sm .layui-select,.x-admin-sm .layui-textarea{
+
+.x-admin-sm .layui-input, .x-admin-sm .layui-select, .x-admin-sm .layui-textarea {
     height: 30px;
 }
 
-.x-admin-sm .layui-form-pane .layui-form-label{
+.x-admin-sm .layui-form-pane .layui-form-label {
     height: 30px;
     line-height: 14px;
 }
-.x-admin-sm .layui-form-checkbox span{
+
+.x-admin-sm .layui-form-checkbox span {
     font-size: 12px;
 }
+
 .x-admin-sm .fly-none .layui-icon {
     line-height: 300px;
     font-size: 300px;

@@ -123,7 +123,7 @@ function saveToServer(drawData){
 	xhr.onreadystatechange = function () {
 		// 这步为判断服务器是否正确响应
 		if (xhr.readyState == 4 && xhr.status == 200) {
-			console.log("saveToServer Response:", xhr.responseText);
+			console.log("saveToServer Response:", xhr.status);
 		}
 	};
 
@@ -148,7 +148,8 @@ StorageFile.prototype.getSvgData = function(){
 	}
 	var svgRoot = graph.getSvg();
 	var svgData = this.ui.createSvgDataUri(mxUtils.getXml(svgRoot));
-	console.log("getSvgData", svgData)
+	//console.log("getSvgData", svgData)
+	return svgData;
 
 }
 StorageFile.prototype.saveFile = function(title, revision, success, error)
@@ -164,9 +165,9 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 	    id: synId,
 	    ownerId: ownerId,
 	    data: synData,
-		svgData:  svgData
+		svgData: svgData
 	 };
-	console.log(" drawData:" , drawData); //返回一个对象
+	console.log("drawData:" , synId); //返回一个对象
 	saveToServer(drawData);
 
 	if (!this.isEditable())

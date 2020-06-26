@@ -22,5 +22,5 @@ public interface DrawDataDao extends DrawBaseDao<DrawData,String> {
      * @param uuid
      * @return
      */
-    DrawData findByUuid(String uuid);
+    List<DrawData>  findByUuid(String uuid);
 }

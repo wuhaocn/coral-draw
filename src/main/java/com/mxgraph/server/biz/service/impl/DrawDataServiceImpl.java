@@ -32,13 +32,17 @@ public class DrawDataServiceImpl implements DrawDataService {
     public List<DrawData> findByOwnerId(String ownerId) {
         List<DrawData> drawDataList =  drawDataDao.findByOwnerId(ownerId);
         for (DrawData drawData :drawDataList) {
-            drawData.setBody(null);
+           // drawData.setBody(null);
         }
         return drawDataList;
     }
 
     @Override
     public DrawData findByUuid(String uuid) {
-        return drawDataDao.findByUuid(uuid);
+        List<DrawData> drawDataList =  drawDataDao.findByUuid(uuid);
+        if (drawDataList != null && drawDataList.size() > 0 ){
+            return drawDataList.get(0);
+        }
+        return null;
     }
 }

@@ -17,8 +17,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+
+import static com.mxgraph.server.utils.SvgCon.SVG_IMG;
 
 /**
  *
@@ -63,12 +66,51 @@ public class FileControl {
         LOGGER.info("get File:{}-{}", JSONObject.toJSONString(drawData));
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name", drawData.getName());
-        jsonObject.put("data", new String(drawData.getBody()));
+        if (drawData.getBody() != null){
+            jsonObject.put("data", new String(drawData.getBody()));
+        }
+        if (drawData.getSvgData() != null){
+            jsonObject.put("svgData", new String(drawData.getSvgData()));
+        }
         response.getOutputStream().write(jsonObject.toJSONString().getBytes());
         response.setStatus(200);
     }
 
+    /**
+     * http://127.0.0.1:8081/index.html?local=1&flid=1&spin=1
+     *
+     * @param uuid
+     * @param request
+     * @param response
+     * @throws IOException
+     */
+    @GetMapping("/get/img/{uuid}")
+    @ResponseBody
+    public void getImg(@PathVariable String uuid, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        DrawData drawData = null;
+        //为空生成id
+        if (StringUtils.isNullOrEmpty(uuid)){
+            uuid = UUID.randomUUID().toString();
+        }
+        //获取内容
+        drawData = dataService.findByUuid(uuid);
+        if (drawData == null){
+            response.sendError(404);
+
+        }
+        LOGGER.info("get Img:{}-{}", JSONObject.toJSONString(drawData));
+        if (drawData.getSvgData() != null){
+            String svg = new String(drawData.getSvgData());
+            svg = svg.replace("data:image/svg+xml;base64,", "");
+            response.getOutputStream().write(Base64.getDecoder().decode(svg));
+        } else {
+            response.getOutputStream().write(SVG_IMG.getBytes());
+        }
+        response.setContentType("image/svg+xml");
+        response.setStatus(200);
+
+    }
     @PostMapping("/save")
     @ResponseBody
     public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -88,9 +130,15 @@ public class FileControl {
             }
             drawData.setUuid(id);
             drawData.setOwnerId(ownerId);
-            drawData.setName(title);
-            drawData.setBody(data.getBytes());
-            drawData.setSvgData(svgData.getBytes());
+            if (title != null){
+                drawData.setName(title);
+            }
+            if (data != null){
+                drawData.setBody(data.getBytes());
+            }
+            if (svgData != null){
+                drawData.setSvgData(svgData.getBytes());
+            }
             if(StringUtils.isNullOrEmpty(ownerId)  || StringUtils.isNullOrEmpty(data) ||
                     StringUtils.isNullOrEmpty(title) || !ownerId.equals(drawData.getOwnerId())){
                 response.setStatus(403);
