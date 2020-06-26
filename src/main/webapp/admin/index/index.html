@@ -28,14 +28,14 @@
             <dl class="layui-nav-child">
                 <dd>
                     <a href="/draw" target="_blank">
-                        <i class="iconfont">&#xe6a2;</i>新建页
+                        <i class="iconfont">&#xe6a2;</i>新建绘图
                     </a>
                 </dd>
-                <dd>
-                    <a onclick="xadmin.open('绘图','/draw','','',true)">
-                        <i class="iconfont">&#xe6a2;</i>当前页
-                    </a>
-                </dd>
+<!--                <dd>-->
+<!--                    <a onclick="xadmin.open('绘图','/draw','','',true)">-->
+<!--                        <i class="iconfont">&#xe6a2;</i>当前页-->
+<!--                    </a>-->
+<!--                </dd>-->
 
             </dl>
         </li>
@@ -47,10 +47,7 @@
             <div id="editAble" style="display: none">false</div>
             <dl class="layui-nav-child">
                 <!-- 二级菜单 -->
-<!--                <dd>-->
-<!--                    <a href="about.html" target="contentid">关于</a></dd>-->
-<!--                <dd>-->
-<!--                    <a onclick="xadmin.open('切换帐号','login.html')">切换帐号</a></dd>-->
+
                 <dd>
                     <a onclick="logout()">退出</a></dd>
             </dl>
@@ -111,7 +108,7 @@
         } else if (userJson.code == 404) {
             document.getElementById("userInfo").innerHTML = "<a href='login.html'>登录</a>";
             document.getElementById("editAble").value = false;
-            document.getElementById("createDraw").style.display = "none";
+            window.location.href = "login.html";
         }
     }
 

@@ -1,27 +1,15 @@
-##### coral-draw介绍
-    采用技术
-        drawio
-        springboot
-        springboot-jpa
-        mysql
+### DrawIohHub介绍
+drawio数据服务端同步，采用浏览器存储模式自动同步
+### 项目引用
+* drawio
+* springboot
+* springboot-jpa
+* mysql
         
-##### 功能列表
-    已具备:
-        1.集成drawio，支持绘图服务端同步
-        2.增加用户体系，支持个人用户体系文件
-        3.增加publicUser，公有文件绘图体系
-        
-      
-##### 本地运行
-    依赖mysql、需创建数据库
-    http://127.0.0.1:8082/index.html?offline=1&uuid=8b4e7ef9-2757-48da-a8dc-d97f0e0a1b4d&ownerId=1554041140849d3VoYW90eA#LNewCoralFile.xml
-    http://127.0.0.1:8082/index.html?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&uuid=8b4e7ef9-2757-48da-a8dc-d97f0e0a1b4d
-    http://127.0.0.1:8082/index.html?offline=1&uuid=8b4e7ef9-2757-48da-a8dc-d97f0e0a1b4d&ownerId=1554041140849d3VoYW90eA#LNewCoralFile.xml
-        
-##### 功能截图
-
-主页面
-![](refer/sc-main.jpg)
-
-绘图界面
-![](refer/sc-draw.jpg)
+### 功能列表
+ * 注册登录
+ * 绘图列表
+ * 绘图预览
+ * 绘图以来
+ 
+ 
