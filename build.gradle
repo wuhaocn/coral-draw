@@ -12,7 +12,7 @@ buildscript {
         //是否推送至服务器
         autoPush = true
         //打包镜像名称
-        imagesTag = "10.10.208.193:5000/" + "coral-draw"
+        imagesTag = "wuhaocn/" + "coral-drawhub"
 
         versionTail = new Date().format('yyMMddHHmm')
     }
@@ -21,10 +21,6 @@ buildscript {
         classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
     repositories {
-        maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
-        maven { url "http://repo.spring.io/milestone/" }
-        maven { url "https://repo.spring.io/snapshot/" }
-        maven { url "http://central.maven.org/maven2/" }
         mavenCentral()
         mavenLocal()
     }

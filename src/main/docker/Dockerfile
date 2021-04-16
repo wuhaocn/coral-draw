@@ -1,5 +1,5 @@
 #基础镜像
-FROM 10.10.208.193:5000/urcs/java:8
+FROM java:8
 
 VOLUME ["/tmp"]
 ADD ./ /home/coral-draw/
