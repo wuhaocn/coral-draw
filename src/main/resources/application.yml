@@ -15,7 +15,7 @@ spring:
 #    cache: false
   # 数据源
   datasource:
-    url: jdbc:mysql://${DB_HOST:127.0.0.1}:3306/DrawDB?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://${DB_HOST:127.0.0.1:33306}/DrawDB?useUnicode=true&characterEncoding=utf-8
     username: root
     password: coral@2018
     driverClassName: com.mysql.jdbc.Driver
