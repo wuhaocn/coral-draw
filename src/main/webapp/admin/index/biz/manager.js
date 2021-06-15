@@ -18,7 +18,7 @@ function shareDraw(uuid, ownerId) {
     if (editAble) {
         hContent += '<br><br> 编辑链接:<br> http://' + basePath + '/index.html?ownerId=' + ownerId + "&uuid=" + uuid;
     }
-    hContent += '<br><br> 图片引用:<br> http://' + basePath + '/file/get/img/' + uuid+ '<br>';
+    hContent += '<br><br> 图片引用:<br> http://' + basePath + '/file/get/img/' + uuid + '<br>';
     hContent += '</div>';
 
     console.log()
@@ -38,11 +38,11 @@ function shareDraw(uuid, ownerId) {
 function deleteDraw(uuid, ownerId) {
     layer.open({
         type: 1 //此处以iframe举例
-        ,title: '删除'
-        ,shade: 0
-        ,content: '<div  style="text-align:center">删除提示</div>'
-        ,btn: ['是', '否'] //只是为了演示
-        ,yes: function(){
+        , title: '删除'
+        , shade: 0
+        , content: '<div  style="text-align:center">删除提示</div>'
+        , btn: ['是', '否'] //只是为了演示
+        , yes: function () {
             var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
             httpRequest.open('POST', '/file/del/' + uuid, true); //第二步：打开连接
             httpRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");//设置请求头
@@ -56,11 +56,11 @@ function deleteDraw(uuid, ownerId) {
                 }
             };
         }
-        ,btn2: function(){
+        , btn2: function () {
             layer.closeAll();
         }
-        ,zIndex: layer.zIndex //重点1
-        ,success: function(layero){
+        , zIndex: layer.zIndex //重点1
+        , success: function (layero) {
             layer.setTop(layero); //重点2
         }
     });

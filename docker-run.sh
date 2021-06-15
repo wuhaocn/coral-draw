@@ -6,7 +6,7 @@
 ### 创建数据环境
 docker stop coral-drawhubdb
 docker rm coral-drawhubdb
-docker run -d --name coral-drawhubdb -p 3307:3306 wuhaocn/mysqldrawdb:5.6.40
+docker run -d --name coral-drawhubdb -p 3333:3306 wuhaocn/mysqldrawdb:5.6.40
 docker update coral-drawhubdb --restart=always
 
 ## step3
@@ -19,7 +19,7 @@ docker rm coral-drawhub
 docker run --privileged=true \
            -p 8082:8082 \
            -d --name coral-drawhub \
-           --env DB_HOST='10.3.4.111:3307' \
+           --env DB_HOST='10.3.4.111:3333' \
            wuhaocn/coral-drawhub:3.0.0-2105251748
 docker update coral-drawhub --restart=always
 

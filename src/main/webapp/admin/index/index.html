@@ -31,11 +31,11 @@
                         <i class="iconfont">&#xe6a2;</i>新建绘图
                     </a>
                 </dd>
-<!--                <dd>-->
-<!--                    <a onclick="xadmin.open('绘图','/draw','','',true)">-->
-<!--                        <i class="iconfont">&#xe6a2;</i>当前页-->
-<!--                    </a>-->
-<!--                </dd>-->
+                <!--                <dd>-->
+                <!--                    <a onclick="xadmin.open('绘图','/draw','','',true)">-->
+                <!--                        <i class="iconfont">&#xe6a2;</i>当前页-->
+                <!--                    </a>-->
+                <!--                </dd>-->
 
             </dl>
         </li>
@@ -99,6 +99,7 @@
         xmlhttp.open("GET", "/user/get", true);
         xmlhttp.send();
     }
+
     function drawUser(jsonStr) {
         var userJson = JSON.parse(jsonStr)
         if (userJson.code == 0) {
