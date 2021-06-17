@@ -3,7 +3,6 @@ package com.mxgraph.server.biz.service.impl;
 import com.mxgraph.server.biz.bean.DrawUser;
 import com.mxgraph.server.biz.dao.DrawUserDao;
 import com.mxgraph.server.biz.service.DrawUserService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
  * 用户实现
  * @author coral
  */
-@Slf4j
 @Service
 @Transactional
 public class DrawUserServiceImpl implements DrawUserService {

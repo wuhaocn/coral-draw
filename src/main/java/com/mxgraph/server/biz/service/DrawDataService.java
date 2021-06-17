@@ -2,6 +2,7 @@ package com.mxgraph.server.biz.service;
 
 import com.mxgraph.server.biz.base.DrawBaseService;
 import com.mxgraph.server.biz.bean.DrawData;
+import com.mxgraph.server.biz.utils.SearchVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,11 +27,18 @@ public interface DrawDataService extends DrawBaseService<DrawData,String> {
     /**
      * findByConfition
      *
-     * @param type
-     * @param key
      * @param searchVo
      * @param pageable
      * @return
      */
-    public Page<DrawData> findByConfition(Integer type, String key, SearchVo searchVo, Pageable pageable);
+    public Page<DrawData> findByOwnerIdConfition(String ownerId, SearchVo searchVo, Pageable pageable);
+
+    /**
+     * findByConfition
+     *
+     * @param searchVo
+     * @param pageable
+     * @return
+     */
+    public Page<DrawData> findByConfition(SearchVo searchVo, Pageable pageable);
 }

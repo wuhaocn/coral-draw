@@ -3,11 +3,9 @@ package com.mxgraph.server.biz.bean;
 import com.baomidou.mybatisplus.annotations.TableName;
 import com.mxgraph.server.biz.base.DrawBaseEntity;
 import io.swagger.annotations.ApiModel;
-import lombok.Data;
 
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name="t_draw_data",uniqueConstraints=@UniqueConstraint(columnNames={"uuid"}))
 @TableName("t_draw_data")

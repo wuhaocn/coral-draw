@@ -23,4 +23,6 @@ public interface DrawDataDao extends DrawBaseDao<DrawData,String> {
      * @return
      */
     List<DrawData>  findByUuid(String uuid);
+
+
 }

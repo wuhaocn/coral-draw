@@ -31,11 +31,6 @@
                         <i class="iconfont">&#xe6a2;</i>新建绘图
                     </a>
                 </dd>
-                <!--                <dd>-->
-                <!--                    <a onclick="xadmin.open('绘图','/draw','','',true)">-->
-                <!--                        <i class="iconfont">&#xe6a2;</i>当前页-->
-                <!--                    </a>-->
-                <!--                </dd>-->
 
             </dl>
         </li>
@@ -58,11 +53,21 @@
 <!-- 右侧主体开始 -->
 <div class="page-content">
     <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
-        <ul class="layui-tab-title">
-            <li class="home">
-                <i class="layui-icon">&#xe68e;</i>绘图列表
-            </li>
-        </ul>
+        <div class="layui-form-item" style="margin-top: 5px">
+            <div class="layui-inline">
+
+                <div class="layui-inline">
+
+                </div>
+                <div class="layui-input-inline">
+
+                    <input type="tel" name="phone" lay-verify="required|phone" placeholder="搜索关键字" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-inline layui-show-xs-block">
+                    <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+                </div>
+            </div>
+        </div>
         <div class="layui-unselect layui-form-select layui-form-selected" id="tab_right">
             <dl>
                 <dd data-type="this">关闭当前</dd>

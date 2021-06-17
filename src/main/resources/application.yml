@@ -6,13 +6,7 @@ server:
     uri-encoding: UTF-8
 
 spring:
-#  thymeleaf:
-#    prefix: classpath:/webapp/
-#    suffix: .html
-#    mode: HTML5
-#    encoding: UTF-8
-#    #热部署文件，页面不产生缓存，及时更新
-#    cache: false
+
   # 数据源
   datasource:
     url: jdbc:mysql://${DB_HOST:127.0.0.1:3333}/DrawDB?useUnicode=true&characterEncoding=utf-8
@@ -45,8 +39,3 @@ mybatis-plus:
     cache-enabled: false
     # 配置JdbcTypeForNull, oracle数据库必须配置
     jdbc-type-for-null: 'null'
-springfox:
-  documentation:
-    swagger:
-      v2:
-        path=/api-docs:

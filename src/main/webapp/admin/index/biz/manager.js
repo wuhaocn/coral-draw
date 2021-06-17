@@ -1,3 +1,7 @@
+var total = 0;
+var pageNumber = 1;
+var pageSize = 18;
+
 function setEdit(rid, wid) {
     document.getElementById(rid).style.display = "none";
     document.getElementById(wid).style.display = "";
@@ -77,27 +81,54 @@ function loadDrawData() {
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
             drawHubList(xmlhttp);
+            if (pageNumber == 1) {
+                layui.use(['laypage', 'layer'], function () {
+                    var laypage = layui.laypage
+                        , layer = layui.layer;
+
+                    laypage.render({
+                        elem: 'demo7'
+                        , count: total
+                        , limit: 18
+                        , layout: ['page', 'count']
+                        , jump: function (obj) {
+                            console.log(obj)
+                            if (pageNumber != obj.curr) {
+                                pageNumber = obj.curr
+                                loadDrawData();
+                            }
+
+                        }
+                    });
+
+                });
+            }
+
         }
     }
-    xmlhttp.open("GET", "/file/list?page=1&limit=10", true);
+    xmlhttp.open("GET", "/file/list?pageSize=" + pageSize + "&pageNumber=" + pageNumber, true);
     xmlhttp.send();
 }
 
 function drawHubList(xmlhttp) {
     var jsonStr = xmlhttp.responseText;//获取到服务端返回的数据
-    drawJson = JSON.parse(jsonStr)
+    drawJson = JSON.parse(jsonStr).result;
     var tableData = "";
-    for (drawIndex in drawJson.data) {
+    total = drawJson.totalElements;
+    console.log(drawJson)
+
+    for (drawIndex in drawJson.content) {
         var wdiv = "ldtbdw" + drawIndex;
         var rdiv = "ldtbdr" + drawIndex;
-        var uuid = drawJson.data[drawIndex].uuid;
-        var ownerId = drawJson.data[drawIndex].ownerId;
+        var uuid = drawJson.content[drawIndex].uuid;
+        var ownerId = drawJson.content[drawIndex].ownerId;
         var editAble = window.parent.document.getElementById("editAble").value;
         var imgUrl = "/file/get/img/" + uuid;
         tableData += "            <div class=\"layui-col-md2\">\n" +
             "                <div class=\"layui-card\">\n" +
             "                    <div class=\"layui-card-header\" style=\"text-align: center\"><b>" +
-            drawJson.data[drawIndex].name + "</b></div>\n" +
+            drawJson.content[drawIndex].name + "</b></div>\n" +
+            "<div style='text-align: center; font-size: 1px'>20210616</div>" +
             "                    <div class=\"layui-card-body\" style=\"text-align: center\">\n" +
             "                        <img width=\"200px\" height=\"120px\"\n" +
             "                             src=\"" + imgUrl + "\">\n" +
@@ -129,3 +160,5 @@ function drawHubList(xmlhttp) {
     document.getElementById("drawTable").innerHTML = tableData;
 
 }
+
+

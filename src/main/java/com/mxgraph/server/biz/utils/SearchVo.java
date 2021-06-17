@@ -1,4 +1,4 @@
-package com.mxgraph.server.biz.service;
+package com.mxgraph.server.biz.utils;
 
 
 import java.io.Serializable;
@@ -16,7 +16,10 @@ public class SearchVo implements Serializable {
 
     private int pageSize;
 
-    private String cardType;
+    private String dataType;
+
+    private String word;
+
 
     private String number;
 
@@ -63,12 +66,21 @@ public class SearchVo implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public String getCardType() {
-        return cardType;
+
+    public String getWord() {
+        return word;
     }
 
-    public void setCardType(String cardType) {
-        this.cardType = cardType;
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    public String getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
     }
 
     public String getNumber() {
