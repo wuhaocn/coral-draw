@@ -21,7 +21,7 @@ public class IndexControl {
     @GetMapping("")
     public void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
-        response.setHeader("Location", "/admin/index/index.html");
+        response.setHeader("Location", ControlConstant.ADMIN_INDEX_PAGE);
     }
 
     @GetMapping("draw")
@@ -41,9 +41,9 @@ public class IndexControl {
     @ResponseBody
     public void admin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
-        if (request.getSession().getAttribute(CoralConfig.SESSION_KEY) == null){
-            response.setHeader("Location", "/admin/index/login.html");
+        if (request.getSession().getAttribute(CoralConfig.SESSION_KEY) == null) {
+            response.setHeader("Location", ControlConstant.ADMIN_LOGIN_PAGE);
         }
-        response.setHeader("Location", "/admin/index/index.html");
+        response.setHeader("Location", ControlConstant.ADMIN_INDEX_PAGE);
     }
 }

@@ -23,17 +23,24 @@
 <!-- 顶部开始 -->
 <div class="container">
     <ul class="layui-nav left fast-add" lay-filter="">
-        <li id="createDraw" class="layui-nav-item">
-            <a href="javascript:;">新建</a>
-            <dl class="layui-nav-child">
-                <dd>
-                    <a href="/draw" target="_blank">
-                        <i class="iconfont">&#xe6a2;</i>新建绘图
-                    </a>
-                </dd>
 
-            </dl>
+        <li id="createTxt" class="layui-nav-item">
+            <a href="/draw" target="_blank">
+                <i class="iconfont">&#xe6a2;</i>新建绘图
+            </a>
         </li>
+
+        <!--<li id="createDraw" class="layui-nav-item">-->
+            <!--<a href="javascript:;">新建</a>-->
+            <!--<dl class="layui-nav-child">-->
+                <!--<dd>-->
+                    <!--<a href="/draw" target="_blank">-->
+                        <!--<i class="iconfont">&#xe6a2;</i>新建绘图-->
+                    <!--</a>-->
+                <!--</dd>-->
+
+            <!--</dl>-->
+        <!--</li>-->
     </ul>
 
     <ul class="layui-nav right" lay-filter="">
@@ -54,17 +61,19 @@
 <div class="page-content">
     <div class="layui-tab tab" lay-filter="xbs_tab" lay-allowclose="false">
         <div class="layui-form-item" style="margin-top: 5px">
-            <div class="layui-inline">
+            <div class="layui-inline" style="text-align: right">
 
                 <div class="layui-inline">
 
                 </div>
                 <div class="layui-input-inline">
 
-                    <input type="tel" name="phone" lay-verify="required|phone" placeholder="搜索关键字" autocomplete="off" class="layui-input">
+                    <input id="searchKey" lay-verify="required|phone" placeholder="搜索关键字" autocomplete="off"
+                           class="layui-input">
                 </div>
                 <div class="layui-inline layui-show-xs-block">
-                    <button class="layui-btn"  lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i></button>
+                    <button onclick="refreshFrame()" class="layui-btn" lay-submit="" lay-filter="sreach"><i class="layui-icon">&#xe615;</i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -127,6 +136,10 @@
         xmlhttp.open("GET", "/user/unregister", true);
         xmlhttp.send();
         window.location.href = "login.html";
+    }
+
+    function refreshFrame(){
+        document.getElementById('contentid').contentWindow.location.reload(true);
     }
 </script>
 

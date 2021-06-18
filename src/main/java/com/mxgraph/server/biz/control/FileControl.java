@@ -2,14 +2,12 @@ package com.mxgraph.server.biz.control;
 
 import com.alibaba.fastjson.JSONObject;
 import com.mxgraph.server.biz.bean.DrawData;
-import com.mxgraph.server.biz.bean.PageData;
 import com.mxgraph.server.biz.service.DrawDataService;
 import com.mxgraph.server.biz.utils.*;
 import com.mxgraph.server.config.CoralConfig;
 import com.mxgraph.server.utils.HttpUtil;
 import com.mxgraph.server.utils.SessionUtils;
 import com.mysql.jdbc.StringUtils;
-import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 import java.util.UUID;
 
 import static com.mxgraph.server.utils.SvgCon.SVG_IMG;
@@ -127,7 +123,7 @@ public class FileControl {
             String title = drawJson.getString("title");
             String data = drawJson.getString("data");
             String svgData = drawJson.getString("svgData");
-            if (StringUtils.isNullOrEmpty(data) || StringUtils.isNullOrEmpty(svgData)){
+            if (StringUtils.isNullOrEmpty(data) || StringUtils.isNullOrEmpty(svgData)) {
                 response.sendError(400);
             }
             DrawData drawData = dataService.findByUuid(id);
@@ -166,7 +162,7 @@ public class FileControl {
                                      @ModelAttribute SearchVo searchVo,
                                      @ModelAttribute PageVo pageVo, HttpServletRequest request) {
         String id = SessionUtils.getCurUid(request);
-        if (StringUtils.isNullOrEmpty(id)){
+        if (StringUtils.isNullOrEmpty(id)) {
             id = ownerId;
         }
         Page<DrawData> drawDataPage = dataService.findByOwnerIdConfition(id, searchVo, PageUtil.initPage(pageVo));

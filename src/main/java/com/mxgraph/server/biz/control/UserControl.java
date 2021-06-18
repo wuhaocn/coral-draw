@@ -16,7 +16,6 @@ import java.io.IOException;
 
 /**
  *
- *
  */
 @RestController
 @RequestMapping("/user")
@@ -37,18 +36,18 @@ public class UserControl {
     @PostMapping("/register")
     public void get(DrawUser drawUser, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
-        if (drawUser == null){
-            response.setHeader("Location", "/admin/index/register.html");
+        if (drawUser == null) {
+            response.setHeader("Location", ControlConstant.ADMIN_REG_PAGE);
         }
         DrawUser drawUserSelect = drawUserService.findByUser(drawUser.getUser());
-        if (drawUserSelect != null){
-            response.setHeader("Location", "/admin/index/register.html");
+        if (drawUserSelect != null) {
+            response.setHeader("Location", ControlConstant.ADMIN_REG_PAGE);
         } else {
 
             drawUser.setUid(UidUtils.getUid(drawUser.getUser()));
             drawUser.setName(drawUser.getUser());
             drawUserService.save(drawUser);
-            response.setHeader("Location", "/admin/index/login.html");
+            response.setHeader("Location", ControlConstant.ADMIN_LOGIN_PAGE);
 
         }
     }
@@ -57,26 +56,26 @@ public class UserControl {
     @PostMapping("/check")
     public void save(DrawUser drawUser, HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
-        if (drawUser == null){
-            response.setHeader("Location", "/admin/index/login.html");
+        if (drawUser == null) {
+            response.setHeader("Location", ControlConstant.ADMIN_LOGIN_PAGE);
             return;
         }
         //为空生成id
         //获取内容
-        drawUser  = drawUserService.checkByUserPass(drawUser.getUser(), drawUser.getPass());
-        if (drawUser == null){
-            response.setHeader("Location", "/admin/index/login.html");
+        drawUser = drawUserService.checkByUserPass(drawUser.getUser(), drawUser.getPass());
+        if (drawUser == null) {
+            response.setHeader("Location", ControlConstant.ADMIN_LOGIN_PAGE);
             return;
         }
         request.getSession().setAttribute(CoralConfig.SESSION_KEY, drawUser);
-        response.setHeader("Location", "/admin/index/index.html");
+        response.setHeader("Location", ControlConstant.ADMIN_INDEX_PAGE);
     }
 
     @GetMapping("/unregister")
     public void unregister(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setStatus(302);
         request.getSession().removeAttribute(CoralConfig.SESSION_KEY);
-        response.setHeader("Location", "/admin/index/login.html");
+        response.setHeader("Location", ControlConstant.ADMIN_LOGIN_PAGE);
     }
 
 
@@ -85,7 +84,7 @@ public class UserControl {
     public DrawResult save(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Object drawUser = request.getSession().getAttribute(CoralConfig.SESSION_KEY);
         DrawResult<DrawUser> drawResult = null;
-        if (drawUser == null){
+        if (drawUser == null) {
             drawResult = new DrawResult(404, "Not Found");
         } else {
             drawResult = new DrawResult(0, drawUser);

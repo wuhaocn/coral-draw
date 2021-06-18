@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html class="x-admin-sm">
+
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎页面-X-admin2.2</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width,user-scalable=yes, minimum-scale=0.4, initial-scale=0.8,target-densitydpi=low-dpi"/>
+    <link rel="stylesheet" href="./css/font.css">
+    <link rel="stylesheet" href="./css/xadmin.css">
+    <script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="./js/xadmin.js"></script>
+    <!-- 让IE8/9支持媒体查询，从而兼容栅格 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.staticfile.org/html5shiv/r29/html5.min.js"></script>
+    <script src="https://cdn.staticfile.org/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+
+<div class="layui-col-md2">
+    <div class="layui-card">
+        <div class="layui-card-header" style="text-align: center"><b>DRAW_TABLE_NAME</b></div>
+        <div class="layui-card-body" style="text-align: center">
+            <img width="150px" height="120px" src="/file/get/img/DRAW_TABLE_UUID">
+        </div>
+        <div style="text-align: center; font-size: 1px; color: #8f94a1">DRAW_TABLE_TIME</div>
+        <div id="DRAW_TABLE_ID_DIV" onmouseleave="setBlock('ldtbdr17', 'ldtbdw17')"
+             style="text-align: center; margin-top: 2px; display: none">
+            <button onclick="shareDraw('DRAW_TABLE_UUID','DRAW_TABLE_USERID')"
+                    type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon layui-icon-share"></i>
+            </button>
+            <button onclick="editDraw('DRAW_TABLE_UUID','DRAW_TABLE_USERID')"
+                    type="button" class="layui-btn layui-btn-normal layui-btn-sm">
+                <i class="layui-icon layui-icon-edit"></i>
+            </button>
+            <button onclick="deleteDraw('DRAW_TABLE_UUID','DRAW_TABLE_USERID')"
+                    type="button" class="layui-btn layui-btn-danger layui-btn-sm">
+                <i class="layui-icon layui-icon-delete"></i>
+            </button>
+        </div>
+        <div id="DRAW_TABLE_ID_BTN" onclick="setEdit('DRAW_TABLE_ID_DIV', 'DRAW_TABLE_ID_BTN')"
+             style="text-align: center; margin-top: 10px">
+            <button type="button" class="layui-btn layui-btn-edit layui-btn-radius layui-btn-sm">
+                <i class="layui-icon  layui-icon-edit"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+</html>
