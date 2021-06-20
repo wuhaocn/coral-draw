@@ -2,14 +2,14 @@ var total = 0;
 var pageNumber = 1;
 var pageSize = 18;
 
-function setEdit(rid, wid) {
-    document.getElementById(rid).style.display = "none";
-    document.getElementById(wid).style.display = "";
+function setBlock(iddiv, idbtn) {
+    document.getElementById(iddiv).style.display = "none";
+    document.getElementById(idbtn).style.display = "";
 }
 
-function setBlock(rid, wid) {
-    document.getElementById(rid).style.display = "";
-    document.getElementById(wid).style.display = "none";
+function setEdit(iddiv, idbtn) {
+    document.getElementById(iddiv).style.display = "";
+    document.getElementById(idbtn).style.display = "none";
 }
 
 function shareDraw(uuid, ownerId) {
@@ -126,12 +126,12 @@ function drawHubList(xmlhttp) {
         var dataName = drawJson.content[drawIndex].name;
         var editAble = window.parent.document.getElementById("editAble").value;
         var imgUrl = "/file/get/img/" + uuid;
-        var cardData = static_cardshow.replace("DRAW_TABLE_UUID", uuid);
-        cardData = cardData.replace("DRAW_TABLE_ID_DIV", wdiv);
-        cardData = cardData.replace("DRAW_TABLE_ID_BTN", rdiv);
-        cardData = cardData.replace("DRAW_TABLE_USERID", ownerId);
-        cardData = cardData.replace("DRAW_TABLE_NAME", dataName);
-        cardData = cardData.replace("DRAW_TABLE_TIME", updateTime);
+        var cardData = static_cardshow.replace(/DRAW_TABLE_UUID/g, uuid);
+        cardData = cardData.replace(/DRAW_TABLE_ID_DIV/g, wdiv);
+        cardData = cardData.replace(/DRAW_TABLE_ID_BTN/g, rdiv);
+        cardData = cardData.replace(/DRAW_TABLE_USERID/g, ownerId);
+        cardData = cardData.replace(/DRAW_TABLE_NAME/g, dataName);
+        cardData = cardData.replace(/DRAW_TABLE_TIME/g, updateTime);
         tableData += cardData;
     }
     document.getElementById("drawTable").innerHTML = tableData;
@@ -161,7 +161,7 @@ var static_cardshow = " <div class=\"layui-col-md2\">\n" +
     "                <img width=\"150px\" height=\"120px\" src=\"/file/get/img/DRAW_TABLE_UUID\">\n" +
     "            </div>\n" +
     "            <div style=\"text-align: center; font-size: 1px; color: #8f94a1\">DRAW_TABLE_TIME</div>\n" +
-    "            <div id=\"DRAW_TABLE_ID_DIV\" onmouseleave=\"setBlock('ldtbdr17', 'ldtbdw17')\"\n" +
+    "            <div id=\"DRAW_TABLE_ID_DIV\" onmouseleave=\"setBlock('DRAW_TABLE_ID_DIV', 'DRAW_TABLE_ID_BTN')\"\n" +
     "                 style=\"text-align: center; margin-top: 2px; display: none\">\n" +
     "                <button onclick=\"shareDraw('DRAW_TABLE_UUID','DRAW_TABLE_USERID')\"\n" +
     "                        type=\"button\" class=\"layui-btn layui-btn-primary layui-btn-sm\">\n" +
