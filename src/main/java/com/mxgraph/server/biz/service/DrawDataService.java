@@ -11,7 +11,8 @@ import java.util.List;
 public interface DrawDataService extends DrawBaseService<DrawData,String> {
 
     /**
-     * 获取拥有者笔记本
+     * 获取拥有者绘图数据
+     *
      * @param ownerId
      * @return
      */

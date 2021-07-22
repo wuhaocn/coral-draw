@@ -12,8 +12,10 @@ import javax.persistence.*;
 @ApiModel(value = "绘图")
 public class DrawData extends DrawBaseEntity {
 
+    @Column(unique=true, length = 64)
     private String uuid;
 
+    @Column(unique=true, length = 64)
     private String ownerId;
 
     private String type;

@@ -46,10 +46,6 @@ public abstract class DrawBaseEntity implements Serializable{
     @ApiModelProperty(value = "删除标志 默认0")
     private Integer delFlag = 0;
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
     public long getId() {
         return id;
     }
