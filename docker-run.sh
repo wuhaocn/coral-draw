@@ -20,7 +20,7 @@ docker run --privileged=true \
            -p 8082:8082 \
            -d --name coral-drawhub \
            --env DB_HOST='10.3.4.111:3307' \
-           wuhaocn/coral-drawhub:3.0.0-2106211325
+           wuhaocn/coral-drawhub:3.0.0-2107221152
 docker update coral-drawhub --restart=always
 
 docker logs -f coral-drawhub
