@@ -39,8 +39,6 @@ docker run --privileged=true \
            wuhaocn/coral-drawhub:3.0.0-2107221152
 docker update coral-drawhub --restart=always
 
-docker update coral-drawhub --restart=always
-
 docker logs -f coral-drawhub
 ```
 
