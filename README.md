@@ -25,7 +25,7 @@ docker update coral-drawhubdb --restart=always
 
 * step3 创建数据库 
   
-  数据库工具连接创建：DrawDB [root coral@2018],[数据库表自动生成]【重要】
+  数据库工具连接创建：DrawDB [user:root pwd:coral@2018],[数据库表自动生成]【重要】
   
 * step4  安装服务
 
