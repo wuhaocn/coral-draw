@@ -17,9 +17,9 @@ docker update coral-drawhubdb --restart=always
 docker stop coral-drawhub
 docker rm coral-drawhub
 docker run --privileged=true \
-           -p 8082:8082 \
+           -p 8888:8082 \
            -d --name coral-drawhub \
-           --env DB_HOST='10.3.4.111:3307' \
+           --env DB_HOST='10.40.1.20:3333' \
            wuhaocn/coral-drawhub:3.0.0-2109141820
 docker update coral-drawhub --restart=always
 
