@@ -38,8 +38,20 @@ docker run --privileged=true \
            --env DB_HOST='10.3.4.111:3307' \
            wuhaocn/coral-drawhub:3.0.0-2109271106
 docker update coral-drawhub --restart=always
-
 docker logs -f coral-drawhub
+
+docker stop coral-drawhub
+docker rm coral-drawhub
+docker run --privileged=true \
+           -p 8082:8082 \
+           -d --name coral-drawhub \
+           --env DB_HOST='10.3.4.111:3307' \
+           --env DB_USER='root' \
+           --env DB_PWD='coral@2018' \
+           wuhaocn/coral-drawhub:3.0.0-2201112126
+docker update coral-drawhub --restart=always
+docker logs -f coral-drawhub
+
 ```
 
 *  step5 验证服务
