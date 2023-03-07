@@ -26,7 +26,6 @@ buildscript {
     }
 }
 
-
 apply plugin: 'docker'
 
 version = "3.0.0-$versionTail"
@@ -66,10 +65,8 @@ task buildDocker(type: Docker, dependsOn: buildRunJar) {
 dependencies {
 
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springboot_version
-
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: springboot_version
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-quartz', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springboot_version
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version: springboot_version
     compile(group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '2.3.3') {
@@ -77,11 +74,8 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-jdbc'
 
     }
-
-
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.31'
     
-    compile group: 'org.jsoup', name: 'jsoup', version: '1.9.2'
     compile 'org.apache.httpcomponents:httpasyncclient:4.1'
     compile 'org.apache.httpcomponents:httpclient:4.5'
     compile 'org.apache.httpcomponents:httpmime:4.5'
@@ -92,18 +86,10 @@ dependencies {
         exclude group: 'io.swagger', module: 'swagger-models'
     }
     compile 'io.swagger:swagger-models:1.5.21'
-    
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.2'
-
-    compile group: 'com.google.appengine', name: 'appengine-api-1.0-sdk', version: '1.9.63'
     compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
-
-    compile files('lib/gae-stub-1.0.1.jar')
-    compile files('lib/gson-2.7.jar')
-    compile files('lib/mxgraph-core.jar')
-    compile files('lib/pusher-http-java-1.0.0.jar')
-    compile files('lib/mxPdf.jar')
+    compile 'com.google.code.gson:gson:2.10'
+    
 
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.0.3.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.12'

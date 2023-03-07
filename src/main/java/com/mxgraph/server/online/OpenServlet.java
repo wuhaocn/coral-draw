@@ -4,12 +4,6 @@
  */
 package com.mxgraph.server.online;
 
-import com.mxgraph.io.mxCodec;
-import com.mxgraph.server.io.gliffy.importer.GliffyDiagramConverter;
-import com.mxgraph.server.io.mxGraphMlCodec;
-import com.mxgraph.server.view.mxGraphHeadless;
-import com.mxgraph.util.mxXmlUtils;
-import com.mxgraph.view.mxGraph;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -86,7 +80,6 @@ public class OpenServlet {
     }
 
     /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @PostMapping
     public void doPost(HttpServletRequest request,
@@ -129,20 +122,6 @@ public class OpenServlet {
                 if (filename.toLowerCase().endsWith(".png")) {
                     xml = extractXmlFromPng(
                             upfile.getBytes(Utils.CHARSET_FOR_URL_ENCODING));
-                } else if (upfile != null) {
-                    if (ENABLE_GRAPHML_SUPPORT && upfile.matches(graphMlRegex)) {
-                        // Creates a graph that contains a model but does not validate
-                        // since that is not needed for the model and not allowed on GAE
-                        mxGraph graph = new mxGraphHeadless();
-
-                        mxGraphMlCodec.decode(mxXmlUtils.parseXml(upfile), graph);
-                        xml = mxXmlUtils
-                                .getXml(new mxCodec().encode(graph.getModel()));
-                    } else if (ENABLE_GLIFFY_SUPPORT && upfile.matches(gliffyRegex)) {
-                        GliffyDiagramConverter converter = new GliffyDiagramConverter(
-                                upfile);
-                        xml = converter.getGraphXml();
-                    }
                 }
 
                 // Fallback to old data parameter

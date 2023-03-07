@@ -177,7 +177,6 @@ public class EmbedServlet {
     }
 
     /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @GetMapping
     protected void doGet(HttpServletRequest request,

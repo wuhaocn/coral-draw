@@ -1,6 +1,5 @@
 package com.mxgraph.server.online;
 
-import com.mxgraph.util.mxBase64;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -48,8 +47,6 @@ public class SaveServlet{
     }
 
     /**
-     * @param request
-     * @param response
      * @throws ServletException
      * @throws IOException
      */

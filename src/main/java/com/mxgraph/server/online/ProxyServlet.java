@@ -5,7 +5,6 @@
 package com.mxgraph.server.online;
 
 import com.google.apphosting.api.DeadlineExceededException;
-import com.mxgraph.server.online.Utils.UnsupportedContentException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -54,7 +53,6 @@ public class ProxyServlet{
     }
 
     /**
-     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
     @GetMapping
     public void doGet(HttpServletRequest request,
@@ -139,7 +137,7 @@ public class ProxyServlet{
             } catch (UnknownHostException | FileNotFoundException e) {
                 // do not log 404 and DNS errors
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            } catch (UnsupportedContentException e) {
+            } catch (Utils.UnsupportedContentException e) {
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 log.log(Level.SEVERE, "proxy request with invalid content: url="
                         + ((urlParam != null) ? urlParam : "[null]")

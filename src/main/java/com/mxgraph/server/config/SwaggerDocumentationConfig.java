@@ -15,8 +15,8 @@ public class SwaggerDocumentationConfig {
 
     ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("CoralDraw Service")
-                .description("CoralDraw Service. © 2020).")
+                .title("Draw Service")
+                .description("Draw Service. © 2023).")
                 .build();
     }
 

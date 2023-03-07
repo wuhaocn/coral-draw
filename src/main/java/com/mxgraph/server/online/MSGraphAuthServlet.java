@@ -126,7 +126,7 @@ public class MSGraphAuthServlet
 				throw new RuntimeException("Dev client ID invalid.");
 			}
 		}
-		
+
 		if (CLIENT_ID == null)
 		{
 			try
@@ -154,7 +154,7 @@ public class MSGraphAuthServlet
 		String refreshToken = request.getParameter("refresh_token");
 		updateKeys(request);
 		String secret, client, redirectUri;
-		
+
 		if ("127.0.0.1".equals(request.getServerName()))
 		{
 			secret = DEV_CLIENT_SECRET;
@@ -167,7 +167,7 @@ public class MSGraphAuthServlet
 			client = CLIENT_ID;
 			redirectUri = REDIRECT_URI;
 		}
-		
+
 
 		if (code == null && refreshToken == null)
 		{
@@ -180,20 +180,20 @@ public class MSGraphAuthServlet
 				String url = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 				URL obj = new URL(url);
 				HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-	
+
 				con.setRequestMethod("POST");
 				con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-	
+
 				boolean jsonResponse = false;
 				StringBuilder urlParameters = new StringBuilder();
-				
+
 				urlParameters.append("client_id=");
 				urlParameters.append(client);
 				urlParameters.append("&redirect_uri=");
 				urlParameters.append(redirectUri);
 				urlParameters.append("&client_secret=");
 				urlParameters.append(secret);
-				
+
 				if (code != null)
 				{
 					urlParameters.append("&code=");
@@ -207,33 +207,33 @@ public class MSGraphAuthServlet
 					urlParameters.append("&grant_type=refresh_token");
 					jsonResponse = true;
 				}
-				
+
 				// Send post request
 				con.setDoOutput(true);
 				DataOutputStream wr = new DataOutputStream(con.getOutputStream());
 				wr.writeBytes(urlParameters.toString());
 				wr.flush();
 				wr.close();
-	
+
 				BufferedReader in = new BufferedReader(
 						new InputStreamReader(con.getInputStream()));
 				String inputLine;
 				StringBuffer res = new StringBuffer();
-	
+
 				//Call the opener callback function directly with the given json
 				if (!jsonResponse)
 				{
 					res.append("<!DOCTYPE html><html><head><script src=\"https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js\" type=\"text/javascript\"></script><script>");
 					res.append("var authInfo = ");  //The following is a json containing access_token and redresh_token
 				}
-				
-				
+
+
 				while ((inputLine = in.readLine()) != null)
 				{
 					res.append(inputLine);
 				}
 				in.close();
-	
+
 				if (!jsonResponse)
 				{
 					res.append(";");					
@@ -245,16 +245,16 @@ public class MSGraphAuthServlet
 					res.append("}");
 					res.append("</script></head><body></body></html>");
 				}
-	
+
 				response.setStatus(con.getResponseCode());
-				
+
 				OutputStream out = response.getOutputStream();
-	
+
 				PrintWriter writer = new PrintWriter(out);
-	
+
 				// Writes JavaScript code
 				writer.println(res.toString());
-	
+
 				writer.flush();
 				writer.close();
 			}
