@@ -4,7 +4,6 @@
  */
 package com.mxgraph.server.online;
 
-import com.google.apphosting.api.DeadlineExceededException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -132,18 +131,7 @@ public class ProxyServlet{
                         + ((urlParam != null) ? urlParam : "[null]")
                         + ", referer=" + ((ref != null) ? ref : "[null]")
                         + ", user agent=" + ((ua != null) ? ua : "[null]"));
-            } catch (DeadlineExceededException e) {
-                response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
-            } catch (UnknownHostException | FileNotFoundException e) {
-                // do not log 404 and DNS errors
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            } catch (Utils.UnsupportedContentException e) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                log.log(Level.SEVERE, "proxy request with invalid content: url="
-                        + ((urlParam != null) ? urlParam : "[null]")
-                        + ", referer=" + ((ref != null) ? ref : "[null]")
-                        + ", user agent=" + ((ua != null) ? ua : "[null]"));
-            } catch (Exception e) {
+            }  catch (Exception e) {
                 response.setStatus(
                         HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 log.log(Level.FINE, "proxy request failed: url="

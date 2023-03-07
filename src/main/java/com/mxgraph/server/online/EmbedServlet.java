@@ -19,7 +19,6 @@
  */
 package com.mxgraph.server.online;
 
-import com.google.appengine.api.utils.SystemProperty;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,7 +78,7 @@ public class EmbedServlet {
     public EmbedServlet() {
         if (lastModified == null) {
             // Uses deployment date as lastModified header
-            String applicationVersion = SystemProperty.applicationVersion.get();
+            String applicationVersion = "";
             Date uploadDate = new Date(Long
                     .parseLong(applicationVersion
                             .substring(applicationVersion.lastIndexOf(".") + 1))
